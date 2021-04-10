@@ -3,7 +3,7 @@ package it.unimib.musictaste;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-
+//commit
 public class MainActivity extends AppCompatActivity {
 
     @Override
