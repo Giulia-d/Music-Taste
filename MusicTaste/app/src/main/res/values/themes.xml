@@ -9,7 +9,7 @@
         <item name="colorSecondaryVariant"></item>
         <item name="colorOnSecondary"></item>-->
         <!-- Status bar color. -->
-        <!--<item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/DarkGray</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>
