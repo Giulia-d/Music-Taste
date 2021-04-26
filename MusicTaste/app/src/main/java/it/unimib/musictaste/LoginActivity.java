@@ -55,7 +55,12 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String email = mEmail.getText().toString();
+                String password = mPassword.getText().toString();
+                if(!(email.matches("") && password.matches("")))
+                    signIn(email, password);
+                else
+                    emptyField();
             }
         });
         signInButton = findViewById(R.id.sign_in_button);
@@ -161,5 +166,31 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+    private void signIn(String email, String password) {
+        // [START sign_in_with_email]
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+                    }
+                });
+        // [END sign_in_with_email]
+    }
+
+    private void emptyField(){
+        Toast.makeText(this,"The fields can't be empty",Toast.LENGTH_LONG).show();
     }
 }

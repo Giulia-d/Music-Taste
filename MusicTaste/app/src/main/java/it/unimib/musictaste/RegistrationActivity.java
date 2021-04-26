@@ -33,22 +33,23 @@ public class RegistrationActivity extends AppCompatActivity {
         mRegEmail = findViewById(R.id.etRegEmail);
         mRegPassword = findViewById(R.id.etRegPassword);
 
-        String email = mRegEmail.getText().toString();
-        String password = mRegPassword.getText().toString();
+
 
         btnRegSignIn = findViewById(R.id.btnRegSignIn);
         btnRegSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(email!=null && password != null)
+                String email = mRegEmail.getText().toString();
+                String password = mRegPassword.getText().toString();
+                if(!(email.matches("") && password.matches("")))
                     createAccount(email, password);
                 else
-                    reload();
+                   emptyField();
             }
         });
 
     }
-
+/*
     @Override
     public void onStart() {
         super.onStart();
@@ -58,12 +59,10 @@ public class RegistrationActivity extends AppCompatActivity {
             reload();
         }
     }
-
-    private void reload(){
-        Toast.makeText(this,"U are already sign in",Toast.LENGTH_LONG).show();
-        startActivity(new Intent(this,LoginActivity.class));
+*/
+    private void emptyField(){
+        Toast.makeText(this,"The fields can't be empty",Toast.LENGTH_LONG).show();
     }
-
     private void createAccount(String email, String password) {
         // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
