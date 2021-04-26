@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.identity.SignInClient;
@@ -33,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
+    TextView mSignIn;
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
@@ -64,6 +66,19 @@ public class LoginActivity extends AppCompatActivity {
             signIn();
             }
         });
+
+        mSignIn = findViewById(R.id.tvSingIn);
+        mSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchActivities();
+            }
+        });
+    }
+
+    private void switchActivities() {
+        Intent switchActivityIntent = new Intent(this, RegistrationActivity.class);
+        startActivity(switchActivityIntent);
     }
 
     private void signIn() {
