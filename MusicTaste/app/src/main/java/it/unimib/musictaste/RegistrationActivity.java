@@ -45,7 +45,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 String password = mRegPassword.getText().toString();
                 String name =mRegName.getText().toString();
                 if(!(email.matches("") || password.matches("") || password.length() < 6 || !email.contains("@") || name.matches(""))) {
-                    createAccount(email, password);
+                    createAccount(email, password, name);
                     //updateProfile(name);
                 }
                 else
@@ -73,7 +73,7 @@ public class RegistrationActivity extends AppCompatActivity {
             else if(!email.contains("@"))
             Toast.makeText(this, R.string.EmailNotValid,Toast.LENGTH_LONG).show();
     }
-    private void createAccount(String email, String password) {
+    private void createAccount(String email, String password, String name) {
         // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -83,7 +83,7 @@ public class RegistrationActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            /*UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(name).build();
 
                             user.updateProfile(profileUpdates)
@@ -94,7 +94,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                                 Log.d(TAG, "User profile updated.");
                                             }
                                         }
-                                    });*/
+                                    });
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
