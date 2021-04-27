@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
@@ -17,9 +18,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegistrationActivity extends AppCompatActivity {
 
+    EditText mRegName;
     EditText mRegEmail;
     EditText mRegPassword;
     Button btnRegSignIn;
@@ -32,8 +35,7 @@ public class RegistrationActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mRegEmail = findViewById(R.id.etRegEmail);
         mRegPassword = findViewById(R.id.etRegPassword);
-
-
+        mRegName = findViewById(R.id.etRegName);
 
         btnRegSignIn = findViewById(R.id.btnRegSignIn);
         btnRegSignIn.setOnClickListener(new View.OnClickListener() {
@@ -41,10 +43,13 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = mRegEmail.getText().toString();
                 String password = mRegPassword.getText().toString();
-                if(!(email.matches("") || password.matches("") || password.length() < 6 || !email.contains("@")))
+                String name =mRegName.getText().toString();
+                if(!(email.matches("") || password.matches("") || password.length() < 6 || !email.contains("@") || name.matches(""))) {
                     createAccount(email, password);
+                    //updateProfile(name);
+                }
                 else
-                   emptyField(email, password);
+                   emptyField(email, password, name);
             }
         });
 
@@ -60,8 +65,8 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 */
-    private void emptyField(String email, String password){
-        if((email.matches("") || password.matches("")))
+    private void emptyField(String email, String password, String name){
+        if((email.matches("") || password.matches("") || name.matches("")))
             Toast.makeText(this, R.string.EmptyField,Toast.LENGTH_LONG).show();
         else if(password.length() < 6)
             Toast.makeText(this, R.string.PasLength,Toast.LENGTH_LONG).show();
@@ -77,7 +82,19 @@ public class RegistrationActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            /*UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(name).build();
+
+                            user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d(TAG, "User profile updated.");
+                                            }
+                                        }
+                                    });*/
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -104,4 +121,27 @@ public void updateUI(FirebaseUser account){
         }
 
     }
+
+    public void updateProfile(String name) {
+        // [START update_profile]
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        Toast.makeText(this, "Primo",Toast.LENGTH_SHORT).show();
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(name).build();
+                //.setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+
+        Toast.makeText(this, "Secondo",Toast.LENGTH_SHORT).show();
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User profile updated.");
+                        }
+                    }
+                });
+        updateUI(user);
+        // [END update_profile]
+    }
 }
+

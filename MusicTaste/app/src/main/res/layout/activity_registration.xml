@@ -8,6 +8,22 @@
     tools:context=".RegistrationActivity">
 
     <EditText
+        android:id="@+id/etRegName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/Username"
+        android:importantForAutofill="no"
+        android:textColor="@color/LightGray"
+        android:textColorHint="#E1E1E1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.223"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.185" />
+
+    <EditText
         android:id="@+id/etRegEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,7 +38,7 @@
         app:layout_constraintHorizontal_bias="0.223"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.18" />
+        app:layout_constraintVertical_bias="0.327" />
 
     <EditText
         android:id="@+id/etRegPassword"
@@ -39,7 +55,7 @@
         app:layout_constraintHorizontal_bias="0.223"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etRegEmail"
-        app:layout_constraintVertical_bias="0.123" />
+        app:layout_constraintVertical_bias="0.122" />
 
     <Button
         android:id="@+id/btnRegSignIn"

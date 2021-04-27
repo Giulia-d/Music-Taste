@@ -11,4 +11,5 @@
     <string name="AutFail">Authentication failed</string>
     <string name="AutSucc">Authentication was a success</string>
     <string name="EmailNotValid">The email written is not valid</string>
+    <string name="Username" translatable="false">Username</string>
 </resources>
