@@ -4,4 +4,11 @@
     <string name="Password">Password</string>
     <string name="Login">Login</string>
     <string name="SignIn">Sign In</string>
+    <string name="Setting">Setting</string>
+    <string name="SignOut">Sign Out</string>
+    <string name="EmptyField">The fields can\'t be empty</string>
+    <string name="PasLength">The password must be at least 6 characters long</string>
+    <string name="AutFail">Authentication failed</string>
+    <string name="AutSucc">Authentication was a success</string>
+    <string name="EmailNotValid">The email written is not valid</string>
 </resources>

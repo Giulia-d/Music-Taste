@@ -41,10 +41,10 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = mRegEmail.getText().toString();
                 String password = mRegPassword.getText().toString();
-                if(!(email.matches("") && password.matches("")))
+                if(!(email.matches("") || password.matches("") || password.length() < 6 || !email.contains("@")))
                     createAccount(email, password);
                 else
-                   emptyField();
+                   emptyField(email, password);
             }
         });
 
@@ -60,8 +60,13 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 */
-    private void emptyField(){
-        Toast.makeText(this,"The fields can't be empty",Toast.LENGTH_LONG).show();
+    private void emptyField(String email, String password){
+        if((email.matches("") || password.matches("")))
+            Toast.makeText(this, R.string.EmptyField,Toast.LENGTH_LONG).show();
+        else if(password.length() < 6)
+            Toast.makeText(this, R.string.PasLength,Toast.LENGTH_LONG).show();
+            else if(!email.contains("@"))
+            Toast.makeText(this, R.string.EmailNotValid,Toast.LENGTH_LONG).show();
     }
     private void createAccount(String email, String password) {
         // [START create_user_with_email]
@@ -77,7 +82,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegistrationActivity.this, "Authentication failed.",
+                            Toast.makeText(RegistrationActivity.this, R.string.AutFail,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -91,11 +96,11 @@ public class RegistrationActivity extends AppCompatActivity {
 public void updateUI(FirebaseUser account){
 
         if(account != null){
-            Toast.makeText(this,"U Signed In successfully",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.AutSucc,Toast.LENGTH_LONG).show();
             startActivity(new Intent(this,MainActivity.class));
 
         }else {
-            Toast.makeText(this,"U Didnt signed in",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.AutFail,Toast.LENGTH_LONG).show();
         }
 
     }

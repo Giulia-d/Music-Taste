@@ -131,11 +131,11 @@ public class LoginActivity extends AppCompatActivity {
     public void updateUI(FirebaseUser account){
 
         if(account != null){
-            Toast.makeText(this,"U Signed In successfully",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.AutSucc,Toast.LENGTH_LONG).show();
             startActivity(new Intent(this,MainActivity.class));
 
         }else {
-            Toast.makeText(this,"U Didnt signed in",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.AutFail,Toast.LENGTH_LONG).show();
         }
 
     }
@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginActivity.this, R.string.AutFail,
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -191,6 +191,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void emptyField(){
-        Toast.makeText(this,"The fields can't be empty",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.EmptyField,Toast.LENGTH_LONG).show();
     }
 }

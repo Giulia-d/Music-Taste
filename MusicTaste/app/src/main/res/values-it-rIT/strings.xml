@@ -5,4 +5,11 @@
     <string name="Password">Password</string>
     <string name="Login">Accedi</string>
     <string name="SignIn">Registrati</string>
+    <string name="Setting">Impostazioni</string>
+    <string name="SignOut">Disconnetti</string>
+    <string name="EmptyField">I campi non possono essere vuoti</string>
+    <string name="PasLength">La password deve essere lunga almeno 6 caratteri</string>
+    <string name="AutFail">Autenticazione fallita</string>
+    <string name="AutSucc">Autenticazione eseguita con successo</string>
+    <string name="EmailNotValid">L\'email inserita non è valida</string>
 </resources>
