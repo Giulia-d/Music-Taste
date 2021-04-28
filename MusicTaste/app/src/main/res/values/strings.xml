@@ -6,10 +6,14 @@
     <string name="SignIn">Sign In</string>
     <string name="Setting">Setting</string>
     <string name="SignOut">Sign Out</string>
+    <string name="Name">Name</string>
+    <string name="Surname">Surname</string>
+    <string name="AccountImage">Account Image</string>
     <string name="EmptyField">The fields can\'t be empty</string>
     <string name="PasLength">The password must be at least 6 characters long</string>
     <string name="AutFail">Authentication failed</string>
     <string name="AutSucc">Authentication was a success</string>
     <string name="EmailNotValid">The email written is not valid</string>
+
     <string name="Username" translatable="false">Username</string>
 </resources>

@@ -12,12 +12,14 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
-
+import android.content.Intent;
 public class SettingActivity extends AppCompatActivity {
 
     Button btnSignOut;
     Button btnName;
     Button btnNameEmailPass;
+    //add by Anto
+    Button btnAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,25 @@ public class SettingActivity extends AppCompatActivity {
                 getUserProfile();
             }
         });
+
+        //add by Anto
+        btnAccount = findViewById(R.id.btnAccount);
+        btnAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchActivities();
+            }
+        });
+
+
     }
+    //add by Anto
+    private void switchActivities() {
+        Intent switchActivityIntent = new Intent(this, AccountActivity.class);
+        startActivity(switchActivityIntent);
+    }
+
+
 
     public void signOut() {
         FirebaseAuth.getInstance().signOut();

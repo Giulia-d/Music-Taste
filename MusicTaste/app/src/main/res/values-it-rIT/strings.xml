@@ -7,6 +7,9 @@
     <string name="SignIn">Registrati</string>
     <string name="Setting">Impostazioni</string>
     <string name="SignOut">Disconnetti</string>
+    <string name="Name">Nome</string>
+    <string name="Surname">Cognome</string>
+    <string name="AccountImage">Immagine Account</string>
     <string name="EmptyField">I campi non possono essere vuoti</string>
     <string name="PasLength">La password deve essere lunga almeno 6 caratteri</string>
     <string name="AutFail">Autenticazione fallita</string>
