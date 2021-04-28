@@ -13,6 +13,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import android.content.Intent;
+
+import it.unimib.musictaste.fragments.AccountFragment;
+
 public class SettingActivity extends AppCompatActivity {
 
     Button btnSignOut;
@@ -60,8 +63,10 @@ public class SettingActivity extends AppCompatActivity {
 
     }
     //add by Anto
+    // non credo serva più, in ogni caso avendo fatto un fragment al posto di un activity non
+    // possiamo switchare con gli intent
     private void switchActivities() {
-        Intent switchActivityIntent = new Intent(this, AccountActivity.class);
+        Intent switchActivityIntent = new Intent(getApplicationContext(), AccountFragment.class);
         startActivity(switchActivityIntent);
     }
 

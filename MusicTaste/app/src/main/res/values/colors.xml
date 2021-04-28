@@ -11,4 +11,5 @@
     <color name="Orange">#FF6900</color>
     <color name="LightGray">#C4C4C4</color>
     <color name="TextGray">#E5E5E5</color>
+    <color name="MiddleDarkGray">#44424D</color>
 </resources>

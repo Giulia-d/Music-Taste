@@ -15,4 +15,7 @@
     <string name="AutFail">Autenticazione fallita</string>
     <string name="AutSucc">Autenticazione eseguita con successo</string>
     <string name="EmailNotValid">L\'email inserita non è valida</string>
+    <string name="title_home">home</string>
+    <string name="title_search">cerca</string>
+    <string name="title_account">profilo</string>
 </resources>

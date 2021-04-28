@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicTaste">
-        <activity android:name=".AccountActivity"></activity>
         <activity android:name=".SettingActivity" />
         <activity android:name=".RegistrationActivity" />
         <activity android:name=".LoginActivity">
