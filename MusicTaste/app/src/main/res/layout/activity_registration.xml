@@ -61,7 +61,7 @@
         android:id="@+id/btnRegSignIn"
         android:layout_width="209dp"
         android:layout_height="48dp"
-        android:text="@string/SignIn"
+        android:text="@string/SignUp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

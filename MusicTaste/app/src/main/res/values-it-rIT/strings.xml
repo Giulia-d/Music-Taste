@@ -4,7 +4,7 @@
     <string name="Email">Email</string>
     <string name="Password">Password</string>
     <string name="Login">Accedi</string>
-    <string name="SignIn">Registrati</string>
+    <string name="SignUp">Non hai un account? Registrati</string>
     <string name="Setting">Impostazioni</string>
     <string name="SignOut">Disconnetti</string>
     <string name="Name">Nome</string>

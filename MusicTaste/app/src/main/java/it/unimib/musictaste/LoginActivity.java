@@ -65,6 +65,14 @@ public class LoginActivity extends AppCompatActivity {
         });
         signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
+        for (int i = 0; i < signInButton.getChildCount(); i++) {
+            View v = signInButton.getChildAt(i);
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                tv.setPadding(0, 8, 0, 0);
+                return;
+            }
+        }
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,10 +143,12 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this,MainActivity.class));
 
         }else {
-            Toast.makeText(this, R.string.AutFail,Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, R.string.AutFail,Toast.LENGTH_LONG).show();
         }
 
     }
+
+
     @Override
     public void onStart() {
         super.onStart();
