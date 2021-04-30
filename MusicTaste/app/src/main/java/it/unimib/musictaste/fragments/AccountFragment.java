@@ -10,10 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.SettingActivity;
@@ -31,7 +33,7 @@ public class AccountFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     ImageButton btnControl;
     TextView txtName;
-
+    ImageView imgAccount;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -88,6 +90,10 @@ public class AccountFragment extends Fragment {
             Log.d("user", "Photo:" + user.getPhotoUrl());
             txtName = root.findViewById(R.id.txtName);
             txtName.setText(user.getDisplayName());
+            imgAccount =root.findViewById(R.id.imgAccount);
+            if(user.getPhotoUrl()!=null){
+                Picasso.get().load(user.getPhotoUrl()).into(imgAccount);
+            }
 
 
 
