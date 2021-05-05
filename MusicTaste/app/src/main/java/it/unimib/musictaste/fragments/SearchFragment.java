@@ -80,7 +80,7 @@ public class SearchFragment extends Fragment {
 
 // Instantiate the RequestQueue.
 
-        String url ="https://api.genius.com/?q=tedua";
+        String url ="https://api.genius.com/search/?q=tedua/";
 
 // Request a string response from the provided URL.
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -104,7 +104,7 @@ public class SearchFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Content-Type", "application/json; charset=UTF-8");
+                //params.put("Content-Type", "application/json; charset=UTF-8");
                 params.put("Authorization", "Bearer " + Utils.ACCESS_TOKEN);
                 return params;
             }
