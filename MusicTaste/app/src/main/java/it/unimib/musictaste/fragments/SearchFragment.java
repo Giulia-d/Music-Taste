@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -18,11 +19,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import it.unimib.musictaste.R;
-import it.unimib.musictaste.Utils;
+import it.unimib.musictaste.utils.HandleAPICalls;
+import it.unimib.musictaste.utils.JSONParser;
+import it.unimib.musictaste.utils.Utils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,6 +36,7 @@ import it.unimib.musictaste.Utils;
  * create an instance of this fragment.
  */
 public class SearchFragment extends Fragment {
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -76,51 +83,34 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_search, container, false);
         final TextView textView = root.findViewById(R.id.text);
+        SearchView msvSearch = root.findViewById(R.id.svSearch);
+        CharSequence search = msvSearch.getQuery();
+        msvSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("Search", search.toString());
+                JSONObject resAPI = HandleAPICalls.querySearch(search.toString(), getContext());
+                try {
+                    JSONParser.displayResultAPI(resAPI);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        });
 // ...
 
 // Instantiate the RequestQueue.
 
-        String url ="https://api.genius.com/search/?q=tedua/";
-
-// Request a string response from the provided URL.
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (!response.equals(null)) {
-                    Log.d("Your Array Response", response);
-                } else {
-                    Log.e("Your Array Response", "Data Null");
-                }
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("error is ", "" + error);
-            }
-        }) {
-
-            //This is for Headers If You Needed
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                //params.put("Content-Type", "application/json; charset=UTF-8");
-                params.put("Authorization", "Bearer " + Utils.ACCESS_TOKEN);
-                return params;
-            }
-
-            //Pass Your Parameters here
-            /*@Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("User", UserName);
-                params.put("Pass", PassWord);
-                return params;
-            }*/
-        };
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        queue.add(request);
-
         return root;
     }
+
+
+
+
 }
