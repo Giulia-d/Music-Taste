@@ -4,10 +4,14 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -22,12 +26,15 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.utils.HandleAPICalls;
 import it.unimib.musictaste.utils.JSONParser;
+import it.unimib.musictaste.utils.Semaphore;
 import it.unimib.musictaste.utils.Utils;
 
 /**
@@ -37,6 +44,8 @@ import it.unimib.musictaste.utils.Utils;
  */
 public class SearchFragment extends Fragment {
 
+    public static boolean flagAPI = false;
+    public static List<String> suggestions = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -83,8 +92,44 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_search, container, false);
         final TextView textView = root.findViewById(R.id.text);
-        SearchView msvSearch = root.findViewById(R.id.svSearch);
-        CharSequence search = msvSearch.getQuery();
+        AutoCompleteTextView autocomplete = root.findViewById(R.id.acSearch);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+                android.R.layout.simple_dropdown_item_1line, suggestions);
+        autocomplete.setAdapter(adapter);
+        //CharSequence search = msvSearch.getQuery();
+        autocomplete.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("Search", s.toString());
+                JSONObject resAPI = HandleAPICalls.querySearch(s.toString(), getContext());
+                try {
+                    if(flagAPI==true) {
+                        JSONParser.displayResultAPI(resAPI);
+                        adapter.notifyDataSetChanged();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //this will call your method every time the user stops typing, if you want to call it for each letter, call it in onTextChanged
+
+            }
+        });
+
+       // SearchView msvSearch = root.findViewById(R.id.svSearch);
+
+
+       /* msvSearch.setSubmitButtonEnabled(true);
+
         msvSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -93,16 +138,9 @@ public class SearchFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Log.d("Search", search.toString());
-                JSONObject resAPI = HandleAPICalls.querySearch(search.toString(), getContext());
-                try {
-                    JSONParser.displayResultAPI(resAPI);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                return false;
+                        return false;
             }
-        });
+        });*/
 // ...
 
 // Instantiate the RequestQueue.

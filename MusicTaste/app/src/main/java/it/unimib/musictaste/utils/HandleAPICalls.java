@@ -17,19 +17,27 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.unimib.musictaste.fragments.SearchFragment;
+
 public class HandleAPICalls {
     static JSONObject res;
-    public static JSONObject querySearch(String searchParam, Context context){
+
+    public static synchronized JSONObject querySearch(String searchParam, Context context){
         String url ="https://api.genius.com/search/?q=" + searchParam;
 
+        RequestQueue queue = Volley.newRequestQueue(context);
+        //SearchFragment.flagAPI=false;
 // Request a string response from the provided URL.
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+
+
             @Override
             public void onResponse(String response) {
                 if (!response.equals(null)) {
                     Log.d("Your Array Response", response);
                     try {
                         res = new JSONObject(response);
+                        SearchFragment.flagAPI=true;
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -37,6 +45,7 @@ public class HandleAPICalls {
                     Log.e("Your Array Response", "Data Null");
                 }
             }
+
 
 
         }, new Response.ErrorListener() {
@@ -64,9 +73,11 @@ public class HandleAPICalls {
                 return params;
             }*/
         };
-        RequestQueue queue = Volley.newRequestQueue(context);
+
         queue.add(request);
         return res;
+
+
     }
 
 }
