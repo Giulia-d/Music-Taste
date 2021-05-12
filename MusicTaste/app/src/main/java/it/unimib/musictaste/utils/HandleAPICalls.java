@@ -22,7 +22,7 @@ import it.unimib.musictaste.fragments.SearchFragment;
 public class HandleAPICalls {
     static JSONObject res;
 
-    public static synchronized JSONObject querySearch(String searchParam, Context context){
+    public static JSONObject querySearch(String searchParam, Context context){
         String url ="https://api.genius.com/search/?q=" + searchParam;
 
         RequestQueue queue = Volley.newRequestQueue(context);

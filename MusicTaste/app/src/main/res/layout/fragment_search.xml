@@ -8,7 +8,7 @@
     tools:context=".fragments.SearchFragment">
 
 
-    <AutoCompleteTextView
+    <!--<AutoCompleteTextView
         android:id="@+id/acSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,7 +19,31 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintVertical_bias="0.023" />-->
+
+
+    <EditText
+        android:id="@+id/etSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="@string/Search"
+        app:layout_constraintBottom_toTopOf="@+id/result_list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/result_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="100dp"
+        tools:layout_editor_absoluteX="-16dp" />
+
 
     <!--<SearchView
         android:id="@+id/svSearch"
