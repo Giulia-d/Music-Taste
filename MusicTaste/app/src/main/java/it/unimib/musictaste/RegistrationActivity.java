@@ -28,6 +28,7 @@ public class RegistrationActivity extends AppCompatActivity {
     Button btnRegSignIn;
     private static final String TAG = "EmailPassword";
     private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

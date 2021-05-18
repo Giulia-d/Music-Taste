@@ -1,5 +1,6 @@
 package it.unimib.musictaste.fragments;
 
+import android.content.Intent;
 import android.nfc.Tag;
 import android.os.Bundle;
 
@@ -43,10 +44,12 @@ import java.util.Map;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.ResponseRecyclerViewAdapter;
+import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.utils.ApiCall;
 import it.unimib.musictaste.utils.HandleAPICalls;
 import it.unimib.musictaste.utils.JSONParser;
 import it.unimib.musictaste.utils.Semaphore;
+import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
 /**
@@ -55,9 +58,9 @@ import it.unimib.musictaste.utils.Utils;
  * create an instance of this fragment.
  */
 public class SearchFragment extends Fragment {
-
+    public static final String SONG= "SONG";
     public static boolean flagAPI = false;
-    static List<String> suggestions = new ArrayList<>();
+    static List<Song> suggestions = new ArrayList<>();
 
     private static final int TRIGGER_AUTO_COMPLETE = 100;
     private static final long AUTO_COMPLETE_DELAY = 300;
@@ -115,13 +118,16 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final TextView textView = view.findViewById(R.id.text);
+        //final TextView textView = view.findViewById(R.id.text);
         EditText mSearch = view.findViewById(R.id.etSearch);
         RecyclerView recyclerView = view.findViewById(R.id.result_list);
         responseRecyclerViewAdapter = new ResponseRecyclerViewAdapter(suggestions, new ResponseRecyclerViewAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(String response) {
-                Log.d("Lista", response);
+            public void onItemClick(Song response) {
+                //Log.d("Lista", response);
+                Intent intent = new Intent(getActivity(), SongActivity.class);
+                intent.putExtra(SONG, response);
+                startActivity(intent);
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
