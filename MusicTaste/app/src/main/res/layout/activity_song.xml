@@ -83,37 +83,43 @@
 
         <ImageButton
             android:id="@+id/btnYoutube"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="30dp"
             android:background="@null"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@+id/btnSpotify"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintHorizontal_bias="0.962"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/custom_email_icon" />
+            app:srcCompat="@drawable/ic_youtube"
+            app:tint="@color/Orange" />
 
         <ImageButton
             android:id="@+id/btnSpotify"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="30dp"
             android:background="@null"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@+id/btnLike"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintHorizontal_bias="0.962"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_home_icon" />
+            app:srcCompat="@drawable/ic_spotify"
+            app:tint="@color/Orange"
+            />
 
         <ImageButton
             android:id="@+id/btnLike"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="56dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="48dp"
             android:background="@null"
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@+id/tvTitleSong"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintHorizontal_bias="0.962"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_baseline_favorite_border_24" />
 
