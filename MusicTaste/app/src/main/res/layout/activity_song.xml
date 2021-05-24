@@ -10,7 +10,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/imgSong"
@@ -20,58 +20,110 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.612"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.002"
+            app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@drawable/ic_launcher_background" />
 
         <TextView
             android:id="@+id/tvTitleSong"
-            android:layout_width="383dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="276dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:padding="5dp"
             android:textColor="@color/TextGray"
             android:textSize="35sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tvArtistSong"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.642"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/imgSong"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintEnd_toStartOf="@+id/imgSong"
+            app:layout_constraintHorizontal_bias="0.499"
+            app:layout_constraintStart_toEndOf="@+id/imgSong"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.946" />
 
         <TextView
             android:id="@+id/tvArtistSong"
-            android:layout_width="384dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:padding="5dp"
+            android:textAlignment="gravity"
             android:textColor="@color/TextGray"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="@+id/imgSong"
             app:layout_constraintEnd_toStartOf="@+id/imgSong"
-            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintHorizontal_bias="0.499"
             app:layout_constraintStart_toEndOf="@+id/imgSong"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintVertical_bias="0.932" />
 
         <TextView
-            android:id="@+id/tvLyricsSong"
-            android:layout_width="358dp"
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="276dp"
-            android:ellipsize="end"
-            android:maxLines="300"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:lineSpacingExtra="6sp"
+            android:padding="5dp"
+            android:textColor="@color/TextGray"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.49"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imgSong"
+            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintStart_toEndOf="@+id/imgSong"
             app:layout_constraintTop_toBottomOf="@+id/imgSong"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintVertical_bias="0.216" />
+
+        <ImageButton
+            android:id="@+id/btnYoutube"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:background="@null"
+            app:layout_constraintBottom_toTopOf="@+id/btnSpotify"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/custom_email_icon" />
+
+        <ImageButton
+            android:id="@+id/btnSpotify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:background="@null"
+            app:layout_constraintBottom_toTopOf="@+id/btnLike"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_home_icon" />
+
+        <ImageButton
+            android:id="@+id/btnLike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="56dp"
+            android:background="@null"
+            app:layout_constraintBottom_toTopOf="@+id/tvTitleSong"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.93"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_baseline_favorite_border_24" />
+
+        <!-- <TextView
+             android:id="@+id/tvLyricsSong"
+             android:layout_width="358dp"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="48dp"
+             android:ellipsize="end"
+             android:maxLines="300"
+             android:textSize="18sp" /> -->
     </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

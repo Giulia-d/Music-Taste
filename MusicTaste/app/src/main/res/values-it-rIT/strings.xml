@@ -19,4 +19,8 @@
     <string name="title_search">cerca</string>
     <string name="title_account">profilo</string>
     <string name="Search">Cerca</string>
+    <string name="Description">Nessuna descrizione disponibile</string>
+    <string name="Youtube">Ascolta la canzone su YouTube</string>
+    <string name="YoutubeError">Video non disponibile</string>
+    <string name="SpotifyError">Canzone non disponibile</string>
 </resources>

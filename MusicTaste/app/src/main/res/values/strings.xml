@@ -22,4 +22,8 @@
     <string name="title_search">search</string>
     <string name="title_account">account</string>
     <string name="Search">Search</string>
+    <string name="Description">No description available</string>
+    <string name="Youtube">Listen the song on YouTube</string>
+    <string name="YoutubeError">Video not available</string>
+    <string name="SpotifyError">Song not available</string>
 </resources>
