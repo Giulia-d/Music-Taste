@@ -1,15 +1,7 @@
 package it.unimib.musictaste.fragments;
 
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -19,38 +11,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.SearchView;
-import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.material.tabs.TabLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.ResponseRecyclerViewAdapter;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.utils.ApiCall;
-import it.unimib.musictaste.utils.HandleAPICalls;
 import it.unimib.musictaste.utils.JSONParser;
-import it.unimib.musictaste.utils.Semaphore;
+import it.unimib.musictaste.utils.MyTouchListener;
 import it.unimib.musictaste.utils.Song;
-import it.unimib.musictaste.utils.Utils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,7 +42,7 @@ import it.unimib.musictaste.utils.Utils;
  * create an instance of this fragment.
  */
 public class SearchFragment extends Fragment {
-    public static final String SONG= "SONG";
+    public static final String SONG = "SONG";
     public static boolean flagAPI = false;
     static List<Song> suggestions = new ArrayList<>();
 
@@ -132,6 +116,7 @@ public class SearchFragment extends Fragment {
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(responseRecyclerViewAdapter);
+        mSearch.setOnTouchListener(new MyTouchListener(mSearch));
         mSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

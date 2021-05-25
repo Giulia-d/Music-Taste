@@ -26,4 +26,5 @@
     <string name="Youtube">Listen the song on YouTube</string>
     <string name="YoutubeError">Video not available</string>
     <string name="SpotifyError">Song not available</string>
+    <string name="Registration">Sign Up</string>
 </resources>

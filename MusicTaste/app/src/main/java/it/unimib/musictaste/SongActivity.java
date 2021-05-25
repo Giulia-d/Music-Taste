@@ -1,12 +1,9 @@
 package it.unimib.musictaste;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.EventLogTags;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -14,14 +11,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
 
@@ -77,15 +74,14 @@ public class SongActivity extends AppCompatActivity {
         mbtnYt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(song.getYoutube() != null){
+                if (song.getYoutube() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(song.getYoutube()));
                     try {
                         SongActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
                     }
-                }
-                else
+                } else
                     Toast.makeText(SongActivity.this, R.string.YoutubeError, Toast.LENGTH_LONG).show();
             }
         });
@@ -93,15 +89,14 @@ public class SongActivity extends AppCompatActivity {
         mbtnSpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(song.getSpotify() != null){
+                if (song.getSpotify() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(song.getSpotify()));
                     try {
                         SongActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
                     }
-                }
-                else
+                } else
                     Toast.makeText(SongActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
             }
         });
@@ -137,20 +132,23 @@ public class SongActivity extends AppCompatActivity {
                     }
                     if (description.equals("?"))
                         description = getString(R.string.Description);
+
                     tvDescription.setText(description);
 
                     //Find youtube and spotify links from response
                     JSONArray media = response.getJSONObject("response").getJSONObject("song").getJSONArray("media");
-                    Log.d("media", media.toString());
+                    //Log.d("media", media.toString());
                     if (media != null) {
-                        if (media.getJSONObject(0).has("url"))
-                            song.setYoutube(media.getJSONObject(0).getString("url"));
-                        if (media.length() > 1) {
-                            if (media.getJSONObject(1).has("url"))
-                                song.setSpotify(media.getJSONObject(1).getString("url"));
+                        for (int k = 0; k < media.length(); k++) {
+                            if (media.getJSONObject(k).getString("provider").equals("youtube"))
+                                song.setYoutube(media.getJSONObject(k).getString("url"));
+                            else if (media.getJSONObject(k).getString("provider").equals("spotify"))
+                                song.setSpotify(media.getJSONObject(k).getString("url"));
                         }
                     }
-
+                    mbtnYt.setVisibility(View.VISIBLE);
+                    mbtnSpotify.setVisibility(View.VISIBLE);
+                    mbtnLike.setVisibility(View.VISIBLE);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

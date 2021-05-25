@@ -3,19 +3,30 @@ package it.unimib.musictaste.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Song implements Parcelable{
+public class Song implements Parcelable {
     private String title;
     private String artist;
     private String image;
     private String id;
+    private String idArtist;
     private String youtube;
     private String spotify;
 
-    public Song(String title, String image, String id, String artist) {
+
+    public Song(String title, String image, String id, String artist, String idArtist) {
         this.title = title;
         this.image = image;
         this.id = id;
         this.artist = artist;
+        this.idArtist = idArtist;
+    }
+
+    public String getIdArtist() {
+        return idArtist;
+    }
+
+    public void setIdArtist(String idArtist) {
+        this.idArtist = idArtist;
     }
 
     public String getArtist() {
@@ -37,6 +48,7 @@ public class Song implements Parcelable{
     public String getId() {
         return id;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -71,27 +83,27 @@ public class Song implements Parcelable{
     }
 
     public void writeToParcel(Parcel dest, int flags) {
-        //dest.writeParcelable(this.source, flags);
         dest.writeString(this.title);
         dest.writeString(this.artist);
         dest.writeString(this.image);
         dest.writeString(this.id);
+        dest.writeString(this.idArtist);
     }
 
     public void readFromParcel(Parcel source) {
-        //this.source = source.readParcelable(ArticleSource.class.getClassLoader());
         this.title = source.readString();
         this.artist = source.readString();
         this.image = source.readString();
         this.id = source.readString();
+        this.idArtist = source.readString();
     }
 
     protected Song(Parcel in) {
-        //this.source = in.readParcelable(ArticleSource.class.getClassLoader());
         this.title = in.readString();
         this.artist = in.readString();
         this.image = in.readString();
         this.id = in.readString();
+        this.idArtist = in.readString();
     }
 
     public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
