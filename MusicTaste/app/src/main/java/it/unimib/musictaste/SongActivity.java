@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
@@ -20,6 +21,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -34,6 +41,31 @@ import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentChange.Type;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.MetadataChanges;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Query.Direction;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.ServerTimestamp;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Source;
+import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.WriteBatch;
+
+
 
 public class SongActivity extends AppCompatActivity {
 
@@ -43,12 +75,16 @@ public class SongActivity extends AppCompatActivity {
     TextView tvLyricsSong;
     TextView tvDescription;
     ImageButton mbtnYt, mbtnSpotify, mbtnLike;
+    FirebaseFirestore database;
+    boolean liked;
+    String documentID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song);
-
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
 
         imgSong = findViewById(R.id.imgSong);
         tvArtistSong = findViewById(R.id.tvArtistSong);
@@ -58,6 +94,8 @@ public class SongActivity extends AppCompatActivity {
         mbtnYt = findViewById(R.id.btnYoutube);
         mbtnSpotify = findViewById(R.id.btnSpotify);
         mbtnLike = findViewById(R.id.btnLike);
+        database = FirebaseFirestore.getInstance();
+        liked = false;
 
         Intent intent = getIntent();
 
@@ -68,6 +106,26 @@ public class SongActivity extends AppCompatActivity {
         tvTitleSong.setText(song.getTitle());
         //tvLyricsSong.setText(song.getId());
         //Log.d("user", "Photo:" + tre);
+
+        database.collection("likedSongs")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if(document.get("IDuser").equals(uid) &&
+                                        document.get("IDsong").equals(song.getId())) {
+                                    liked = true;
+                                    mbtnLike.setImageResource(R.drawable.ic_favorite_full);
+                                    documentID = document.getId();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                });
 
         getDescription(song);
 
@@ -101,6 +159,63 @@ public class SongActivity extends AppCompatActivity {
             }
         });
         //getLyrics(song);
+
+
+        Log.d("AAAUSER", uid);
+        mbtnLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(liked){
+                    database.collection("likedSongs").document(documentID)
+                            .delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
+                                    Log.d("Succes", "DocumentSnapshot successfully deleted!");
+                                    mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+                                    liked = false;
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("Error", "Error deleting document", e);
+                                }
+                            });
+
+                }
+                else{
+                    Map<String, Object> likedSongs = new HashMap<>();
+                    likedSongs.put("IDuser", uid);
+                    likedSongs.put("IDsong", song.getId());
+                    likedSongs.put("TitleSong", song.getTitle());
+                    likedSongs.put("ArtistSong", song.getArtist());
+                    likedSongs.put("ImageSong", song.getImage());
+
+// Add a new document with a generated ID
+                    database.collection("likedSongs")
+                            .add(likedSongs)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
+                                    Log.d("Succes", "DocumentSnapshot added with ID: " + documentReference.getId());
+                                    mbtnLike.setImageResource(R.drawable.ic_favorite_full);
+                                    liked = true;
+                                    documentID = documentReference.getId();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("Error", "Error adding document", e);
+                                }
+                            });
+                }
+
+            }
+        });
     }
 
     public String digger(JSONArray children) throws JSONException {

@@ -24,4 +24,6 @@
     <string name="YoutubeError">Video non disponibile</string>
     <string name="SpotifyError">Canzone non disponibile</string>
     <string name="Registration">Registrati</string>
+    <string name="likedSong">Aggiunto ai preferiti</string>
+    <string name="dislikedSong">Rimosso dai preferiti</string>
 </resources>
