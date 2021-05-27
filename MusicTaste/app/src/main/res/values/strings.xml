@@ -29,4 +29,6 @@
     <string name="Registration">Sign Up</string>
     <string name="dislikedSong">Removed from liked songs</string>
     <string name="likedSong">Added to liked songs</string>
+    <string name="FavoritesSongs">Favorite songs</string>
+    <string name="EmptySong">No favorite song</string>
 </resources>

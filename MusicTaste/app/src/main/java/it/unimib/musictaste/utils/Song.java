@@ -13,12 +13,11 @@ public class Song implements Parcelable {
     private String spotify;
 
 
-    public Song(String title, String image, String id, String artist, String idArtist) {
+    public Song(String title, String image, String id, String artist) {
         this.title = title;
         this.image = image;
         this.id = id;
         this.artist = artist;
-        this.idArtist = idArtist;
     }
 
     public String getIdArtist() {

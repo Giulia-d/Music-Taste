@@ -26,4 +26,6 @@
     <string name="Registration">Registrati</string>
     <string name="likedSong">Aggiunto ai preferiti</string>
     <string name="dislikedSong">Rimosso dai preferiti</string>
+    <string name="FavoritesSongs">Canzoni preferite</string>
+    <string name="EmptySong">Nessuna canzone preferita</string>
 </resources>
