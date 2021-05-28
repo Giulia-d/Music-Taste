@@ -13,10 +13,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.palette.graphics.Palette;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -37,9 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
-
-import androidx.core.content.ContextCompat;
-import androidx.palette.graphics.Palette;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,18 +50,14 @@ import java.util.Map;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
+import it.unimib.musictaste.repositories.SongCallback;
+import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Target;
 
-
-public class SongActivity extends AppCompatActivity {
+public class SongActivity extends AppCompatActivity implements SongCallback {
 
     ImageView imgSong;
     TextView tvArtistSong;
@@ -75,7 +71,8 @@ public class SongActivity extends AppCompatActivity {
     String documentID;
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbar;
-    Song song;
+    Song currentSong;
+    SongRepository songRepository;
     ProgressBar pBLoading;
 
     @Override
@@ -95,23 +92,22 @@ public class SongActivity extends AppCompatActivity {
         database = FirebaseFirestore.getInstance();
         liked = false;
         pBLoading = findViewById(R.id.pBLoading);
+        songRepository = new SongRepository(this, this);
 
         Intent intent = getIntent();
-        song = intent.getParcelableExtra(SearchFragment.SONG);
-        if (song == null) {
-            song = intent.getParcelableExtra(AccountFragment.SONG);
+        currentSong = intent.getParcelableExtra(SearchFragment.SONG);
+        if (currentSong == null) {
+            currentSong = intent.getParcelableExtra(AccountFragment.SONG);
         }
 
 
         //int tre = intent.getIntExtra(SearchFragment.SONG, 0);
-        Picasso.get().load(song.getImage()).transform(new GradientTransformation()).into(imgSong);
-        tvArtistSong.setText(song.getArtist());
+        Picasso.get().load(currentSong.getImage()).transform(new GradientTransformation()).into(imgSong);
+        tvArtistSong.setText(currentSong.getArtist());
         //tvTitleSong.setText(song.getTitle());
         //tvLyricsSong.setText(song.getId());
         //Log.d("user", "Photo:" + tre);
-        setToolbarColor(song);
-
-
+        setToolbarColor(currentSong);
 
         database.collection("likedSongs")
                 .get()
@@ -121,7 +117,7 @@ public class SongActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("IDuser").equals(uid) &&
-                                        document.get("IDsong").equals(song.getId())) {
+                                        document.get("IDsong").equals(currentSong.getId())) {
                                     liked = true;
                                     mbtnLike.setImageResource(R.drawable.ic_favorite_full);
                                     documentID = document.getId();
@@ -132,15 +128,15 @@ public class SongActivity extends AppCompatActivity {
                     }
 
                 });
-
-        getDescription(song);
+        //getDescription(currentSong);
+        songRepository.getSongInfo(currentSong.getId());
 
         mbtnYt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (song.getYoutube() != null) {
+                if (currentSong.getYoutube() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(song.getYoutube()));
+                            Uri.parse(currentSong.getYoutube()));
                     try {
                         SongActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
@@ -153,9 +149,9 @@ public class SongActivity extends AppCompatActivity {
         mbtnSpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (song.getSpotify() != null) {
+                if (currentSong.getSpotify() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(song.getSpotify()));
+                            Uri.parse(currentSong.getSpotify()));
                     try {
                         SongActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
@@ -193,10 +189,10 @@ public class SongActivity extends AppCompatActivity {
                 } else {
                     Map<String, Object> likedSongs = new HashMap<>();
                     likedSongs.put("IDuser", uid);
-                    likedSongs.put("IDsong", song.getId());
-                    likedSongs.put("TitleSong", song.getTitle());
-                    likedSongs.put("ArtistSong", song.getArtist());
-                    likedSongs.put("ImageSong", song.getImage());
+                    likedSongs.put("IDsong", currentSong.getId());
+                    likedSongs.put("TitleSong", currentSong.getTitle());
+                    likedSongs.put("ArtistSong", currentSong.getArtist());
+                    likedSongs.put("ImageSong", currentSong.getImage());
 
 // Add a new document with a generated ID
                     database.collection("likedSongs")
@@ -289,7 +285,7 @@ public class SongActivity extends AppCompatActivity {
         };
         queue.add(jsonObjectRequest);
     }
-
+    /*
     public void getLyrics(Song song) {
         String url = "https://api.lyrics.ovh/v1/" + song.getArtist() + "/" + song.getTitle();
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -311,7 +307,7 @@ public class SongActivity extends AppCompatActivity {
         });
 
         queue.add(jsonObjectRequest);
-    }
+    }*/
 
 
     public void setToolbarColor(Song song) {
@@ -320,56 +316,77 @@ public class SongActivity extends AppCompatActivity {
                 .into(new Target() {
 
                     @Override
-                    public void onBitmapLoaded (final Bitmap bitmap, Picasso.LoadedFrom from) {
+                    public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
                         /* Save the bitmap or do something with it here */
-                         toolbar = (Toolbar) findViewById(R.id.toolbar);
-                         setSupportActionBar(toolbar);
+                        toolbar = (Toolbar) findViewById(R.id.toolbar);
+                        setSupportActionBar(toolbar);
 
-                         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-                         collapsingToolbar.setTitle(song.getTitle());
-                         if(bitmap != null) {
-                             Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-                             public void onGenerated(Palette p) {
-                            // Use generated instance
-                            Palette.Swatch vibrantSwatch = p.getVibrantSwatch();
-                            Palette.Swatch mutedSwatch = p.getMutedSwatch();
-                            int backgroundColor = ContextCompat.getColor(getApplicationContext(),
-                             R.color.DarkGray);
-                             int textColor = ContextCompat.getColor(getApplicationContext(),
-                                      R.color.white);
+                        collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+                        collapsingToolbar.setTitle(song.getTitle());
+                        if (bitmap != null) {
+                            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                                public void onGenerated(Palette p) {
+                                    // Use generated instance
+                                    Palette.Swatch vibrantSwatch = p.getVibrantSwatch();
+                                    Palette.Swatch mutedSwatch = p.getMutedSwatch();
+                                    int backgroundColor = ContextCompat.getColor(getApplicationContext(),
+                                            R.color.DarkGray);
+                                    int textColor = ContextCompat.getColor(getApplicationContext(),
+                                            R.color.white);
 
-                             // Check that the Vibrant swatch is available
-                             if (vibrantSwatch != null) {
-                                 if (vibrantSwatch.getRgb() != getResources().getColor(R.color.DarkGray)) {
-                                     backgroundColor = vibrantSwatch.getRgb();
-                                     textColor = vibrantSwatch.getTitleTextColor();
-                                 } else {
-                                     backgroundColor = mutedSwatch.getRgb();
-                                     textColor = mutedSwatch.getTitleTextColor();
-                                 }
-                             }
+                                    // Check that the Vibrant swatch is available
+                                    if (vibrantSwatch != null) {
+                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.DarkGray)) {
+                                            backgroundColor = vibrantSwatch.getRgb();
+                                            textColor = vibrantSwatch.getTitleTextColor();
+                                        } else {
+                                            backgroundColor = mutedSwatch.getRgb();
+                                            textColor = mutedSwatch.getTitleTextColor();
+                                        }
+                                    }
 
-                // Set the toolbar background and text colors
-                collapsingToolbar.setBackgroundColor(backgroundColor);
-                collapsingToolbar.setCollapsedTitleTextColor(textColor);
-                collapsingToolbar.setStatusBarScrimColor(backgroundColor);
-                collapsingToolbar.setContentScrimColor(backgroundColor);
+                                    // Set the toolbar background and text colors
+                                    collapsingToolbar.setBackgroundColor(backgroundColor);
+                                    collapsingToolbar.setCollapsedTitleTextColor(textColor);
+                                    collapsingToolbar.setStatusBarScrimColor(backgroundColor);
+                                    collapsingToolbar.setContentScrimColor(backgroundColor);
 
-              }
-            });
+                                }
+                            });
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    }
+
+
+                });
 
     }
 
+    @Override
+    public void onResponse(String description, String youtube, String spotify) {
+        if (description.equals("?"))
+            description = getString(R.string.Description);
+        tvDescription.setText(description);
+        pBLoading.setVisibility(View.GONE);
+        currentSong.setYoutube(youtube);
+        currentSong.setSpotify(spotify);
+        mbtnYt.setVisibility(View.VISIBLE);
+        mbtnSpotify.setVisibility(View.VISIBLE);
+        mbtnLike.setVisibility(View.VISIBLE);
     }
 
-        @Override
-        public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
+    @Override
+    public void onFailure(String msg) {
 
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {}
-
-
-});
-
-}}
+    }
+}
 
