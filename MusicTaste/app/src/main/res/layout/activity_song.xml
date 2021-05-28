@@ -41,6 +41,7 @@
 
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/DarkGray"
@@ -49,80 +50,80 @@
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="726dp"
-                tools:layout_editor_absoluteY="1dp">
+            android:layout_width="match_parent"
+            android:layout_height="726dp"
+            tools:layout_editor_absoluteY="1dp">
 
-                <TextView
-                    android:id="@+id/tvArtistSong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/LightGray"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tvArtistSong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/LightGray"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/tvAlbumSong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Album"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />
+            <TextView
+                android:id="@+id/tvAlbumSong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Album"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />
 
-                <TextView
-                    android:id="@+id/tvDescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvListen" />
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvListen" />
 
-                <TextView
-                    android:id="@+id/tvListen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/listen"
-                    android:textSize="18sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong" />
+            <TextView
+                android:id="@+id/tvListen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/listen"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong" />
 
-                <ImageButton
-                    android:id="@+id/btnYoutube"
-                    android:layout_width="43dp"
-                    android:layout_height="41dp"
-                    android:layout_marginStart="28dp"
-                    android:background="@null"
-                    android:scaleType="fitCenter"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toTopOf="@+id/tvDescription"
-                    app:layout_constraintStart_toEndOf="@+id/tvListen"
-                    app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
-                    app:layout_constraintVertical_bias="0.0"
-                    app:srcCompat="@drawable/ic_youtube"
-                    app:tint="@color/Orange" />
+            <ImageButton
+                android:id="@+id/btnYoutube"
+                android:layout_width="43dp"
+                android:layout_height="41dp"
+                android:layout_marginStart="28dp"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@+id/tvDescription"
+                app:layout_constraintStart_toEndOf="@+id/tvListen"
+                app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@drawable/ic_youtube"
+                app:tint="@color/Orange" />
 
-                <ImageButton
-                    android:id="@+id/btnSpotify"
-                    android:layout_width="44dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="16dp"
-                    android:background="@null"
-                    android:scaleType="fitCenter"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toTopOf="@+id/tvDescription"
-                    app:layout_constraintStart_toEndOf="@+id/btnYoutube"
-                    app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
-                    app:layout_constraintVertical_bias="0.0"
-                    app:srcCompat="@drawable/ic_spotify"
-                    app:tint="@color/Orange" />
+            <ImageButton
+                android:id="@+id/btnSpotify"
+                android:layout_width="44dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@+id/tvDescription"
+                app:layout_constraintStart_toEndOf="@+id/btnYoutube"
+                app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@drawable/ic_spotify"
+                app:tint="@color/Orange" />
 
-             </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 
@@ -140,6 +141,17 @@
         app:fabSize="normal"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="end|bottom" />
+
+    <ProgressBar
+        android:id="@+id/pBLoading"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/Orange"
+        android:visibility="visible"
+        app:layout_anchor="@+id/nestedScrollView"
+        app:layout_anchorGravity="center" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

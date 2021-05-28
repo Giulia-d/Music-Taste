@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
@@ -75,6 +76,7 @@ public class SongActivity extends AppCompatActivity {
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbar;
     Song song;
+    ProgressBar pBLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +94,7 @@ public class SongActivity extends AppCompatActivity {
         mbtnLike = findViewById(R.id.btnLike);
         database = FirebaseFirestore.getInstance();
         liked = false;
+        pBLoading = findViewById(R.id.pBLoading);
 
         Intent intent = getIntent();
         song = intent.getParcelableExtra(SearchFragment.SONG);
@@ -250,9 +253,8 @@ public class SongActivity extends AppCompatActivity {
                     }
                     if (description.equals("?"))
                         description = getString(R.string.Description);
-
                     tvDescription.setText(description);
-
+                    pBLoading.setVisibility(View.GONE);
                     //Find youtube and spotify links from response
                     JSONArray media = response.getJSONObject("response").getJSONObject("song").getJSONArray("media");
                     //Log.d("media", media.toString());
