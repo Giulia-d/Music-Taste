@@ -18,9 +18,9 @@ public class JSONParser {
             String img = hits.getJSONObject(i).getJSONObject("result").getString("header_image_url");
             String id = hits.getJSONObject(i).getJSONObject("result").getString("id");
             String artist = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("name");
-            String artistId = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("id");
+            //String artistId = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("id");
             Log.d("Titolo", title);
-            resp.add(new Song(title, img, id,artist, artistId));
+            resp.add(new Song(title, img, id,artist));
             /*SearchFragment.suggestions.add(title);
             Log.d("SUGGESTION",SearchFragment.suggestions.toString());*/
         }

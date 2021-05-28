@@ -31,6 +31,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import androidx.core.content.ContextCompat;
@@ -43,6 +47,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
@@ -69,6 +74,7 @@ public class SongActivity extends AppCompatActivity {
     String documentID;
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbar;
+    Song song;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +82,6 @@ public class SongActivity extends AppCompatActivity {
         setContentView(R.layout.activity_song);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-
         imgSong = findViewById(R.id.imgSong);
         tvArtistSong = findViewById(R.id.tvArtistSong);
         //tvTitleSong = findViewById(R.id.tvTitleSong);
@@ -89,8 +94,12 @@ public class SongActivity extends AppCompatActivity {
         liked = false;
 
         Intent intent = getIntent();
+        song = intent.getParcelableExtra(SearchFragment.SONG);
+        if (song == null) {
+            song = intent.getParcelableExtra(AccountFragment.SONG);
+        }
 
-        Song song = intent.getParcelableExtra(SearchFragment.SONG);
+
         //int tre = intent.getIntExtra(SearchFragment.SONG, 0);
         Picasso.get().load(song.getImage()).transform(new GradientTransformation()).into(imgSong);
         tvArtistSong.setText(song.getArtist());
@@ -108,7 +117,7 @@ public class SongActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if(document.get("IDuser").equals(uid) &&
+                                if (document.get("IDuser").equals(uid) &&
                                         document.get("IDsong").equals(song.getId())) {
                                     liked = true;
                                     mbtnLike.setImageResource(R.drawable.ic_favorite_full);
@@ -159,7 +168,7 @@ public class SongActivity extends AppCompatActivity {
         mbtnLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(liked){
+                if (liked) {
                     database.collection("likedSongs").document(documentID)
                             .delete()
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -178,8 +187,7 @@ public class SongActivity extends AppCompatActivity {
                                 }
                             });
 
-                }
-                else{
+                } else {
                     Map<String, Object> likedSongs = new HashMap<>();
                     likedSongs.put("IDuser", uid);
                     likedSongs.put("IDsong", song.getId());
