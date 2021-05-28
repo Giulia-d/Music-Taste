@@ -2,6 +2,8 @@ package it.unimib.musictaste;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,9 +28,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
+
+import androidx.core.content.ContextCompat;
+import androidx.palette.graphics.Palette;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,43 +48,27 @@ import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentChange.Type;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.MetadataChanges;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.Query.Direction;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.ServerTimestamp;
-import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.Source;
-import com.google.firebase.firestore.Transaction;
-import com.google.firebase.firestore.WriteBatch;
-
+import com.squareup.picasso.Target;
 
 
 public class SongActivity extends AppCompatActivity {
 
     ImageView imgSong;
     TextView tvArtistSong;
-    TextView tvTitleSong;
-    TextView tvLyricsSong;
+    //TextView tvTitleSong;
+    String titleSong;
+    //TextView tvLyricsSong;
     TextView tvDescription;
     ImageButton mbtnYt, mbtnSpotify, mbtnLike;
     FirebaseFirestore database;
     boolean liked;
     String documentID;
+    Toolbar toolbar;
+    CollapsingToolbarLayout collapsingToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +79,7 @@ public class SongActivity extends AppCompatActivity {
 
         imgSong = findViewById(R.id.imgSong);
         tvArtistSong = findViewById(R.id.tvArtistSong);
-        tvTitleSong = findViewById(R.id.tvTitleSong);
+        //tvTitleSong = findViewById(R.id.tvTitleSong);
         //tvLyricsSong = findViewById(R.id.tvLyricsSong);
         tvDescription = findViewById(R.id.tvDescription);
         mbtnYt = findViewById(R.id.btnYoutube);
@@ -103,9 +94,12 @@ public class SongActivity extends AppCompatActivity {
         //int tre = intent.getIntExtra(SearchFragment.SONG, 0);
         Picasso.get().load(song.getImage()).transform(new GradientTransformation()).into(imgSong);
         tvArtistSong.setText(song.getArtist());
-        tvTitleSong.setText(song.getTitle());
+        //tvTitleSong.setText(song.getTitle());
         //tvLyricsSong.setText(song.getId());
         //Log.d("user", "Photo:" + tre);
+        setToolbarColor(song);
+
+
 
         database.collection("likedSongs")
                 .get()
@@ -218,6 +212,7 @@ public class SongActivity extends AppCompatActivity {
         });
     }
 
+
     public String digger(JSONArray children) throws JSONException {
         String description = "";
         for (int j = 0; j < children.length(); j++) {
@@ -309,4 +304,62 @@ public class SongActivity extends AppCompatActivity {
     }
 
 
-}
+    public void setToolbarColor(Song song) {
+        Picasso.get()
+                .load(song.getImage())
+                .into(new Target() {
+
+                    @Override
+                    public void onBitmapLoaded (final Bitmap bitmap, Picasso.LoadedFrom from) {
+                        /* Save the bitmap or do something with it here */
+                         toolbar = (Toolbar) findViewById(R.id.toolbar);
+                         setSupportActionBar(toolbar);
+
+                         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+                         collapsingToolbar.setTitle(song.getTitle());
+                         if(bitmap != null) {
+                             Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                             public void onGenerated(Palette p) {
+                            // Use generated instance
+                            Palette.Swatch vibrantSwatch = p.getVibrantSwatch();
+                            Palette.Swatch mutedSwatch = p.getMutedSwatch();
+                            int backgroundColor = ContextCompat.getColor(getApplicationContext(),
+                             R.color.DarkGray);
+                             int textColor = ContextCompat.getColor(getApplicationContext(),
+                                      R.color.white);
+
+                             // Check that the Vibrant swatch is available
+                             if (vibrantSwatch != null) {
+                                 if (vibrantSwatch.getRgb() != getResources().getColor(R.color.DarkGray)) {
+                                     backgroundColor = vibrantSwatch.getRgb();
+                                     textColor = vibrantSwatch.getTitleTextColor();
+                                 } else {
+                                     backgroundColor = mutedSwatch.getRgb();
+                                     textColor = mutedSwatch.getTitleTextColor();
+                                 }
+                             }
+
+                // Set the toolbar background and text colors
+                collapsingToolbar.setBackgroundColor(backgroundColor);
+                collapsingToolbar.setCollapsedTitleTextColor(textColor);
+                collapsingToolbar.setStatusBarScrimColor(backgroundColor);
+                collapsingToolbar.setContentScrimColor(backgroundColor);
+
+              }
+            });
+
+    }
+
+    }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {}
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {}
+
+
+});
+
+}}
+

@@ -49,4 +49,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-analytics'
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'com.android.support:design:30.0.0'
+    implementation 'androidx.palette:palette:1.0.0'
 }
