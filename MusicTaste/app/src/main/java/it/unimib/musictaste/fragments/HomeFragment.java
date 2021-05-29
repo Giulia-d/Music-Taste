@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -61,6 +62,7 @@ public class HomeFragment extends Fragment {
     NewsRecyclerViewAdapter newsRecyclerViewAdapter;
     List<News> news;
     TextView prova;
+    ProgressBar pBLoading_home;
 
     Handler handler;
 
@@ -99,6 +101,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -123,7 +126,7 @@ public class HomeFragment extends Fragment {
         });*/
         news = new ArrayList<News>();
         getNews(news);
-
+        pBLoading_home = (ProgressBar) root.findViewById(R.id.pBLoading_home);
         return root;
     }
 
@@ -178,7 +181,7 @@ public class HomeFragment extends Fragment {
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(linearLayoutManager);
                     recyclerView.setAdapter(newsRecyclerViewAdapter);
-
+                    pBLoading_home.setVisibility(View.GONE);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
