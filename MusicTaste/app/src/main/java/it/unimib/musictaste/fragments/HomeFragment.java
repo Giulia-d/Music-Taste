@@ -144,7 +144,6 @@ public class HomeFragment extends Fragment {
 
 
 
-
     }
 
     public void getNews(List<News> news) {
@@ -201,6 +200,9 @@ public class HomeFragment extends Fragment {
                 return params;
             }
         };
+
+
+
 
 
         queue.add(jsonObjectRequest);

@@ -51,13 +51,14 @@ import java.util.Map;
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
 import it.unimib.musictaste.repositories.SongCallback;
+import it.unimib.musictaste.repositories.SongFBCallback;
 import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
 
-public class SongActivity extends AppCompatActivity implements SongCallback {
+public class SongActivity extends AppCompatActivity implements SongCallback, SongFBCallback {
 
     ImageView imgSong;
     TextView tvArtistSong;
@@ -67,6 +68,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback {
     TextView tvDescription;
     ImageButton mbtnYt, mbtnSpotify, mbtnLike;
     FirebaseFirestore database;
+    //boolean liked = false;
     boolean liked;
     String documentID;
     Toolbar toolbar;
@@ -90,9 +92,9 @@ public class SongActivity extends AppCompatActivity implements SongCallback {
         mbtnSpotify = findViewById(R.id.btnSpotify);
         mbtnLike = findViewById(R.id.btnLike);
         database = FirebaseFirestore.getInstance();
-        liked = false;
+        //liked = false;
         pBLoading = findViewById(R.id.pBLoading);
-        songRepository = new SongRepository(this, this);
+        songRepository = new SongRepository(this, this, this);
 
         Intent intent = getIntent();
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
@@ -109,27 +111,11 @@ public class SongActivity extends AppCompatActivity implements SongCallback {
         //Log.d("user", "Photo:" + tre);
         setToolbarColor(currentSong);
 
-        database.collection("likedSongs")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("IDuser").equals(uid) &&
-                                        document.get("IDsong").equals(currentSong.getId())) {
-                                    liked = true;
-                                    mbtnLike.setImageResource(R.drawable.ic_favorite_full);
-                                    documentID = document.getId();
-                                    break;
-                                }
-                            }
-                        }
-                    }
 
-                });
         //getDescription(currentSong);
+        songRepository.checkLikedSongs(uid, currentSong.getId());
         songRepository.getSongInfo(currentSong.getId());
+
 
         mbtnYt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,52 +153,10 @@ public class SongActivity extends AppCompatActivity implements SongCallback {
         mbtnLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (liked) {
-                    database.collection("likedSongs").document(documentID)
-                            .delete()
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
-                                    Log.d("Succes", "DocumentSnapshot successfully deleted!");
-                                    mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
-                                    liked = false;
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("Error", "Error deleting document", e);
-                                }
-                            });
-
-                } else {
-                    Map<String, Object> likedSongs = new HashMap<>();
-                    likedSongs.put("IDuser", uid);
-                    likedSongs.put("IDsong", currentSong.getId());
-                    likedSongs.put("TitleSong", currentSong.getTitle());
-                    likedSongs.put("ArtistSong", currentSong.getArtist());
-                    likedSongs.put("ImageSong", currentSong.getImage());
-
-// Add a new document with a generated ID
-                    database.collection("likedSongs")
-                            .add(likedSongs)
-                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
-                                    Log.d("Succes", "DocumentSnapshot added with ID: " + documentReference.getId());
-                                    mbtnLike.setImageResource(R.drawable.ic_favorite_full);
-                                    liked = true;
-                                    documentID = documentReference.getId();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("Error", "Error adding document", e);
-                                }
-                            });
+                if(liked){
+                    SongRepository.deleteLikedSong(documentID);
+                } else{
+                    SongRepository.addLikedSong(uid, currentSong);
                 }
 
             }
@@ -220,71 +164,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback {
     }
 
 
-    public String digger(JSONArray children) throws JSONException {
-        String description = "";
-        for (int j = 0; j < children.length(); j++) {
-            if (children.get(j) instanceof String)
-                description = description + children.get(j);
-            else if (children.getJSONObject(j).has("children"))
-                description = description + digger(children.getJSONObject(j).getJSONArray("children"));
-        }
-        return description;
-    }
 
-    public void getDescription(Song song) {
-        String url = "https://api.genius.com/songs/" + song.getId();
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONObject responseDescription = response.getJSONObject("response").getJSONObject("song").getJSONObject("description").getJSONObject("dom");
-                    JSONArray desc = responseDescription.getJSONArray("children");
-                    String description = "";
-                    for (int i = 0; i < desc.length(); i++) {
-                        if (!(desc.get(i) instanceof String)) {
-                            JSONArray children = desc.getJSONObject(i).getJSONArray("children");
-                            description = description + digger(children);
-                        }
-                    }
-                    if (description.equals("?"))
-                        description = getString(R.string.Description);
-                    tvDescription.setText(description);
-                    pBLoading.setVisibility(View.GONE);
-                    //Find youtube and spotify links from response
-                    JSONArray media = response.getJSONObject("response").getJSONObject("song").getJSONArray("media");
-                    //Log.d("media", media.toString());
-                    if (media != null) {
-                        for (int k = 0; k < media.length(); k++) {
-                            if (media.getJSONObject(k).getString("provider").equals("youtube"))
-                                song.setYoutube(media.getJSONObject(k).getString("url"));
-                            else if (media.getJSONObject(k).getString("provider").equals("spotify"))
-                                song.setSpotify(media.getJSONObject(k).getString("url"));
-                        }
-                    }
-                    mbtnYt.setVisibility(View.VISIBLE);
-                    mbtnSpotify.setVisibility(View.VISIBLE);
-                    mbtnLike.setVisibility(View.VISIBLE);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("tag", "onErrorResponse: " + error.getMessage());
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                //params.put("Content-Type", "application/json; charset=UTF-8");
-                params.put("Authorization", "Bearer " + Utils.ACCESS_TOKEN);
-                return params;
-            }
-        };
-        queue.add(jsonObjectRequest);
-    }
     /*
     public void getLyrics(Song song) {
         String url = "https://api.lyrics.ovh/v1/" + song.getArtist() + "/" + song.getTitle();
@@ -386,7 +266,29 @@ public class SongActivity extends AppCompatActivity implements SongCallback {
 
     @Override
     public void onFailure(String msg) {
+        Toast.makeText(SongActivity.this, msg, Toast.LENGTH_LONG).show();
+    }
 
+    @Override
+    public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
+
+        if(liked && documentId!=null){
+            if(firstLike==true)
+                Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
+            this.liked= liked;
+            this.documentID=documentId;
+            mbtnLike.setImageResource(R.drawable.ic_favorite_full);
+        }else if(!liked && documentId==null){
+            if(firstLike==true)
+                Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
+            mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+        }
+
+    }
+
+    @Override
+    public void onFailureFB(String msg) {
+        Toast.makeText(SongActivity.this, msg, Toast.LENGTH_LONG).show();
     }
 }
 

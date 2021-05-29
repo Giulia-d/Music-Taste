@@ -132,20 +132,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                //this will call your method every time the user stops typing, if you want to call it for each letter, call it in onTextChanged
-                /*
-                Log.d("Search", s.toString());
-                JSONObject resAPI = HandleAPICalls.querySearch(s.toString(), getContext());
-                try {
-                    if(flagAPI==true) {
-                        suggestions.clear();
-                        suggestions.addAll(JSONParser.displayResultAPI(resAPI));
-                        Log.d("Suggestion", suggestions.toString());
-                        responseRecyclerViewAdapter.notifyDataSetChanged();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }*/
+
             }
         });
         handler = new Handler(new Handler.Callback() {
