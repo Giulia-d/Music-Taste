@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,8 @@ import java.util.List;
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.ResponseRecyclerViewAdapter;
 import it.unimib.musictaste.SongActivity;
+import it.unimib.musictaste.repositories.SearchCallback;
+import it.unimib.musictaste.repositories.SearchRepository;
 import it.unimib.musictaste.utils.ApiCall;
 import it.unimib.musictaste.utils.JSONParser;
 import it.unimib.musictaste.utils.MyTouchListener;
@@ -41,11 +44,11 @@ import it.unimib.musictaste.utils.Song;
  * Use the {@link SearchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements SearchCallback {
     public static final String SONG = "SONG";
     public static boolean flagAPI = false;
     static List<Song> suggestions = new ArrayList<>();
-
+    private SearchRepository searchRepository;
     private static final int TRIGGER_AUTO_COMPLETE = 100;
     private static final long AUTO_COMPLETE_DELAY = 300;
     private Handler handler;
@@ -103,6 +106,7 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //final TextView textView = view.findViewById(R.id.text);
+        searchRepository= new SearchRepository(this, getContext());
         EditText mSearch = view.findViewById(R.id.etSearch);
         RecyclerView recyclerView = view.findViewById(R.id.result_list);
         responseRecyclerViewAdapter = new ResponseRecyclerViewAdapter(suggestions, new ResponseRecyclerViewAdapter.OnItemClickListener() {
@@ -125,9 +129,10 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                handler.removeMessages(TRIGGER_AUTO_COMPLETE);
-                handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
-                        AUTO_COMPLETE_DELAY);
+                //handler.removeMessages(TRIGGER_AUTO_COMPLETE);
+                //handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
+                        //AUTO_COMPLETE_DELAY);
+                searchRepository.searchSong(mSearch.getText().toString());
             }
 
             @Override
@@ -135,7 +140,7 @@ public class SearchFragment extends Fragment {
 
             }
         });
-        handler = new Handler(new Handler.Callback() {
+        /*handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 if (msg.what == TRIGGER_AUTO_COMPLETE) {
@@ -145,10 +150,28 @@ public class SearchFragment extends Fragment {
                 }
                 return false;
             }
+        });*/
+    }
+
+    @Override
+    public void onResponse(List<Song> songs) {
+        suggestions.clear();
+        suggestions.addAll(songs);
+        requireActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                responseRecyclerViewAdapter.notifyDataSetChanged();
+
+            }
         });
     }
 
-    private void makeApiCall(String text) {
+    @Override
+    public void onFailure(String msg) {
+        Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+    }
+
+    /*private void makeApiCall(String text) {
         ApiCall.make(getContext(), text, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -173,5 +196,5 @@ public class SearchFragment extends Fragment {
 
             }
         });
-    }
+    }*/
 }

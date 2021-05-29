@@ -32,6 +32,8 @@ import it.unimib.musictaste.R;
 import it.unimib.musictaste.SettingActivity;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.SongRecyclerViewAdapter;
+import it.unimib.musictaste.repositories.AccountFBCallback;
+import it.unimib.musictaste.repositories.AccountRepository;
 import it.unimib.musictaste.utils.Song;
 
 /**
@@ -39,7 +41,7 @@ import it.unimib.musictaste.utils.Song;
  * Use the {@link AccountFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AccountFragment extends Fragment {
+public class AccountFragment extends Fragment implements AccountFBCallback {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -51,9 +53,13 @@ public class AccountFragment extends Fragment {
     ImageView imgAccount;
     FirebaseFirestore database;
     String uid;
-    SongRecyclerViewAdapter songRecyclerViewAdapted;
+    SongRecyclerViewAdapter songRecyclerViewAdapter;
     List<Song> likedSongs;
     RecyclerView recyclerView;
+    AccountRepository accountRepository;
+    FirebaseUser user;
+
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -87,63 +93,37 @@ public class AccountFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_account, container, false);
+        accountRepository = new AccountRepository(this, getContext());
         return root;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        accountRepository.getLikedSongs(uid);
 
-        dbCall();
     }
-    public void dbCall(){
-        likedSongs.clear();
-        database.collection("likedSongs")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("IDuser").equals(uid)) {
-                                    Log.d("AAAAAAAAAAAA", document.getString("TitleSong"));
-                                    Song s = new Song(document.getString("TitleSong"), document.getString("ImageSong"),
-                                            document.getString("IDsong"), document.getString("ArtistSong"));
-                                    likedSongs.add(s);
-                                    songRecyclerViewAdapted.notifyDataSetChanged();
-                                }
-                            }
-                            if (likedSongs.isEmpty()){
-                                recyclerView.setVisibility(View.GONE);
-                                txtNoSongs.setVisibility(View.VISIBLE);
-                            }
-                            else{
-                                recyclerView.setVisibility(View.VISIBLE);
-                                txtNoSongs.setVisibility(View.GONE);
-                            }
-                        }
-                    }
 
-                });
-    }
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnControl = view.findViewById(R.id.btnControl);
         recyclerView = view.findViewById(R.id.liked_songs);
         txtNoSongs = view.findViewById(R.id.tvEmptySong);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         uid = user.getUid();
+
         likedSongs = new ArrayList<Song>();
         database = FirebaseFirestore.getInstance();
         //dbCall();
-        songRecyclerViewAdapted = new SongRecyclerViewAdapter(likedSongs, new SongRecyclerViewAdapter.OnItemClickListener() {
+        songRecyclerViewAdapter = new SongRecyclerViewAdapter(likedSongs, new SongRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Song response) {
                 Intent intent = new Intent(getActivity(), SongActivity.class);
@@ -154,7 +134,7 @@ public class AccountFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(songRecyclerViewAdapted);
+        recyclerView.setAdapter(songRecyclerViewAdapter);
 
         btnControl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,6 +165,34 @@ public class AccountFragment extends Fragment {
     private void switchActivities() {
         Intent switchActivityIntent = new Intent(getActivity(), SettingActivity.class);
         startActivity(switchActivityIntent);
+    }
+
+
+    @Override
+    public void onResponse(List<Song> likedSongs) {
+
+        if (likedSongs.isEmpty()){
+            recyclerView.setVisibility(View.GONE);
+            txtNoSongs.setVisibility(View.VISIBLE);
+        }
+        else{
+            recyclerView.setVisibility(View.VISIBLE);
+            txtNoSongs.setVisibility(View.GONE);
+        }
+        this.likedSongs.clear();
+        this.likedSongs.addAll(likedSongs);
+        requireActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                songRecyclerViewAdapter.notifyDataSetChanged();
+
+            }
+        });
+
+    }
+
+    @Override
+    public void onFailure(String msg) {
 
     }
 }

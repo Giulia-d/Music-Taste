@@ -43,6 +43,8 @@ import it.unimib.musictaste.R;
 import it.unimib.musictaste.SettingActivity;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.SongRecyclerViewAdapter;
+import it.unimib.musictaste.repositories.NewsCallback;
+import it.unimib.musictaste.repositories.NewsRepository;
 import it.unimib.musictaste.utils.News;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
@@ -52,7 +54,7 @@ import it.unimib.musictaste.utils.Utils;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements NewsCallback {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -63,6 +65,7 @@ public class HomeFragment extends Fragment {
     List<News> news;
     TextView prova;
     ProgressBar pBLoading_home;
+    NewsRepository newsRepository;
 
     Handler handler;
 
@@ -125,7 +128,8 @@ public class HomeFragment extends Fragment {
             }
         });*/
         news = new ArrayList<News>();
-        getNews(news);
+        newsRepository= new NewsRepository(this, getContext());
+
         pBLoading_home = (ProgressBar) root.findViewById(R.id.pBLoading_home);
         return root;
     }
@@ -140,71 +144,42 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.rv_news);
+        newsRecyclerViewAdapter = new NewsRecyclerViewAdapter(news, new NewsRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(News response) {
+                Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(response.getUrl()));
+                getContext().startActivity(webIntent);
 
+            }
+        });
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(newsRecyclerViewAdapter);
+
+        newsRepository.getNews();
 
 
 
     }
 
-    public void getNews(List<News> news) {
-        String url = Utils.NEWS_API_REQUEST;
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
+    @Override
+    public void onResponse(List<News> news) {
+        this.news.clear();
+        this.news.addAll(news);
+        pBLoading_home.setVisibility(View.GONE);
+        requireActivity().runOnUiThread(new Runnable() {
             @Override
-            public void onResponse(JSONObject response) {
-                try {
+            public void run() {
+                newsRecyclerViewAdapter.notifyDataSetChanged();
 
-                    JSONArray articles = response.getJSONArray("articles");
-                    for (int i = 0; i < articles.length(); i++){
-                        String title = articles.getJSONObject(i).getString("title");
-                        String img = articles.getJSONObject(i).getString("urlToImage");
-                        String description = articles.getJSONObject(i).getString("description");
-                        String url = articles.getJSONObject(i).getString("url");
-                        //Log.d("TITLE", title);
-
-
-                        news.add( new News(title,description, url, img));
-
-
-                    }
-                    newsRecyclerViewAdapter = new NewsRecyclerViewAdapter(news, new NewsRecyclerViewAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(News response) {
-                            Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(response.getUrl()));
-                            getContext().startActivity(webIntent);
-
-                        }
-                    });
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-                    recyclerView.setLayoutManager(linearLayoutManager);
-                    recyclerView.setAdapter(newsRecyclerViewAdapter);
-                    pBLoading_home.setVisibility(View.GONE);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("tag", "onErrorResponse: " + error.getMessage());
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                //params.put("Content-Type", "application/json; charset=UTF-8");
-                params.put("User-Agent", "Mozilla/5.0");
-                return params;
-            }
-        };
+        });
+    }
 
+    @Override
+    public void onFailure(String msg) {
 
-
-
-
-        queue.add(jsonObjectRequest);
     }
 }
