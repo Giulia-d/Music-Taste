@@ -67,6 +67,7 @@ public class ResponseRecyclerViewAdapter extends RecyclerView.Adapter<ResponseRe
         private final TextView titleTextView;
         private final TextView artistTextView;
         private final ImageView imageSong;
+        private final ImageView imageArtist;
 
         public ResponseViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,6 +75,7 @@ public class ResponseRecyclerViewAdapter extends RecyclerView.Adapter<ResponseRe
             titleTextView = itemView.findViewById(R.id.tvtitle);
             artistTextView = itemView.findViewById(R.id.tvartist);
             imageSong = itemView.findViewById(R.id.imageSong);
+            imageArtist = itemView.findViewById(R.id.imageArtist);
         }
 
         public void bind(Song response) {
@@ -91,7 +93,9 @@ public class ResponseRecyclerViewAdapter extends RecyclerView.Adapter<ResponseRe
         public void bindFirst(Song response) {
             titleTextView.setText(response.getArtist());
             artistTextView.setText("Top Artist");
-            Picasso.get().load(response.getArtistImg()).into(imageSong);
+            imageSong.setVisibility(View.GONE);
+            imageArtist.setVisibility(View.VISIBLE);
+            Picasso.get().load(response.getArtistImg()).into(imageArtist);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
