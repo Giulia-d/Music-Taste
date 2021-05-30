@@ -11,13 +11,22 @@ public class Song implements Parcelable {
     private String idArtist;
     private String youtube;
     private String spotify;
+    private String artistImg;
 
+    public void setArtistImg(String artistImg) {
+        this.artistImg = artistImg;
+    }
 
-    public Song(String title, String image, String id, String artist) {
+    public String getArtistImg() {
+        return artistImg;
+    }
+
+    public Song(String title, String image, String id, String artist, String artistImg) {
         this.title = title;
         this.image = image;
         this.id = id;
         this.artist = artist;
+        this.artistImg = artistImg;
     }
 
     public String getIdArtist() {

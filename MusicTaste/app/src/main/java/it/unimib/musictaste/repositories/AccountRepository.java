@@ -39,7 +39,7 @@ public class AccountRepository {
                                 if (document.get("IDuser").equals(uid)) {
                                     Log.d("AAAAAAAAAAAA", document.getString("TitleSong"));
                                     Song s = new Song(document.getString("TitleSong"), document.getString("ImageSong"),
-                                            document.getString("IDsong"), document.getString("ArtistSong"));
+                                            document.getString("IDsong"), document.getString("ArtistSong"), "");
                                     likedSongs.add(s);
 
                                 }

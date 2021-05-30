@@ -20,7 +20,7 @@ public class JSONParser {
             String artist = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("name");
             //String artistId = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("id");
             Log.d("Titolo", title);
-            resp.add(new Song(title, img, id,artist));
+            //resp.add(new Song(title, img, id,artist));
             /*SearchFragment.suggestions.add(title);
             Log.d("SUGGESTION",SearchFragment.suggestions.toString());*/
         }
