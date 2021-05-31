@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
@@ -38,6 +39,7 @@ public class SearchRepository {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+
                     ArrayList<Song> resp = new ArrayList<Song>();
                     JSONObject newRes = response.getJSONObject("response");
                     JSONArray hits = newRes.getJSONArray("hits");
@@ -47,8 +49,10 @@ public class SearchRepository {
                         String id = hits.getJSONObject(i).getJSONObject("result").getString("id");
                         String artist = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("name");
                         String artistImg = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("image_url");
+                        String idArtist = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("id");
+                        Artist a = new Artist(artist, artistImg, idArtist);
                         Log.d("Titolo", title);
-                        resp.add(new Song(title, img, id,artist, artistImg));
+                        resp.add(new Song(title, img, id, a));
                         Log.d("RESP", newRes.toString());
             /*SearchFragment.suggestions.add(title);
             Log.d("SUGGESTION",SearchFragment.suggestions.toString());*/

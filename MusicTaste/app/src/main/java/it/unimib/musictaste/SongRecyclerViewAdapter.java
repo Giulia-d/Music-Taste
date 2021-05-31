@@ -60,7 +60,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 
         public void bind(Song response) {
             titleTextView.setText(response.getTitle());
-            artistTextView.setText(response.getArtist());
+            artistTextView.setText(response.getArtist().getName());
             Picasso.get().load(response.getImage()).into(imageSong);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {

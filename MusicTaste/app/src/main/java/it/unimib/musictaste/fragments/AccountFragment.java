@@ -46,6 +46,7 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static final String SONG = "SONGLIKED";
+    public static final String ARTIST = "ARTISTLIKED";
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     ImageButton btnControl;

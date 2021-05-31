@@ -2,7 +2,6 @@ package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -29,56 +28,52 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.unimib.musictaste.R;
-import it.unimib.musictaste.SongActivity;
-import it.unimib.musictaste.utils.Song;
+import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Utils;
 
-public class SongRepository {
-    private final SongCallback songCallback;
-    public static SongFBCallback songFBCallback = null;
+public class ArtistRepository {
+    private final ArtistCallback artistCallback;
+    public static ArtistFBCallback artistFBCallback = null;
     private final Context context;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
 
-
-    public SongRepository(SongCallback songCallback, SongFBCallback songFBCallback, Context context) {
-        this.songCallback = songCallback;
-        this.songFBCallback = songFBCallback;
+    public ArtistRepository(ArtistCallback artistCallback, ArtistFBCallback artistFBCallback, Context context) {
+        this.artistCallback = artistCallback;
+        this.artistFBCallback = artistFBCallback;
         this.context = context;
     }
+ //db
+ public void checkLikedArtist(String uid, String idArtist) {
 
-    public void checkLikedSongs(String uid, String idSong) {
+     database.collection("likedArtists")
+             .get()
+             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                 private boolean liked = false;
+                 private String documentID = null;
 
-        database.collection("likedSongs")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    private boolean liked = false;
-                    private String documentID = null;
+                 @Override
+                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                     if (task.isSuccessful()) {
+                         for (QueryDocumentSnapshot document : task.getResult()) {
+                             if (document.get("IDuser").equals(uid) &&
+                                     document.get("IDartist").equals(idArtist)) {
+                                 liked = true;
 
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("IDuser").equals(uid) &&
-                                        document.get("IDsong").equals(idSong)) {
-                                    liked = true;
+                                 documentID = document.getId();
+                                 break;
+                             }
+                         }
+                         artistFBCallback.onResponseFB(liked, documentID, false);
+                     }
+                 }
 
-                                    documentID = document.getId();
-                                    break;
-                                }
-                            }
-                            songFBCallback.onResponseFB(liked, documentID, false);
-                        }
-                    }
-
-                });
-    }
-
-
-    public static void deleteLikedSong(String documentID) {
+             });
+ }
 
 
-        database.collection("likedSongs").document(documentID)
+    public static void deleteLikedArtist(String documentID) {
+
+        database.collection("likedArtists").document(documentID)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     //boolean liked = true;
@@ -87,7 +82,7 @@ public class SongRepository {
 
                         Log.d("Succes", "DocumentSnapshot successfully deleted!");
 
-                        songFBCallback.onResponseFB(false, null, true);
+                        artistFBCallback.onResponseFB(false, null, true);
 
                     }
                 })
@@ -101,17 +96,16 @@ public class SongRepository {
 
     }
 
-    public static void addLikedSong(String uid, Song currentSong) {
-        Map<String, Object> likedSongs = new HashMap<>();
-        likedSongs.put("IDuser", uid);
-        likedSongs.put("IDsong", currentSong.getId());
-        likedSongs.put("TitleSong", currentSong.getTitle());
-        likedSongs.put("ImageSong", currentSong.getImage());
-        likedSongs.put("Artist", currentSong.getArtist());
+    public static void addLikedArtist(String uid, Artist currentArtist) {
+        Map<String, Object> likedArtists = new HashMap<>();
+        likedArtists.put("IDuser", uid);
+        likedArtists.put("IDartist", currentArtist.getId());
+        likedArtists.put("NameArtist", currentArtist.getName());
+        likedArtists.put("ImageArtist", currentArtist.getImage());
 
 // Add a new document with a generated ID
-        database.collection("likedSongs")
-                .add(likedSongs)
+        database.collection("likedArtists")
+                .add(likedArtists)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
@@ -120,7 +114,7 @@ public class SongRepository {
                         //mbtnLike.setImageResource(R.drawable.ic_favorite_full);
                         //liked = true;
                         String documentID = documentReference.getId();
-                        songFBCallback.onResponseFB(true, documentID, true);
+                        artistFBCallback.onResponseFB(true, documentID, true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -131,14 +125,17 @@ public class SongRepository {
                 });
     }
 
-    public void getSongInfo(String songId) {
-        String url = "https://api.genius.com/songs/" + songId;
+
+//api request
+
+    public void getArtistInfo(String artistId) {
+        String url = "https://api.genius.com/artists/" + artistId;
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONObject responseDescription = response.getJSONObject("response").getJSONObject("song").getJSONObject("description").getJSONObject("dom");
+                    JSONObject responseDescription = response.getJSONObject("response").getJSONObject("artist").getJSONObject("description").getJSONObject("dom");
                     JSONArray desc = responseDescription.getJSONArray("children");
                     String description = "";
                     for (int i = 0; i < desc.length(); i++) {
@@ -148,7 +145,11 @@ public class SongRepository {
                         }
                     }
 
-                    //Find youtube and spotify links from response
+                    String youtube = "";
+                    String spotify = "";
+                    //artist non ha media
+                    /*
+                    // Find youtube and spotify links from response
                     JSONArray media = response.getJSONObject("response").getJSONObject("song").getJSONArray("media");
                     //Log.d("media", media.toString());
                     String youtube = "";
@@ -161,8 +162,8 @@ public class SongRepository {
                                 spotify = (media.getJSONObject(k).getString("url"));
                         }
                     }
-
-                    songCallback.onResponse(description, youtube, spotify);
+                    */
+                    artistCallback.onResponse(description, youtube, spotify);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -171,7 +172,7 @@ public class SongRepository {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("tag", "onErrorResponse: " + error.getMessage());
-                songCallback.onFailure(error.getMessage());
+                artistCallback.onFailure(error.getMessage());
             }
         }) {
             @Override

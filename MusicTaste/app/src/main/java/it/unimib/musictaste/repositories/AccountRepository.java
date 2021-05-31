@@ -14,7 +14,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 
 public class AccountRepository {
@@ -37,9 +39,14 @@ public class AccountRepository {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("IDuser").equals(uid)) {
+                                    Map <String, Object> data = document.getData();
+                                    Map <String, Object> artistMap = (Map<String, Object>) data.get("Artist");
+                                    String id = (String) artistMap.get("id");
+                                    String image = (String) artistMap.get("image");
+                                    String name = (String) artistMap.get("name");
                                     Log.d("AAAAAAAAAAAA", document.getString("TitleSong"));
                                     Song s = new Song(document.getString("TitleSong"), document.getString("ImageSong"),
-                                            document.getString("IDsong"), document.getString("ArtistSong"), "");
+                                            document.getString("IDsong"),new Artist(name, image, id));
                                     likedSongs.add(s);
 
                                 }

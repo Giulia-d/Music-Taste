@@ -50,121 +50,112 @@ import java.util.Map;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
-import it.unimib.musictaste.repositories.SongCallback;
-import it.unimib.musictaste.repositories.SongFBCallback;
+import it.unimib.musictaste.repositories.ArtistCallback;
+import it.unimib.musictaste.repositories.ArtistFBCallback;
+import it.unimib.musictaste.repositories.ArtistRepository;
 import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.GradientTransformation;
+import it.unimib.musictaste.utils.Artist;
+
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
 
-public class SongActivity extends AppCompatActivity implements SongCallback, SongFBCallback {
-
-    ImageView imgSong;
-    TextView tvArtistSong;
-    //TextView tvTitleSong;
+public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback {
+    ImageView imgA;
+    TextView tvAName;
     String titleSong;
-    //TextView tvLyricsSong;
-    TextView tvDescription;
-    ImageButton mbtnYt, mbtnSpotify, mbtnLike;
+    TextView tvADescription;
+    ImageButton mbtnAYt, mbtnASpotify, mbtnALike;
     FirebaseFirestore database;
-    //boolean liked = false;
     boolean liked;
     String documentID;
-    Toolbar toolbar;
-    CollapsingToolbarLayout collapsingToolbar;
+    Toolbar toolbarA;
+    CollapsingToolbarLayout collapsingToolbarA;
     Song currentSong;
-    SongRepository songRepository;
-    ProgressBar pBLoading;
-    public static final String ARTIST = "ARTIST";
+    Artist currentArtist;
+    ArtistRepository artistRepository;
+    ProgressBar pBLoadingA;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_song);
+        setContentView(R.layout.activity_artist);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        imgSong = findViewById(R.id.imgSong);
-        tvArtistSong = findViewById(R.id.tvArtistSong);
-        //tvTitleSong = findViewById(R.id.tvTitleSong);
-        //tvLyricsSong = findViewById(R.id.tvLyricsSong);
-        tvDescription = findViewById(R.id.tvDescription);
-        mbtnYt = findViewById(R.id.btnYoutube);
-        mbtnSpotify = findViewById(R.id.btnSpotify);
-        mbtnLike = findViewById(R.id.btnLike);
+        imgA = findViewById(R.id.imgArtist);
+        tvAName = findViewById(R.id.tvArtistName);
+        tvADescription = findViewById(R.id.tvArtistDescription);
+        mbtnAYt = findViewById(R.id.btnArtistYoutube);
+        mbtnASpotify = findViewById(R.id.btnArtistSpotify);
+        mbtnALike = findViewById(R.id.btnArtistLike);
         database = FirebaseFirestore.getInstance();
-        liked = false;
-        pBLoading = findViewById(R.id.pBLoading);
-        songRepository = new SongRepository(this, this, this);
-
+        //liked = false;
+        pBLoadingA = findViewById(R.id.pBLoadingArtist);
+        artistRepository = new ArtistRepository(this, this, this);
         Intent intent = getIntent();
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
         if (currentSong == null) {
-            currentSong = intent.getParcelableExtra(AccountFragment.SONG);
+            currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
         }
+        currentArtist = currentSong.getArtist();
 
-
-        //int tre = intent.getIntExtra(SearchFragment.SONG, 0);
-        Picasso.get().load(currentSong.getImage()).transform(new GradientTransformation()).into(imgSong);
-        tvArtistSong.setText(currentSong.getArtist().getName());
+        Picasso.get().load(currentArtist.getImage()).transform(new GradientTransformation()).into(imgA);
+        tvAName.setText(currentArtist.getName());
         //tvTitleSong.setText(song.getTitle());
         //tvLyricsSong.setText(song.getId());
         //Log.d("user", "Photo:" + tre);
-        setToolbarColor(currentSong);
+        setToolbarColor(currentArtist);
+
+
+
 
 
         //getDescription(currentSong);
-        songRepository.checkLikedSongs(uid, currentSong.getId());
-        songRepository.getSongInfo(currentSong.getId());
+        artistRepository.checkLikedArtist(uid, currentArtist.getId());
+        artistRepository.getArtistInfo(currentArtist.getId());
 
-        tvArtistSong.setOnClickListener(new View.OnClickListener() {
+        /*
+        mbtnAYt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SongActivity.this, ArtistActivity.class);
-                intent.putExtra(ARTIST, currentSong);
-                startActivity(intent);
-            }
-        });
-
-        mbtnYt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentSong.getYoutube() != null) {
+                if (currentArtist.getYoutube() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(currentSong.getYoutube()));
+                            Uri.parse(currentArtist.getYoutube()));
                     try {
-                        SongActivity.this.startActivity(webIntent);
+                        ArtistActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
                     }
                 } else
-                    Toast.makeText(SongActivity.this, R.string.YoutubeError, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ArtistActivity.this, R.string.YoutubeError, Toast.LENGTH_LONG).show();
             }
         });
 
         mbtnSpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentSong.getSpotify() != null) {
+                if (currentArtist.getSpotify() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(currentSong.getSpotify()));
+                            Uri.parse(currentArtist.getSpotify()));
                     try {
-                        SongActivity.this.startActivity(webIntent);
+                        ArtistActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
                     }
                 } else
-                    Toast.makeText(SongActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ArtistActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
             }
         });
+         */
         //getLyrics(song);
 
 
         Log.d("AAAUSER", uid);
-        mbtnLike.setOnClickListener(new View.OnClickListener() {
+        mbtnALike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(liked){
-                    SongRepository.deleteLikedSong(documentID);
+                    ArtistRepository.deleteLikedArtist(documentID);
                 } else{
-                    SongRepository.addLikedSong(uid, currentSong);
+                    ArtistRepository.addLikedArtist(uid, currentArtist);
                 }
 
             }
@@ -198,19 +189,18 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
     }*/
 
 
-    public void setToolbarColor(Song song) {
+    public void setToolbarColor(Artist artist) {
         Picasso.get()
-                .load(song.getImage())
+                .load(artist.getImage())
                 .into(new Target() {
-
                     @Override
                     public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                        /* Save the bitmap or do something with it here */
-                        toolbar = (Toolbar) findViewById(R.id.toolbar);
-                        setSupportActionBar(toolbar);
+                        // Save the bitmap or do something with it here
+                        toolbarA = (Toolbar) findViewById(R.id.toolbarArtist);
+                        setSupportActionBar(toolbarA);
 
-                        collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-                        collapsingToolbar.setTitle(song.getTitle());
+                        collapsingToolbarA = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbarArtist);
+                        collapsingToolbarA.setTitle(artist.getName());
                         if (bitmap != null) {
                             Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
                                 public void onGenerated(Palette p) {
@@ -234,10 +224,10 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
                                     }
 
                                     // Set the toolbar background and text colors
-                                    collapsingToolbar.setBackgroundColor(backgroundColor);
-                                    collapsingToolbar.setCollapsedTitleTextColor(textColor);
-                                    collapsingToolbar.setStatusBarScrimColor(backgroundColor);
-                                    collapsingToolbar.setContentScrimColor(backgroundColor);
+                                    collapsingToolbarA.setBackgroundColor(backgroundColor);
+                                    collapsingToolbarA.setCollapsedTitleTextColor(textColor);
+                                    collapsingToolbarA.setStatusBarScrimColor(backgroundColor);
+                                    collapsingToolbarA.setContentScrimColor(backgroundColor);
 
                                 }
                             });
@@ -263,41 +253,41 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
     public void onResponse(String description, String youtube, String spotify) {
         if (description.equals("?"))
             description = getString(R.string.Description);
-        tvDescription.setText(description);
-        pBLoading.setVisibility(View.GONE);
-        currentSong.setYoutube(youtube);
-        currentSong.setSpotify(spotify);
-        mbtnYt.setVisibility(View.VISIBLE);
-        mbtnSpotify.setVisibility(View.VISIBLE);
-        mbtnLike.setVisibility(View.VISIBLE);
+        tvADescription.setText(description);
+        pBLoadingA.setVisibility(View.GONE);
+        //currentArtist.setYoutube(youtube);
+       //currentArtist.setSpotify(spotify);
+        //mbtnAYt.setVisibility(View.VISIBLE);
+        //mbtnASpotify.setVisibility(View.VISIBLE);
+        mbtnALike.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onFailure(String msg) {
-        Toast.makeText(SongActivity.this, msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
-
         if(liked && documentId!=null){
             if(firstLike==true)
-                Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
-            this.liked = liked;
+                Toast.makeText(ArtistActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
+            this.liked= liked;
             this.documentID=documentId;
-            mbtnLike.setImageResource(R.drawable.ic_favorite_full);
+            mbtnALike.setImageResource(R.drawable.ic_favorite_full);
         }else if(!liked && documentId==null){
-            if(firstLike==true){
-                Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
-                this.liked = liked;
-                mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+            if(firstLike==true) {
+                Toast.makeText(ArtistActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
+                this.liked=liked;
+                mbtnALike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
             }
         }
+
     }
 
     @Override
     public void onFailureFB(String msg) {
-        Toast.makeText(SongActivity.this, msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
     }
 }
 

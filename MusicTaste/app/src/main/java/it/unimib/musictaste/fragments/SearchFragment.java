@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.unimib.musictaste.ArtistActivity;
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.ResponseRecyclerViewAdapter;
 import it.unimib.musictaste.SongActivity;
@@ -46,6 +47,7 @@ import it.unimib.musictaste.utils.Song;
  */
 public class SearchFragment extends Fragment implements SearchCallback {
     public static final String SONG = "SONG";
+    public static final String ARTIST = "ARTIST";
     public static boolean flagAPI = false;
     static List<Song> suggestions = new ArrayList<>();
     private SearchRepository searchRepository;
@@ -111,11 +113,19 @@ public class SearchFragment extends Fragment implements SearchCallback {
         RecyclerView recyclerView = view.findViewById(R.id.result_list);
         responseRecyclerViewAdapter = new ResponseRecyclerViewAdapter(suggestions, new ResponseRecyclerViewAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(Song response) {
-                //Log.d("Lista", response);
-                Intent intent = new Intent(getActivity(), SongActivity.class);
-                intent.putExtra(SONG, response);
-                startActivity(intent);
+            public void onItemClick(Song response, int position) {
+                responseRecyclerViewAdapter.getItemCount();
+
+                if(position==0){
+                    Intent intent = new Intent(getActivity(), ArtistActivity.class);
+                    intent.putExtra(SONG, response);
+                    startActivity(intent);
+
+                }else {
+                    Intent intent = new Intent(getActivity(), SongActivity.class);
+                    intent.putExtra(SONG, response);
+                    startActivity(intent);
+                }
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

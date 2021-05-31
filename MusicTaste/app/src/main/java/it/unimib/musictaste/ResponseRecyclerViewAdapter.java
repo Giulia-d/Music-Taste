@@ -21,7 +21,7 @@ public class ResponseRecyclerViewAdapter extends RecyclerView.Adapter<ResponseRe
     private OnItemClickListener onItemClickListener;
 
     public interface OnItemClickListener {
-        void onItemClick(Song response);
+        void onItemClick(Song response, int position);
     }
 
     public ResponseRecyclerViewAdapter(List<Song> responseList, OnItemClickListener onItemClickListener) {
@@ -47,8 +47,6 @@ public class ResponseRecyclerViewAdapter extends RecyclerView.Adapter<ResponseRe
         } else{
             holder.bind(responseList.get(position-1));
         }
-
-
     }
 
 
@@ -80,26 +78,26 @@ public class ResponseRecyclerViewAdapter extends RecyclerView.Adapter<ResponseRe
 
         public void bind(Song response) {
             titleTextView.setText(response.getTitle());
-            artistTextView.setText(response.getArtist());
+            artistTextView.setText(response.getArtist().getName());
             Picasso.get().load(response.getImage()).into(imageSong);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClickListener.onItemClick(response);
+                    onItemClickListener.onItemClick(response , 1 );
                 }
             });
         }
 
         public void bindFirst(Song response) {
-            titleTextView.setText(response.getArtist());
+            titleTextView.setText(response.getArtist().getName());
             artistTextView.setText("Top Artist");
             imageSong.setVisibility(View.GONE);
             imageArtist.setVisibility(View.VISIBLE);
-            Picasso.get().load(response.getArtistImg()).into(imageArtist);
+            Picasso.get().load(response.getArtist().getImage()).into(imageArtist);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClickListener.onItemClick(response);
+                    onItemClickListener.onItemClick(response,0 );
                 }
             });
         }

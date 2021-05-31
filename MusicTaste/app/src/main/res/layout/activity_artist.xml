@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SongActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbarArtist"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@color/Orange"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbarArtist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/Orange"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+            app:title="@string/Name">
+
+            <ImageView
+                android:id="@+id/imgArtist"
+                android:layout_width="match_parent"
+                android:layout_height="334dp"
+                android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="1:1"
+                app:srcCompat="@drawable/ic_launcher_background" />
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbarArtist"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollViewArtist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/DarkGray"
+        android:backgroundTint="@color/DarkGray"
+        android:padding="20dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="726dp"
+            tools:layout_editor_absoluteY="1dp">
+
+            <!--all album..
+            <TextView
+                android:id="@+id/tvAlbumSong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Album"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />-->
+
+            <TextView
+                android:id="@+id/tvArtistName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textColor="@color/LightGray"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvArtistDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvArtistListen" />
+
+            <TextView
+                android:id="@+id/tvArtistListen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:text="@string/listen"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnArtistYoutube"
+                android:layout_width="43dp"
+                android:layout_height="41dp"
+                android:layout_marginStart="40dp"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@+id/tvArtistDescription"
+                app:layout_constraintStart_toEndOf="@+id/tvArtistListen"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.733"
+                app:srcCompat="@drawable/ic_youtube"
+                app:tint="@color/Orange" />
+
+            <ImageButton
+                android:id="@+id/btnArtistSpotify"
+                android:layout_width="44dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="36dp"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnArtistYoutube"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.492"
+                app:srcCompat="@drawable/ic_spotify"
+                app:tint="@color/Orange" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnArtistLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:backgroundTint="@color/Orange"
+        android:baselineAlignBottom="false"
+        android:clickable="true"
+        android:src="@drawable/ic_baseline_favorite_border_24"
+        android:visibility="visible"
+        app:backgroundTint="@color/Orange"
+        app:fabSize="normal"
+        app:layout_anchor="@id/appbarArtist"
+        app:layout_anchorGravity="end|bottom" />
+
+    <ProgressBar
+        android:id="@+id/pBLoadingArtist"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/Orange"
+        android:visibility="visible"
+        app:layout_anchor="@+id/nestedScrollViewArtist"
+        app:layout_anchorGravity="center" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
