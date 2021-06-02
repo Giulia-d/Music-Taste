@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicTaste">
         <activity android:name=".ArtistActivity"></activity>
+        <activity android:name=".AlbumActivity" />
         <activity android:name=".SongActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".RegistrationActivity" />

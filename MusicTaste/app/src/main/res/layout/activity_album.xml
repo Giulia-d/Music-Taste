@@ -7,14 +7,14 @@
     tools:context=".SongActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbarArtist"
+        android:id="@+id/appbarAlbum"
         android:layout_width="match_parent"
         android:layout_height="280dp"
         android:background="@color/Orange"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbarArtist"
+            android:id="@+id/collapsing_toolbarAlbum"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -23,7 +23,7 @@
             app:title="@string/Name">
 
             <it.unimib.musictaste.utils.SquareImage
-                android:id="@+id/imgArtist"
+                android:id="@+id/imgAlbum"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
@@ -31,7 +31,7 @@
                 app:srcCompat="@drawable/ic_launcher_background" />
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbarArtist"
+                android:id="@+id/toolbarAlbum"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin" />
@@ -41,7 +41,7 @@
 
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollViewArtist"
+        android:id="@+id/nestedScrollViewAlbum"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/DarkGray"
@@ -61,22 +61,45 @@
                 android:layout_height="wrap_content"
                 android:text="Album"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />-->
+                app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />
 
-
-            <TextView
-                android:id="@+id/tvArtistDescription"
-                android:layout_width="wrap_content"
+            <ScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvArtistListen" />
+                app:layout_constraintTop_toBottomOf="@+id/tvAlbumListen">-->
 
-            <TextView
-                android:id="@+id/tvArtistListen"
+            <com.ms.square.android.expandabletextview.ExpandableTextView
+                android:id="@+id/tvExpandableTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:animDuration="200"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvAlbumListen"
+                app:maxCollapsedLines="6">
+
+                <TextView
+                    android:id="@+id/expandable_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:textSize="18sp" />
+
+                <ImageButton
+                    android:id="@+id/expand_collapse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|bottom"
+                    android:background="@android:color/transparent"
+                    android:padding="16dp" />
+
+            </com.ms.square.android.expandabletextview.ExpandableTextView>
+
+          <TextView
+                android:id="@+id/tvAlbumListen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="36dp"
@@ -86,41 +109,48 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/btnArtistYoutube"
+                android:id="@+id/btnAlbumYoutube"
                 android:layout_width="43dp"
                 android:layout_height="41dp"
                 android:layout_marginStart="40dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
                 android:visibility="visible"
-                app:layout_constraintBottom_toTopOf="@+id/tvArtistDescription"
-                app:layout_constraintStart_toEndOf="@+id/tvArtistListen"
+                app:layout_constraintBottom_toTopOf="@+id/tvExpandableTextView"
+                app:layout_constraintStart_toEndOf="@+id/tvAlbumListen"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.733"
                 app:srcCompat="@drawable/ic_youtube"
                 app:tint="@color/Orange" />
 
             <ImageButton
-                android:id="@+id/btnArtistSpotify"
+                android:id="@+id/btnAlbumSpotify"
                 android:layout_width="44dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="36dp"
+                android:layout_marginTop="12dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
                 android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/btnArtistYoutube"
+                app:layout_constraintStart_toEndOf="@+id/btnAlbumYoutube"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.492"
                 app:srcCompat="@drawable/ic_spotify"
                 app:tint="@color/Orange" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tracks_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvExpandableTextView"
+                android:layout_marginTop="50dp"
+                tools:layout_editor_absoluteX="-16dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnArtistLike"
+        android:id="@+id/btnAlbumLike"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
@@ -131,18 +161,21 @@
         android:visibility="visible"
         app:backgroundTint="@color/Orange"
         app:fabSize="normal"
-        app:layout_anchor="@id/appbarArtist"
+        app:layout_anchor="@id/appbarAlbum"
         app:layout_anchorGravity="end|bottom" />
 
     <ProgressBar
-        android:id="@+id/pBLoadingArtist"
+        android:id="@+id/pBLoadingAlbum"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:indeterminateTint="@color/Orange"
         android:visibility="visible"
-        app:layout_anchor="@+id/nestedScrollViewArtist"
+        app:layout_anchor="@+id/nestedScrollViewAlbum"
         app:layout_anchorGravity="center" />
+
+
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

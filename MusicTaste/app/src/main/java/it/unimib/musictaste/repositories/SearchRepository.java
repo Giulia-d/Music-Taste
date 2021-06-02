@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
@@ -51,6 +52,7 @@ public class SearchRepository {
                         String artistImg = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("image_url");
                         String idArtist = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("id");
                         Artist a = new Artist(artist, artistImg, idArtist);
+
                         Log.d("Titolo", title);
                         resp.add(new Song(title, img, id, a));
                         Log.d("RESP", newRes.toString());

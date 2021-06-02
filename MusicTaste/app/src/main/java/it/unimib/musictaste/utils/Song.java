@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 public class Song implements Parcelable {
     private String title;
+    private Album album;
     private String image;
     private String id;
     private String youtube;
@@ -38,6 +39,10 @@ public class Song implements Parcelable {
         return id;
     }
 
+    public Album getAlbum(){
+        return album;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -60,6 +65,10 @@ public class Song implements Parcelable {
 
     public void setSpotify(String spotify) {
         this.spotify = spotify;
+    }
+
+    public void setAlbum(Album album){
+        this.album = album;
     }
 
     public String getSpotify() {
@@ -90,6 +99,7 @@ public class Song implements Parcelable {
         this.image = in.readString();
         this.id = in.readString();
         this.artist = in.readParcelable(Artist.class.getClassLoader());
+        this.album = in.readParcelable(Album.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {

@@ -53,6 +53,7 @@ import it.unimib.musictaste.fragments.SearchFragment;
 import it.unimib.musictaste.repositories.SongCallback;
 import it.unimib.musictaste.repositories.SongFBCallback;
 import it.unimib.musictaste.repositories.SongRepository;
+import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
@@ -62,7 +63,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
 
     ImageView imgSong;
     TextView tvArtistSong;
-    //TextView tvTitleSong;
+    TextView tvAlbumSong;
     String titleSong;
     //TextView tvLyricsSong;
     TextView tvDescription;
@@ -74,9 +75,11 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbar;
     Song currentSong;
+    Album currentAlbum;
     SongRepository songRepository;
     ProgressBar pBLoading;
     public static final String ARTIST = "ARTIST";
+    public static final String ALBUM = "ALBUM";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +88,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
         String uid = user.getUid();
         imgSong = findViewById(R.id.imgSong);
         tvArtistSong = findViewById(R.id.tvArtistSong);
-        //tvTitleSong = findViewById(R.id.tvTitleSong);
+        tvAlbumSong = findViewById(R.id.tvAlbumSong);
         //tvLyricsSong = findViewById(R.id.tvLyricsSong);
         tvDescription = findViewById(R.id.tvDescription);
         mbtnYt = findViewById(R.id.btnYoutube);
@@ -106,7 +109,6 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
         //int tre = intent.getIntExtra(SearchFragment.SONG, 0);
         Picasso.get().load(currentSong.getImage()).transform(new GradientTransformation()).into(imgSong);
         tvArtistSong.setText(currentSong.getArtist().getName());
-        //tvTitleSong.setText(song.getTitle());
         //tvLyricsSong.setText(song.getId());
         //Log.d("user", "Photo:" + tre);
         setToolbarColor(currentSong);
@@ -123,6 +125,17 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
                 intent.putExtra(ARTIST, currentSong);
                 startActivity(intent);
             }
+        });
+
+        tvAlbumSong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SongActivity.this, AlbumActivity.class);
+                intent.putExtra(ARTIST, currentSong);
+                intent.putExtra(ALBUM, currentAlbum);
+                startActivity(intent);
+            }
+
         });
 
         mbtnYt.setOnClickListener(new View.OnClickListener() {
@@ -260,7 +273,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
     }
 
     @Override
-    public void onResponse(String description, String youtube, String spotify) {
+    public void onResponse(String description, String youtube, String spotify, Album album) {
         if (description.equals("?"))
             description = getString(R.string.Description);
         tvDescription.setText(description);
@@ -270,6 +283,9 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
         mbtnYt.setVisibility(View.VISIBLE);
         mbtnSpotify.setVisibility(View.VISIBLE);
         mbtnLike.setVisibility(View.VISIBLE);
+        currentSong.setAlbum(album);
+        tvAlbumSong.setText(currentSong.getAlbum().getTitle());
+        currentAlbum = currentSong.getAlbum();
     }
 
     @Override

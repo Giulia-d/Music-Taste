@@ -52,4 +52,5 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'com.android.support:design:30.0.0'
     implementation 'androidx.palette:palette:1.0.0'
+    implementation 'com.ms-square:expandableTextView:0.1.4'
 }

@@ -31,6 +31,7 @@ import java.util.Map;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.SongActivity;
+import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
@@ -161,8 +162,15 @@ public class SongRepository {
                                 spotify = (media.getJSONObject(k).getString("url"));
                         }
                     }
+                    JSONObject album = response.getJSONObject("response").getJSONObject("song").getJSONObject("album");
+                    String idAlbum  = album.getString("id");
+                    String albumImg  = album.getString("cover_art_url");
+                    String albumTitle  = album.getString("name");
 
-                    songCallback.onResponse(description, youtube, spotify);
+                    Album al = new Album(albumTitle, albumImg, idAlbum);
+
+
+                    songCallback.onResponse(description, youtube, spotify, al);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

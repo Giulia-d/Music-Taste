@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SongActivity">
+    tools:context=".AlbumActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -15,18 +15,26 @@
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/Orange"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:title="Titolo">
 
-            <ImageView
+            <!-- <ImageView
                 android:id="@+id/imgSong"
                 android:layout_width="match_parent"
-                android:layout_height="334dp"
+                android:layout_height="382dp"
                 android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="1:1"
+                app:srcCompat="@drawable/ic_launcher_background" /> -->
+
+            <it.unimib.musictaste.utils.SquareImage
+                android:id="@+id/imgSong"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
                 app:layout_constraintDimensionRatio="1:1"
                 app:srcCompat="@drawable/ic_launcher_background" />
 
@@ -68,7 +76,6 @@
                 android:id="@+id/tvAlbumSong"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Album"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />
 

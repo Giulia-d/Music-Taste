@@ -1,10 +1,8 @@
 package it.unimib.musictaste;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,103 +13,94 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
+import it.unimib.musictaste.repositories.AlbumCallback;
+import it.unimib.musictaste.repositories.AlbumTracksCallback;
 import it.unimib.musictaste.repositories.ArtistCallback;
 import it.unimib.musictaste.repositories.ArtistFBCallback;
 import it.unimib.musictaste.repositories.ArtistRepository;
-import it.unimib.musictaste.repositories.SongRepository;
-import it.unimib.musictaste.utils.GradientTransformation;
+import it.unimib.musictaste.repositories.AlbumRepository;
+import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
-
+import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
-import it.unimib.musictaste.utils.Utils;
+import it.unimib.musictaste.AlbumRecyclerViewAdapter;
 
+public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, AlbumTracksCallback {
 
-public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback {
-    ImageView imgA;
-    String titleSong;
-    TextView tvADescription;
-    ImageButton mbtnAYt, mbtnASpotify, mbtnALike;
+    public static final String SONG = "SONG";
+    ImageView imgAlbum;
+    //TextView tvAlbumDescription;
+    ImageButton mbtnAlbumYt, mbtnAlbumSpotify, mbtnAlbumLike;
     FirebaseFirestore database;
     boolean liked;
     String documentID;
-    Toolbar toolbarA;
-    CollapsingToolbarLayout collapsingToolbarA;
+    Toolbar toolbarAlbum;
+    CollapsingToolbarLayout collapsingToolbarAlbum;
     Song currentSong;
     Artist currentArtist;
-    ArtistRepository artistRepository;
-    ProgressBar pBLoadingA;
+    Album currentAlbum;
+    AlbumRepository albumRepository;
+    ProgressBar pBLoadingAlbum;
+    ExpandableTextView tvExpTextView;
+    AlbumRecyclerViewAdapter albumRecyclerViewAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_artist);
+        setContentView(R.layout.activity_album);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
-        imgA = findViewById(R.id.imgArtist);
-        tvADescription = findViewById(R.id.tvArtistDescription);
-        mbtnAYt = findViewById(R.id.btnArtistYoutube);
-        mbtnASpotify = findViewById(R.id.btnArtistSpotify);
-        mbtnALike = findViewById(R.id.btnArtistLike);
+        imgAlbum = findViewById(R.id.imgAlbum);
+        tvExpTextView = (ExpandableTextView) findViewById(R.id.tvExpandableTextView);
+        //tvAlbumDescription = findViewById(R.id.tvAlbumDescription);
+        mbtnAlbumYt = findViewById(R.id.btnAlbumYoutube);
+        mbtnAlbumSpotify = findViewById(R.id.btnAlbumSpotify);
+        mbtnAlbumLike = findViewById(R.id.btnAlbumLike);
         database = FirebaseFirestore.getInstance();
         //liked = false;
-        pBLoadingA = findViewById(R.id.pBLoadingArtist);
-        artistRepository = new ArtistRepository(this, this, this);
-        Intent intent = getIntent();
-        currentSong = intent.getParcelableExtra(SearchFragment.SONG);
-        if (currentSong == null) {
-            currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
-        }
-        currentArtist = currentSong.getArtist();
+        pBLoadingAlbum = findViewById(R.id.pBLoadingAlbum);
+        albumRepository = new AlbumRepository(this, this, this);
 
-        Picasso.get().load(currentArtist.getImage()).transform(new GradientTransformation()).into(imgA);
+        Intent intent = getIntent();
+        currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
+        currentAlbum = intent.getParcelableExtra(SongActivity.ALBUM);
+        currentArtist = currentSong.getArtist();
+        currentSong.setAlbum(currentAlbum);
+
+        Picasso.get().load(currentAlbum.getImage()).transform(new GradientTransformation()).into(imgAlbum);
         //tvAName.setText(currentArtist.getName());
         //tvTitleSong.setText(song.getTitle());
         //tvLyricsSong.setText(song.getId());
         //Log.d("user", "Photo:" + tre);
-        setToolbarColor(currentArtist);
+        setToolbarColor(currentAlbum);
 
 
 
 
 
         //getDescription(currentSong);
-        artistRepository.checkLikedArtist(uid, currentArtist.getId());
-        artistRepository.getArtistInfo(currentArtist.getId());
-
+        //albumRepository.checkLikedAlbum(uid, currentArtist.getId());
+        albumRepository.getAlbumInfo(currentAlbum.getId());
+        albumRepository.getAlbumTracks(currentAlbum.getId());
         /*
         mbtnAYt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +136,7 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
 
 
         Log.d("AAAUSER", uid);
+        /*
         mbtnALike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,9 +147,8 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
                 }
 
             }
-        });
+        });*/
     }
-
 
 
     /*
@@ -187,18 +176,18 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     }*/
 
 
-    public void setToolbarColor(Artist artist) {
+    public void setToolbarColor(Album album) {
         Picasso.get()
-                .load(artist.getImage())
+                .load(album.getImage())
                 .into(new Target() {
                     @Override
                     public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
                         // Save the bitmap or do something with it here
-                        toolbarA = (Toolbar) findViewById(R.id.toolbarArtist);
-                        setSupportActionBar(toolbarA);
+                        toolbarAlbum = (Toolbar) findViewById(R.id.toolbarAlbum);
+                        setSupportActionBar(toolbarAlbum);
 
-                        collapsingToolbarA = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbarArtist);
-                        collapsingToolbarA.setTitle(artist.getName());
+                        collapsingToolbarAlbum = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbarAlbum);
+                        collapsingToolbarAlbum.setTitle(album.getTitle());
                         if (bitmap != null) {
                             Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
                                 public void onGenerated(Palette p) {
@@ -222,10 +211,10 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
                                     }
 
                                     // Set the toolbar background and text colors
-                                    collapsingToolbarA.setBackgroundColor(backgroundColor);
-                                    collapsingToolbarA.setCollapsedTitleTextColor(textColor);
-                                    collapsingToolbarA.setStatusBarScrimColor(backgroundColor);
-                                    collapsingToolbarA.setContentScrimColor(backgroundColor);
+                                    collapsingToolbarAlbum.setBackgroundColor(backgroundColor);
+                                    collapsingToolbarAlbum.setCollapsedTitleTextColor(textColor);
+                                    collapsingToolbarAlbum.setStatusBarScrimColor(backgroundColor);
+                                    collapsingToolbarAlbum.setContentScrimColor(backgroundColor);
 
                                 }
                             });
@@ -248,23 +237,50 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     }
 
     @Override
-    public void onResponse(String description, String youtube, String spotify) {
+    public void onResponse(String description, String date) {
         if (description.equals("?"))
             description = getString(R.string.Description);
-        tvADescription.setText(description);
-        pBLoadingA.setVisibility(View.GONE);
+        tvExpTextView.setText(description);
+        pBLoadingAlbum.setVisibility(View.GONE);
         //currentArtist.setYoutube(youtube);
-       //currentArtist.setSpotify(spotify);
-        //mbtnAYt.setVisibility(View.VISIBLE);
-        //mbtnASpotify.setVisibility(View.VISIBLE);
-        mbtnALike.setVisibility(View.VISIBLE);
+        //currentArtist.setSpotify(spotify);
+        mbtnAlbumYt.setVisibility(View.VISIBLE);
+        mbtnAlbumSpotify.setVisibility(View.VISIBLE);
+        //mbtnALike.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onFailure(String msg) {
-        Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(AlbumActivity.this, msg, Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onResponseTracks(List<Song> tracks, int nTracks) {
+        currentAlbum.setTracks(tracks);
+        initRecyclerView();
+    }
+
+    @Override
+    public void onFailureTracks(String msg) {
+        Toast.makeText(AlbumActivity.this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    public void initRecyclerView(){
+        RecyclerView recyclerView = findViewById(R.id.tracks_list);
+        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(currentAlbum.getTracks(), new AlbumRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Song response) {
+                albumRecyclerViewAdapter.getItemCount();
+
+                Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
+                intent.putExtra(SONG, response);
+                startActivity(intent);
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(albumRecyclerViewAdapter);
+    }
+/*
     @Override
     public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
         if(liked && documentId!=null){
@@ -287,5 +303,8 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     public void onFailureFB(String msg) {
         Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
     }
-}
 
+ */
+
+
+}
