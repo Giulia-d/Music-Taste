@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,10 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -38,22 +42,29 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
+import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
 import it.unimib.musictaste.repositories.ArtistCallback;
+import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 import it.unimib.musictaste.repositories.ArtistFBCallback;
 import it.unimib.musictaste.repositories.ArtistRepository;
 import it.unimib.musictaste.repositories.SongRepository;
+import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Artist;
 
@@ -61,10 +72,11 @@ import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
 
-public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback {
+public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback, ArtistsAlbumsCallback {
     ImageView imgA;
     String titleSong;
     TextView tvADescription;
+    ExpandableTextView tvExpTextView;
     ImageButton mbtnAYt, mbtnASpotify, mbtnALike;
     FirebaseFirestore database;
     boolean liked;
@@ -75,6 +87,9 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     Artist currentArtist;
     ArtistRepository artistRepository;
     ProgressBar pBLoadingA;
+    ArtistAlbumsRecyclerViewAdapter artistAlbumsRecyclerViewAdapter;
+    List<Album> album_list;
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,14 +97,15 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
         imgA = findViewById(R.id.imgArtist);
-        tvADescription = findViewById(R.id.tvArtistDescription);
+        tvADescription = findViewById(R.id.expandable_text);
+        tvExpTextView = (ExpandableTextView) findViewById(R.id.tvArtistExpandableTextView);
         mbtnAYt = findViewById(R.id.btnArtistYoutube);
         mbtnASpotify = findViewById(R.id.btnArtistSpotify);
         mbtnALike = findViewById(R.id.btnArtistLike);
         database = FirebaseFirestore.getInstance();
         //liked = false;
         pBLoadingA = findViewById(R.id.pBLoadingArtist);
-        artistRepository = new ArtistRepository(this, this, this);
+        artistRepository = new ArtistRepository(this, this, this,this);
         Intent intent = getIntent();
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
         if (currentSong == null) {
@@ -158,6 +174,16 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
 
             }
         });
+
+        try {
+            artistRepository.getArtistAlbums(currentArtist.getName());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -251,7 +277,7 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     public void onResponse(String description, String youtube, String spotify) {
         if (description.equals("?"))
             description = getString(R.string.Description);
-        tvADescription.setText(description);
+        tvExpTextView.setText(description);
         pBLoadingA.setVisibility(View.GONE);
         //currentArtist.setYoutube(youtube);
        //currentArtist.setSpotify(spotify);
@@ -286,6 +312,39 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     @Override
     public void onFailureFB(String msg) {
         Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onResponseAA(List<Album> albumList) {
+        if(albumList.size() == 0){
+            RecyclerView recyclerView = findViewById(R.id.album_list);
+            recyclerView.setVisibility(View.GONE);
+        }else {
+            album_list = albumList;
+            Log.d("AAAAAALBUM", albumList.get(0).getTitle());
+            initRecyclerView();
+        }
+    }
+
+    @Override
+    public void onFailureAA(String msg) {
+
+    }
+    public void initRecyclerView(){
+        RecyclerView recyclerView = findViewById(R.id.album_list);
+        artistAlbumsRecyclerViewAdapter = new ArtistAlbumsRecyclerViewAdapter(album_list, new ArtistAlbumsRecyclerViewAdapter.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(Album response) {
+                artistAlbumsRecyclerViewAdapter.getItemCount();
+
+                /*Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
+                intent.putExtra(SONG, response);
+                startActivity(intent);*/
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(artistAlbumsRecyclerViewAdapter);
     }
 }
 

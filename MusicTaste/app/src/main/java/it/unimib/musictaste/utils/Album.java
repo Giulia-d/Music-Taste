@@ -8,16 +8,29 @@ import java.util.List;
 public class Album implements Parcelable {
 
     private String title;
+    private String artistName;
     private String image;
-    private String id;
+    private String idGenius;
+    private String idSpotify;
     private Artist artist;
+    private String urlSpotify;
     private List<Song> tracks;
 
-    public Album (String title, String image, String id){
+    public Album (String title, String image, String id) {
         this.title = title;
         this.image = image;
-        this.id = id;
+        this.idGenius = id;
     }
+
+    public Album (String title, String image, String id, String url, String artistName){
+        this.title = title;
+        this.image = image;
+        this.idSpotify = id;
+        this.urlSpotify = url;
+        this.artistName = artistName;
+    }
+
+
 
     public String getTitle() {
         return title;
@@ -28,7 +41,11 @@ public class Album implements Parcelable {
     }
 
     public String getId() {
-        return id;
+        return idGenius;
+    }
+
+    public String getIdSpotify() {
+        return idSpotify;
     }
 
     public List<Song> getTracks(){
@@ -44,7 +61,7 @@ public class Album implements Parcelable {
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.idGenius = id;
     }
 
     public void setTracks(List<Song> tracks){
@@ -58,14 +75,14 @@ public class Album implements Parcelable {
     protected Album(Parcel in) {
         this.title = in.readString();
         this.image = in.readString();
-        this.id = in.readString();
+        this.idGenius = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.title);
         dest.writeString(this.image);
-        dest.writeString(this.id);
+        dest.writeString(this.idGenius);
     }
 
     @Override

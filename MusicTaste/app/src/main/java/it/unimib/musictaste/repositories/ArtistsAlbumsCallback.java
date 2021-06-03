@@ -1,7 +1,11 @@
 package it.unimib.musictaste.repositories;
 
+import java.util.List;
+
+import it.unimib.musictaste.utils.Album;
+
 public interface ArtistsAlbumsCallback {
 
-    void onResponseAA(String description, String youtube, String spotify);
+    void onResponseAA(List<Album> albumList);
     void onFailureAA(String msg);
 }

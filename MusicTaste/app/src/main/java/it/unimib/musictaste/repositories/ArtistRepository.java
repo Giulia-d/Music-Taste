@@ -1,9 +1,12 @@
 package it.unimib.musictaste.repositories;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -21,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.wrapper.spotify.SpotifyApi;
+import com.wrapper.spotify.SpotifyApiThreading;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
@@ -35,11 +39,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
+import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Utils;
+import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 
 public class ArtistRepository {
     private final ArtistCallback artistCallback;
@@ -213,11 +227,69 @@ public class ArtistRepository {
         return description;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void getArtistAlbums(String artistName) throws ParseException, SpotifyWebApiException, IOException {
-        clientCredentials_Sync();
+        clientCredentials_Async();
         SearchArtistsRequest searchArtistsRequest = spotifyApi.searchArtists(artistName).limit(1).build();
-        Paging<AlbumSimplified> albumSimplifiedPaging = null;
+
         try {
+            CompletableFuture<Paging<com.wrapper.spotify.model_objects.specification.Artist>> pagingFuture = searchArtistsRequest.executeAsync();
+
+            // Thread free to do other tasks...
+
+            // Example Only. Never block in production code.
+            final Paging<com.wrapper.spotify.model_objects.specification.Artist> artistPaging = pagingFuture.join();
+
+            System.out.println("Total: " + artistPaging.getTotal());
+            com.wrapper.spotify.model_objects.specification.Artist[] ar = artistPaging.getItems();
+            String aId = ar[0].getId();
+            try {
+
+                GetArtistsAlbumsRequest getArtistsAlbumsRequest = spotifyApi.getArtistsAlbums(aId).album_type("album").build();
+                final CompletableFuture<Paging<AlbumSimplified>> pagingFutureAlbum = getArtistsAlbumsRequest.executeAsync();
+
+                // Thread free to do other tasks...
+
+                // Example Only. Never block in production code.
+                Paging<AlbumSimplified> albumSimplifiedPaging = pagingFutureAlbum.join();
+
+                System.out.println("Total: " + albumSimplifiedPaging.getTotal());
+                AlbumSimplified[] albumArray = albumSimplifiedPaging.getItems();
+                List<Album> albumList = new ArrayList<Album>();
+                if(albumArray.length != 0) {
+                    String albumName = albumArray[0].getName();
+                    String albumId = albumArray[0].getId();
+                    String albumImage = albumArray[0].getImages()[1].getUrl();
+                    String albumUri = albumArray[0].getUri();
+                    albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
+                    int k = 1;
+                    for (int i = 1; i < albumArray.length; i++) {
+                        albumName = albumArray[i].getName();
+                        if (!(albumList.get(k - 1).getTitle().equals(albumName))) {
+                            k++;
+                            albumId = albumArray[i].getId();
+                            albumImage = albumArray[i].getImages()[1].getUrl();
+                            albumUri = albumArray[i].getUri();
+                            albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
+                        }
+                    }
+                }
+                else{
+
+                }
+                artistsAlbumsCallback.onResponseAA(albumList);
+            } catch (CompletionException e) {
+                System.out.println("Error: " + e.getCause().getMessage());
+            } catch (CancellationException e) {
+                System.out.println("Async operation cancelled.");
+            }
+        } catch (CompletionException e) {
+            System.out.println("Error: " + e.getCause().getMessage());
+        } catch (CancellationException e) {
+            System.out.println("Async operation cancelled.");
+        }
+
+       /* try {
             Paging<com.wrapper.spotify.model_objects.specification.Artist> artistPaging = searchArtistsRequest.execute();
 
             com.wrapper.spotify.model_objects.specification.Artist[] ar = artistPaging.getItems();
@@ -228,9 +300,7 @@ public class ArtistRepository {
 
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-        }
-        AlbumSimplified[] albumList = albumSimplifiedPaging.getItems();
-
+        }*/
 
     }
 
@@ -246,6 +316,28 @@ public class ArtistRepository {
             System.out.println("Expires in: " + clientCredentials.getExpiresIn());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void clientCredentials_Async() {
+        ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
+                .build();
+        try {
+            final CompletableFuture<ClientCredentials> clientCredentialsFuture = clientCredentialsRequest.executeAsync();
+
+            // Thread free to do other tasks...
+
+            // Example Only. Never block in production code.
+            final ClientCredentials clientCredentials = clientCredentialsFuture.join();
+
+            // Set access token for further "spotifyApi" object usage
+            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+
+            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+        } catch (CompletionException e) {
+            System.out.println("Error: " + e.getCause().getMessage());
+        } catch (CancellationException e) {
+            System.out.println("Async operation cancelled.");
         }
     }
 
