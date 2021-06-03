@@ -20,11 +20,21 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.wrapper.spotify.SpotifyApi;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
+import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import com.wrapper.spotify.requests.data.artists.GetArtistsAlbumsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchArtistsRequest;
 
+import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,12 +44,18 @@ import it.unimib.musictaste.utils.Utils;
 public class ArtistRepository {
     private final ArtistCallback artistCallback;
     public static ArtistFBCallback artistFBCallback = null;
+    public static ArtistsAlbumsCallback artistsAlbumsCallback;
     private final Context context;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
+    private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+            .setClientId(Utils.CLIENT_ID)
+            .setClientSecret(Utils.CLIENT_SECRET)
+            .build();
 
-    public ArtistRepository(ArtistCallback artistCallback, ArtistFBCallback artistFBCallback, Context context) {
+    public ArtistRepository(ArtistCallback artistCallback, ArtistFBCallback artistFBCallback, ArtistsAlbumsCallback artistsAlbumsCallback, Context context) {
         this.artistCallback = artistCallback;
         this.artistFBCallback = artistFBCallback;
+        this.artistsAlbumsCallback = artistsAlbumsCallback;
         this.context = context;
     }
  //db
@@ -196,4 +212,43 @@ public class ArtistRepository {
         }
         return description;
     }
-}
+
+    public void getArtistAlbums(String artistName) throws ParseException, SpotifyWebApiException, IOException {
+        clientCredentials_Sync();
+        SearchArtistsRequest searchArtistsRequest = spotifyApi.searchArtists(artistName).limit(1).build();
+        Paging<AlbumSimplified> albumSimplifiedPaging = null;
+        try {
+            Paging<com.wrapper.spotify.model_objects.specification.Artist> artistPaging = searchArtistsRequest.execute();
+
+            com.wrapper.spotify.model_objects.specification.Artist[] ar = artistPaging.getItems();
+            String aId = ar[0].getId();
+
+            GetArtistsAlbumsRequest getArtistsAlbumsRequest = spotifyApi.getArtistsAlbums(aId).album_type("album").build();
+            albumSimplifiedPaging = getArtistsAlbumsRequest.execute();
+
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+        }
+        AlbumSimplified[] albumList = albumSimplifiedPaging.getItems();
+
+
+    }
+
+    public void clientCredentials_Sync() {
+        ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
+                .build();
+        try {
+            final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
+
+            // Set access token for further "spotifyApi" object usage
+            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+
+            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+
+
+    }

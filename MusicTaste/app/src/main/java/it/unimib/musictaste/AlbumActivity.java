@@ -94,9 +94,6 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         setToolbarColor(currentAlbum);
 
 
-
-
-
         //getDescription(currentSong);
         //albumRepository.checkLikedAlbum(uid, currentArtist.getId());
         albumRepository.getAlbumInfo(currentAlbum.getId());
