@@ -52,6 +52,10 @@ public class Album implements Parcelable {
         return tracks;
     }
 
+    public String getArtistName(){
+        return artistName;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

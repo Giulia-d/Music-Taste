@@ -81,11 +81,16 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         albumRepository = new AlbumRepository(this, this, this);
 
         Intent intent = getIntent();
+        /*
         currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
         currentAlbum = intent.getParcelableExtra(SongActivity.ALBUM);
-        currentArtist = currentSong.getArtist();
-        currentSong.setAlbum(currentAlbum);
+        if(currentAlbum == null){*/
+            currentArtist = intent.getParcelableExtra(ArtistActivity.ARTISTA);
+            currentAlbum = intent.getParcelableExtra(ArtistActivity.ALBUMA);
+            currentAlbum.setId(intent.getParcelableExtra(ArtistActivity.ID));
 
+            currentArtist = currentSong.getArtist();
+            currentSong.setAlbum(currentAlbum);
         Picasso.get().load(currentAlbum.getImage()).transform(new GradientTransformation()).into(imgAlbum);
         //tvAName.setText(currentArtist.getName());
         //tvTitleSong.setText(song.getTitle());

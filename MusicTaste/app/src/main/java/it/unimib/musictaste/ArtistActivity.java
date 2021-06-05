@@ -63,6 +63,7 @@ import it.unimib.musictaste.repositories.ArtistCallback;
 import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 import it.unimib.musictaste.repositories.ArtistFBCallback;
 import it.unimib.musictaste.repositories.ArtistRepository;
+import it.unimib.musictaste.repositories.GeniusCallBack;
 import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.GradientTransformation;
@@ -72,7 +73,11 @@ import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
 
-public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback, ArtistsAlbumsCallback {
+public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback, ArtistsAlbumsCallback, GeniusCallBack {
+    public static final String ALBUMA = "ALBUMA";
+    public static final String ARTISTA = "ARTISTA";
+    public static final String ID = "ID";
+
     ImageView imgA;
     String titleSong;
     TextView tvADescription;
@@ -105,7 +110,7 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
         database = FirebaseFirestore.getInstance();
         //liked = false;
         pBLoadingA = findViewById(R.id.pBLoadingArtist);
-        artistRepository = new ArtistRepository(this, this, this,this);
+        artistRepository = new ArtistRepository(this, this, this,this, this);
         Intent intent = getIntent();
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
         if (currentSong == null) {
@@ -184,6 +189,8 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
 
@@ -315,7 +322,7 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     }
 
     @Override
-    public void onResponseAA(List<Album> albumList) {
+    public void onResponseArtistAlbums(List<Album> albumList) {
         if(albumList.size() == 0){
             RecyclerView recyclerView = findViewById(R.id.album_list);
             recyclerView.setVisibility(View.GONE);
@@ -327,24 +334,39 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     }
 
     @Override
-    public void onFailureAA(String msg) {
+    public void onFailureArtistAlbums(String msg) {
 
     }
     public void initRecyclerView(){
         RecyclerView recyclerView = findViewById(R.id.album_list);
         artistAlbumsRecyclerViewAdapter = new ArtistAlbumsRecyclerViewAdapter(album_list, new ArtistAlbumsRecyclerViewAdapter.OnItemClickListener() {
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemClick(Album response) {
-                artistAlbumsRecyclerViewAdapter.getItemCount();
+                artistRepository.getGeniusInfo(response);
 
-                /*Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
-                intent.putExtra(SONG, response);
-                startActivity(intent);*/
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(artistAlbumsRecyclerViewAdapter);
     }
+
+    @Override
+    public void onResponseGenius(Album response) {
+        Intent intent = new Intent(ArtistActivity.this, AlbumActivity.class);
+        intent.putExtra(ALBUMA, response);
+        intent.putExtra(ARTISTA, currentArtist);
+        intent.putExtra(ID, response.getId());
+        startActivity(intent);
+
+    }
+
+    @Override
+    public void onFailureGenius() {
+
+    }
+
+
 }
 

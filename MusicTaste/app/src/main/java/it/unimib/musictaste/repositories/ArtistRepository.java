@@ -29,7 +29,10 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import com.wrapper.spotify.requests.data.albums.GetAlbumsTracksRequest;
 import com.wrapper.spotify.requests.data.artists.GetArtistsAlbumsRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchArtistsRequest;
 
@@ -52,11 +55,13 @@ import java.util.concurrent.CompletionException;
 
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
+import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 
 public class ArtistRepository {
     private final ArtistCallback artistCallback;
+    private final GeniusCallBack geniusCallback;
     public static ArtistFBCallback artistFBCallback = null;
     public static ArtistsAlbumsCallback artistsAlbumsCallback;
     private final Context context;
@@ -66,10 +71,11 @@ public class ArtistRepository {
             .setClientSecret(Utils.CLIENT_SECRET)
             .build();
 
-    public ArtistRepository(ArtistCallback artistCallback, ArtistFBCallback artistFBCallback, ArtistsAlbumsCallback artistsAlbumsCallback, Context context) {
+    public ArtistRepository(ArtistCallback artistCallback, ArtistFBCallback artistFBCallback, ArtistsAlbumsCallback artistsAlbumsCallback, GeniusCallBack geniusCallBack, Context context) {
         this.artistCallback = artistCallback;
         this.artistFBCallback = artistFBCallback;
         this.artistsAlbumsCallback = artistsAlbumsCallback;
+        this.geniusCallback = geniusCallBack;
         this.context = context;
     }
  //db
@@ -240,56 +246,55 @@ public class ArtistRepository {
             // Example Only. Never block in production code.
             final Paging<com.wrapper.spotify.model_objects.specification.Artist> artistPaging = pagingFuture.join();
 
-            System.out.println("Total: " + artistPaging.getTotal());
             com.wrapper.spotify.model_objects.specification.Artist[] ar = artistPaging.getItems();
             String aId = ar[0].getId();
-            try {
+          //  try {
 
-                GetArtistsAlbumsRequest getArtistsAlbumsRequest = spotifyApi.getArtistsAlbums(aId).album_type("album").build();
-                final CompletableFuture<Paging<AlbumSimplified>> pagingFutureAlbum = getArtistsAlbumsRequest.executeAsync();
+            GetArtistsAlbumsRequest getArtistsAlbumsRequest = spotifyApi.getArtistsAlbums(aId).album_type("album").build();
+            final CompletableFuture<Paging<AlbumSimplified>> pagingFutureAlbum = getArtistsAlbumsRequest.executeAsync();
 
-                // Thread free to do other tasks...
+            // Thread free to do other tasks...
 
-                // Example Only. Never block in production code.
-                Paging<AlbumSimplified> albumSimplifiedPaging = pagingFutureAlbum.join();
+            // Example Only. Never block in production code.
+            Paging<AlbumSimplified> albumSimplifiedPaging = pagingFutureAlbum.join();
 
-                System.out.println("Total: " + albumSimplifiedPaging.getTotal());
-                AlbumSimplified[] albumArray = albumSimplifiedPaging.getItems();
-                List<Album> albumList = new ArrayList<Album>();
-                if(albumArray.length != 0) {
-                    String albumName = albumArray[0].getName();
-                    String albumId = albumArray[0].getId();
-                    String albumImage = albumArray[0].getImages()[1].getUrl();
-                    String albumUri = albumArray[0].getUri();
-                    albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
-                    int k = 1;
-                    for (int i = 1; i < albumArray.length; i++) {
-                        albumName = albumArray[i].getName();
-                        if (!(albumList.get(k - 1).getTitle().equals(albumName))) {
-                            k++;
-                            albumId = albumArray[i].getId();
-                            albumImage = albumArray[i].getImages()[1].getUrl();
-                            albumUri = albumArray[i].getUri();
-                            albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
-                        }
+            System.out.println("Total: " + albumSimplifiedPaging.getTotal());
+            AlbumSimplified[] albumArray = albumSimplifiedPaging.getItems();
+            List<Album> albumList = new ArrayList<Album>();
+            if(albumArray.length != 0) {
+                String albumName = albumArray[0].getName();
+                String albumId = albumArray[0].getId();
+                String albumImage = albumArray[0].getImages()[1].getUrl();
+                String albumUri = albumArray[0].getUri();
+                albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
+                int k = 1;
+                for (int i = 1; i < albumArray.length; i++) {
+                    albumName = albumArray[i].getName();
+                    if (!(albumList.get(k - 1).getTitle().equals(albumName))) {
+                        k++;
+                        albumId = albumArray[i].getId();
+                        albumImage = albumArray[i].getImages()[1].getUrl();
+                        albumUri = albumArray[i].getUri();
+                        albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
                     }
                 }
-                else{
-
-                }
-                artistsAlbumsCallback.onResponseAA(albumList);
-            } catch (CompletionException e) {
-                System.out.println("Error: " + e.getCause().getMessage());
-            } catch (CancellationException e) {
-                System.out.println("Async operation cancelled.");
             }
+            else{
+
+            }
+            artistsAlbumsCallback.onResponseArtistAlbums(albumList);
         } catch (CompletionException e) {
             System.out.println("Error: " + e.getCause().getMessage());
         } catch (CancellationException e) {
             System.out.println("Async operation cancelled.");
         }
+   /*       } catch (CompletionException e) {
+            System.out.println("Error: " + e.getCause().getMessage());
+        } catch (CancellationException e) {
+            System.out.println("Async operation cancelled.");
+        }
 
-       /* try {
+      try {
             Paging<com.wrapper.spotify.model_objects.specification.Artist> artistPaging = searchArtistsRequest.execute();
 
             com.wrapper.spotify.model_objects.specification.Artist[] ar = artistPaging.getItems();
@@ -341,6 +346,107 @@ public class ArtistRepository {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void getGeniusInfo(Album album) {
+        clientCredentials_Async();
+            try {
+                GetAlbumsTracksRequest getAlbumsTracksRequest = spotifyApi.getAlbumsTracks(album.getIdSpotify()).limit(1).build();
+
+                final CompletableFuture<Paging<TrackSimplified>> pagingFuture = getAlbumsTracksRequest.executeAsync();
+                // Thread free to do other tasks...
+
+                // Example Only. Never block in production code.
+                final Paging<TrackSimplified> trackSimplifiedPaging = pagingFuture.join();
+                String text = trackSimplifiedPaging.getItems()[0].getName() + ' ' + album.getArtistName();
+                text = text.replace(' ', '&');
+
+                String url = "https://api.genius.com/search/?q=" + text;
+                RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONObject newRes = response.getJSONObject("response");
+                            JSONArray hits = newRes.getJSONArray("hits");
+
+                            String songId = hits.getJSONObject(0).getJSONObject("result").getString("id");
+
+                            getIdGenius(album, songId);
 
 
-    }
+
+
+
+            /*SearchFragment.suggestions.add(title);
+            Log.d("SUGGESTION",SearchFragment.suggestions.toString());*/
+                            //searchCallback.onResponse(resp);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+                        , new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("tag", "onErrorResponse: " + error.getMessage());
+                        //searchCallback.onFailure(error.getMessage());
+                    }
+                })
+                {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    //params.put("Content-Type", "application/json; charset=UTF-8");
+                    params.put("Authorization", "Bearer " + Utils.ACCESS_TOKEN);
+                    return params;
+                }
+                } ;
+               queue.add(jsonObjectRequest);
+
+
+            } catch (CompletionException e) {
+                System.out.println("Error: " + e.getCause().getMessage());
+            } catch (CancellationException e) {
+                System.out.println("Async operation cancelled.");
+            }
+        }
+
+
+    public void getIdGenius(Album album, String songId)
+    {
+        String url = "https://api.genius.com/songs/" + songId;
+        RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    JSONObject albumJson = response.getJSONObject("response").getJSONObject("song").getJSONObject("album");
+                    String idAlbum = albumJson.getString("id");
+
+                    album.setId(idAlbum);
+                    geniusCallback.onResponseGenius(album);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("tag", "onErrorResponse: " + error.getMessage());
+                //songCallback.onFailure(error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                //params.put("Content-Type", "application/json; charset=UTF-8");
+                params.put("Authorization", "Bearer " + Utils.ACCESS_TOKEN);
+                return params;
+            }
+        };
+        queue.add(jsonObjectRequest);
+
+    }}
