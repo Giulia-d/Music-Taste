@@ -14,39 +14,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.palette.graphics.Palette;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
@@ -56,20 +34,14 @@ import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
-import it.unimib.musictaste.utils.Utils;
 
 
 public class SongActivity extends AppCompatActivity implements SongCallback, SongFBCallback {
 
     ImageView imgSong;
-    TextView tvArtistSong;
-    TextView tvAlbumSong;
-    String titleSong;
-    //TextView tvLyricsSong;
-    TextView tvDescription;
+    TextView tvArtistSong, tvAlbumSong, tvDescription, tvListen;
     ImageButton mbtnYt, mbtnSpotify, mbtnLike;
     FirebaseFirestore database;
-    //boolean liked = false;
     boolean liked;
     String documentID;
     Toolbar toolbar;
@@ -89,7 +61,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
         imgSong = findViewById(R.id.imgSong);
         tvArtistSong = findViewById(R.id.tvArtistSong);
         tvAlbumSong = findViewById(R.id.tvAlbumSong);
-        //tvLyricsSong = findViewById(R.id.tvLyricsSong);
+        tvListen = findViewById(R.id.tvListen);
         tvDescription = findViewById(R.id.tvDescription);
         mbtnYt = findViewById(R.id.btnYoutube);
         mbtnSpotify = findViewById(R.id.btnSpotify);
@@ -122,7 +94,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SongActivity.this, ArtistActivity.class);
-                intent.putExtra(ARTIST, currentSong);
+                intent.putExtra(ARTIST, currentSong.getArtist());
                 startActivity(intent);
             }
         });
@@ -277,15 +249,19 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
         if (description.equals("?"))
             description = getString(R.string.Description);
         tvDescription.setText(description);
-        pBLoading.setVisibility(View.GONE);
         currentSong.setYoutube(youtube);
         currentSong.setSpotify(spotify);
+        tvArtistSong.setVisibility(View.VISIBLE);
+        tvAlbumSong.setVisibility(View.VISIBLE);
+        tvListen.setVisibility(View.VISIBLE);
         mbtnYt.setVisibility(View.VISIBLE);
         mbtnSpotify.setVisibility(View.VISIBLE);
+        tvDescription.setVisibility(View.VISIBLE);
         mbtnLike.setVisibility(View.VISIBLE);
         currentSong.setAlbum(album);
         tvAlbumSong.setText(currentSong.getAlbum().getTitle());
         currentAlbum = currentSong.getAlbum();
+        pBLoading.setVisibility(View.GONE);
     }
 
     @Override
@@ -295,7 +271,6 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
 
     @Override
     public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
-
         if(liked && documentId!=null){
             if(firstLike==true)
                 Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();

@@ -2,7 +2,6 @@ package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -29,8 +28,9 @@ public class AccountRepository {
         this.context = context;
     }
 
-    public void getLikedSongs(String uid){
+    public void getLikedSongs(String uid) {
         List<Song> likedSongs = new ArrayList<>();
+        List<Artist> likedArtist = new ArrayList<>();
         database.collection("likedSongs")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -38,24 +38,40 @@ public class AccountRepository {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("IDuser").equals(uid)) {
-                                    Map <String, Object> data = document.getData();
-                                    Map <String, Object> artistMap = (Map<String, Object>) data.get("Artist");
+                                if (document.getString("IDuser").equals(uid)) {
+                                    Map<String, Object> data = document.getData();
+                                    Map<String, Object> artistMap = (Map<String, Object>) data.get("Artist");
                                     String id = (String) artistMap.get("id");
                                     String image = (String) artistMap.get("image");
                                     String name = (String) artistMap.get("name");
                                     Log.d("AAAAAAAAAAAA", document.getString("TitleSong"));
                                     Song s = new Song(document.getString("TitleSong"), document.getString("ImageSong"),
-                                            document.getString("IDsong"),new Artist(name, image, id));
+                                            document.getString("IDsong"), new Artist(name, image, id));
                                     likedSongs.add(s);
 
                                 }
                             }
-                            accountFBCallback.onResponse(likedSongs);
-
                         }
-                    }
+                        database.collection("likedArtists")
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                if (document.getString("IDuser").equals(uid)) {
+                                                    String name = document.getString("NameArtist");
+                                                    likedArtist.add(new Artist(document.getString("NameArtist"),
+                                                            document.getString("ImageArtist"),
+                                                            document.getString("IDartist")));
+                                                }
+                                            }
+                                        }
+                                        accountFBCallback.onResponse(likedSongs, likedArtist);
+                                    }
 
+                                });
+                    }
                 });
     }
 }

@@ -29,4 +29,9 @@
     <string name="listen">Ascolta Su:</string>
     <string name="FavoritesSongs">Canzoni preferite</string>
     <string name="EmptySong">Nessuna canzone preferita</string>
+    <string name="FavoriteArtists">Artisti preferiti</string>
+    <string name="EmptyArtist">Nessun artista preferito</string>
+    <string name="FavoriteAlbums">Album preferiti</string>
+    <string name="EmptyAlbum">Nessun album preferito</string>
+    <string name="MusicTaste">Ecco il tuo music taste</string>
 </resources>

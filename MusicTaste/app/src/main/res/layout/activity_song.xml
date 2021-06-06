@@ -9,7 +9,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="wrap_content"
         android:background="@color/Orange"
         android:fitsSystemWindows="true">
 
@@ -19,23 +19,16 @@
             android:layout_height="fill_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/Orange"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-            app:title="Titolo">
-
-            <!-- <ImageView
-                android:id="@+id/imgSong"
-                android:layout_width="match_parent"
-                android:layout_height="382dp"
-                android:scaleType="fitXY"
-                app:layout_constraintDimensionRatio="1:1"
-                app:srcCompat="@drawable/ic_launcher_background" /> -->
+            app:expandedTitleMarginStart="20dp"
+            app:expandedTitleMarginBottom="40dp"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
             <it.unimib.musictaste.utils.SquareImage
                 android:id="@+id/imgSong"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
+                android:layout_gravity="center"
                 app:srcCompat="@drawable/ic_launcher_background" />
 
             <androidx.appcompat.widget.Toolbar
@@ -59,16 +52,18 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="726dp"
+            android:layout_height="match_parent"
             tools:layout_editor_absoluteY="1dp">
+
 
             <TextView
                 android:id="@+id/tvArtistSong"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/LightGray"
-                android:textSize="20sp"
+                android:textColor="@color/TextGray"
+                android:textSize="28sp"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -76,15 +71,22 @@
                 android:id="@+id/tvAlbumSong"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:textColor="@color/TextGray"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tvDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="40dp"
+                android:textColor="@color/TextGray"
                 android:textSize="18sp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -94,9 +96,12 @@
                 android:id="@+id/tvListen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="28dp"
                 android:text="@string/listen"
+                android:textColor="@color/TextGray"
                 android:textSize="18sp"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong" />
 
@@ -104,14 +109,15 @@
                 android:id="@+id/btnYoutube"
                 android:layout_width="43dp"
                 android:layout_height="41dp"
-                android:layout_marginStart="28dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/tvDescription"
                 app:layout_constraintStart_toEndOf="@+id/tvListen"
                 app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
-                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintVertical_bias="0.333"
                 app:srcCompat="@drawable/ic_youtube"
                 app:tint="@color/Orange" />
 
@@ -119,16 +125,32 @@
                 android:id="@+id/btnSpotify"
                 android:layout_width="44dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/tvDescription"
                 app:layout_constraintStart_toEndOf="@+id/btnYoutube"
                 app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
-                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintVertical_bias="0.346"
                 app:srcCompat="@drawable/ic_spotify"
                 app:tint="@color/Orange" />
+
+            <ProgressBar
+                android:id="@+id/pBLoading"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/Orange"
+                android:visibility="visible"
+                app:layout_anchorGravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -143,22 +165,13 @@
         android:baselineAlignBottom="false"
         android:clickable="true"
         android:src="@drawable/ic_baseline_favorite_border_24"
-        android:visibility="visible"
+        android:visibility="gone"
         app:backgroundTint="@color/Orange"
         app:fabSize="normal"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="end|bottom" />
 
-    <ProgressBar
-        android:id="@+id/pBLoading"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:indeterminateTint="@color/Orange"
-        android:visibility="visible"
-        app:layout_anchor="@+id/nestedScrollView"
-        app:layout_anchorGravity="center" />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

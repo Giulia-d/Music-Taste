@@ -2,12 +2,10 @@ package it.unimib.musictaste.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,24 +14,22 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import it.unimib.musictaste.ArtistActivity;
+import it.unimib.musictaste.ArtistRecyclerViewAdapter;
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.SettingActivity;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.SongRecyclerViewAdapter;
 import it.unimib.musictaste.repositories.AccountFBCallback;
 import it.unimib.musictaste.repositories.AccountRepository;
+import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 
 /**
@@ -50,13 +46,14 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     ImageButton btnControl;
-    TextView txtName,txtNoSongs;
-    ImageView imgAccount;
+    TextView txtMusicTaste,txtNoSongs, txtNoArtist;
     FirebaseFirestore database;
     String uid;
     SongRecyclerViewAdapter songRecyclerViewAdapter;
+    ArtistRecyclerViewAdapter artistRecyclerViewAdapter;
+    List<Artist> likedArtists;
     List<Song> likedSongs;
-    RecyclerView recyclerView;
+    RecyclerView recyclerViewSong, recyclerViewArtist;
     AccountRepository accountRepository;
     FirebaseUser user;
 
@@ -109,21 +106,26 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
     public void onStart() {
         super.onStart();
         accountRepository.getLikedSongs(uid);
-
     }
 
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnControl = view.findViewById(R.id.btnControl);
-        recyclerView = view.findViewById(R.id.liked_songs);
+        recyclerViewSong = view.findViewById(R.id.likedSongs);
+        recyclerViewArtist = view.findViewById(R.id.likedArtists);
         txtNoSongs = view.findViewById(R.id.tvEmptySong);
+        txtNoArtist = view.findViewById(R.id.tvEmptyArtist);
+        txtMusicTaste = view.findViewById(R.id.txtMusicTaste);
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         uid = user.getUid();
-
-        likedSongs = new ArrayList<Song>();
+        txtMusicTaste.setText(getString(R.string.MusicTaste) + ", " + user.getDisplayName());
+        likedSongs = new ArrayList<>();
+        likedArtists = new ArrayList<>();
         database = FirebaseFirestore.getInstance();
-        //dbCall();
+
+        //Set recycler view for liked songs
         songRecyclerViewAdapter = new SongRecyclerViewAdapter(likedSongs, new SongRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Song response) {
@@ -132,10 +134,25 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
                 startActivity(intent);
             }
         });
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        linearLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(songRecyclerViewAdapter);
+        LinearLayoutManager lmSong = new LinearLayoutManager(getContext());
+        lmSong.setOrientation(RecyclerView.HORIZONTAL);
+        recyclerViewSong.setLayoutManager(lmSong);
+        recyclerViewSong.setAdapter(songRecyclerViewAdapter);
+
+        //Set recycler view for liked artists
+        artistRecyclerViewAdapter = new ArtistRecyclerViewAdapter(likedArtists, new ArtistRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Artist response) {
+                Intent intent = new Intent(getActivity(), ArtistActivity.class);
+                intent.putExtra(ARTIST, response);
+                startActivity(intent);
+            }
+        });
+        LinearLayoutManager lmArtis = new LinearLayoutManager(getContext());
+        lmArtis.setOrientation(RecyclerView.HORIZONTAL);
+        recyclerViewArtist.setLayoutManager(lmArtis);
+        recyclerViewArtist.setAdapter(artistRecyclerViewAdapter);
+
 
         btnControl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,7 +161,7 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
             }
         });
 
-
+        /*
         if (user != null) {
             // User is signed in
             Log.d("user", "email:" + user.getEmail());
@@ -161,6 +178,7 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
             // No user is signed in
 
         }
+        */
     }
 
     private void switchActivities() {
@@ -168,24 +186,46 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
         startActivity(switchActivityIntent);
     }
 
+    public void changeStatus(List l,RecyclerView r, TextView t){
+        if(l.isEmpty()){
+            r.setVisibility(View.GONE);
+            t.setVisibility(View.VISIBLE);
+        }
+        else {
+            r.setVisibility(View.VISIBLE);
+            t.setVisibility(View.GONE);
+        }
+    }
 
     @Override
-    public void onResponse(List<Song> likedSongs) {
-
+    public void onResponse(List<Song> likedSongs, List<Artist> likedArtists) {
+        /*
         if (likedSongs.isEmpty()){
-            recyclerView.setVisibility(View.GONE);
+            recyclerViewSong.setVisibility(View.GONE);
             txtNoSongs.setVisibility(View.VISIBLE);
         }
         else{
-            recyclerView.setVisibility(View.VISIBLE);
+            recyclerViewSong.setVisibility(View.VISIBLE);
             txtNoSongs.setVisibility(View.GONE);
-        }
+        }*/
+        changeStatus(likedSongs, recyclerViewSong, txtNoSongs);
         this.likedSongs.clear();
         this.likedSongs.addAll(likedSongs);
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 songRecyclerViewAdapter.notifyDataSetChanged();
+
+            }
+        });
+
+        changeStatus(likedArtists, recyclerViewArtist, txtNoArtist);
+        this.likedArtists.clear();
+        this.likedArtists.addAll(likedArtists);
+        requireActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                artistRecyclerViewAdapter.notifyDataSetChanged();
 
             }
         });

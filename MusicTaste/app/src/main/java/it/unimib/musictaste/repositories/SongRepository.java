@@ -2,7 +2,6 @@ package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -29,8 +28,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.unimib.musictaste.R;
-import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
@@ -163,11 +160,16 @@ public class SongRepository {
                         }
                     }
                     JSONObject album = response.getJSONObject("response").getJSONObject("song").getJSONObject("album");
-                    String idAlbum  = album.getString("id");
-                    String albumImg  = album.getString("cover_art_url");
-                    String albumTitle  = album.getString("name");
+                    Album al;
+                    if(album != null){
+                        String idAlbum  = album.getString("id");
+                        String albumImg  = album.getString("cover_art_url");
+                        String albumTitle  = album.getString("name");
 
-                    Album al = new Album(albumTitle, albumImg, idAlbum);
+                        al = new Album(albumTitle, albumImg, idAlbum);
+                    }
+                    else al = null;
+
 
 
                     songCallback.onResponse(description, youtube, spotify, al);

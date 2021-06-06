@@ -1,10 +1,8 @@
 package it.unimib.musictaste;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +13,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -24,53 +21,31 @@ import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
 import it.unimib.musictaste.repositories.ArtistCallback;
-import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 import it.unimib.musictaste.repositories.ArtistFBCallback;
 import it.unimib.musictaste.repositories.ArtistRepository;
+import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 import it.unimib.musictaste.repositories.GeniusCallBack;
-import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.Album;
-import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Artist;
-
+import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.Song;
-import it.unimib.musictaste.utils.Utils;
 
 
 public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback, ArtistsAlbumsCallback, GeniusCallBack {
@@ -112,17 +87,25 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
         pBLoadingA = findViewById(R.id.pBLoadingArtist);
         artistRepository = new ArtistRepository(this, this, this,this, this);
         Intent intent = getIntent();
+
+
+        /*
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
         if (currentSong == null) {
             currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
         }
-        currentArtist = currentSong.getArtist();
+        currentArtist = currentSong.getArtist();*/
+
+
+        currentArtist = intent.getParcelableExtra(SearchFragment.ARTIST);
+        if (currentArtist == null){
+            currentArtist = intent.getParcelableExtra(SongActivity.ARTIST);
+            if(currentArtist == null){
+                currentArtist = intent.getParcelableExtra(AccountFragment.ARTIST);
+            }
+        }
 
         Picasso.get().load(currentArtist.getImage()).transform(new GradientTransformation()).into(imgA);
-        //tvAName.setText(currentArtist.getName());
-        //tvTitleSong.setText(song.getTitle());
-        //tvLyricsSong.setText(song.getId());
-        //Log.d("user", "Photo:" + tre);
         setToolbarColor(currentArtist);
 
 
