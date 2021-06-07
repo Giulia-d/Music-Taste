@@ -10,6 +10,7 @@ public class Song implements Parcelable {
     private String id;
     private String youtube;
     private String spotify;
+    private String description;
     private Artist artist;
 
     public Song(String title, String image, String id, Artist artist) {
@@ -17,6 +18,16 @@ public class Song implements Parcelable {
         this.image = image;
         this.id = id;
         this.artist = artist;
+    }
+    public Song(){
+
+    }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Artist getArtist() {

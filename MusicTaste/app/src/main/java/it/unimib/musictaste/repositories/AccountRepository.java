@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -19,18 +20,45 @@ import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 
 public class AccountRepository {
-    private final AccountFBCallback accountFBCallback;
+    private final MutableLiveData<List<Song>> mLikedSongs;
+    private final MutableLiveData<List<Artist>> mLikedArtists;
     private Context context;
     FirebaseFirestore database = FirebaseFirestore.getInstance();
 
-    public AccountRepository(AccountFBCallback accountFBCallback, Context context) {
-        this.accountFBCallback = accountFBCallback;
+
+    public AccountRepository(Context context) {
         this.context = context;
+        mLikedSongs = new MutableLiveData<>();
+        mLikedArtists = new MutableLiveData<>();
     }
 
-    public void getLikedSongs(String uid) {
-        List<Song> likedSongs = new ArrayList<>();
+
+    public MutableLiveData<List<Artist>> getLikedArtists(String uid) {
         List<Artist> likedArtist = new ArrayList<>();
+        database.collection("likedArtists")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.getString("IDuser").equals(uid)) {
+                                    String name = document.getString("NameArtist");
+                                    likedArtist.add(new Artist(document.getString("NameArtist"),
+                                            document.getString("ImageArtist"),
+                                            document.getString("IDartist")));
+                                }
+                            }
+                        }
+                        mLikedArtists.postValue(likedArtist);
+                    }
+
+                });
+        return mLikedArtists;
+    }
+
+    public MutableLiveData<List<Song>> getLikedSongs(String uid) {
+        List<Song> likedSongs = new ArrayList<>();
         database.collection("likedSongs")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -48,30 +76,12 @@ public class AccountRepository {
                                     Song s = new Song(document.getString("TitleSong"), document.getString("ImageSong"),
                                             document.getString("IDsong"), new Artist(name, image, id));
                                     likedSongs.add(s);
-
                                 }
                             }
                         }
-                        database.collection("likedArtists")
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                if (document.getString("IDuser").equals(uid)) {
-                                                    String name = document.getString("NameArtist");
-                                                    likedArtist.add(new Artist(document.getString("NameArtist"),
-                                                            document.getString("ImageArtist"),
-                                                            document.getString("IDartist")));
-                                                }
-                                            }
-                                        }
-                                        accountFBCallback.onResponse(likedSongs, likedArtist);
-                                    }
-
-                                });
+                        mLikedSongs.postValue(likedSongs);
                     }
                 });
+        return mLikedSongs;
     }
 }

@@ -1,12 +1,9 @@
 package it.unimib.musictaste.repositories;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
-import android.view.View;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.lifecycle.MutableLiveData;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -25,44 +22,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.unimib.musictaste.NewsRecyclerViewAdapter;
 import it.unimib.musictaste.utils.News;
 import it.unimib.musictaste.utils.Utils;
 
 public class NewsRepository {
-    private final NewsCallback newsCallback;
+    private final MutableLiveData<List<News>> mNews;
     private Context context;
 
-    public NewsRepository(NewsCallback newsCallback, Context context) {
-        this.newsCallback = newsCallback;
+    public NewsRepository(Context context) {
         this.context = context;
+        mNews = new MutableLiveData<>();
     }
 
-    public void getNews(){
+    public MutableLiveData<List<News>> getNews(){
         String url = Utils.NEWS_API_REQUEST;
+        List<News> news = new ArrayList<>();
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    List<News> news = new ArrayList<>();
                     JSONArray articles = response.getJSONArray("articles");
                     for (int i = 0; i < articles.length(); i++){
                         String title = articles.getJSONObject(i).getString("title");
                         String img = articles.getJSONObject(i).getString("urlToImage");
                         String description = articles.getJSONObject(i).getString("description");
                         String url = articles.getJSONObject(i).getString("url");
-                        //Log.d("TITLE", title);
-
-
                         news.add( new News(title,description, url, img));
-
-
                     }
-                    newsCallback.onResponse(news);
-
-
+                    mNews.postValue(news);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -71,7 +59,8 @@ public class NewsRepository {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("tag", "onErrorResponse: " + error.getMessage());
-                newsCallback.onFailure(error.getMessage());
+                news.add(new News(error.getMessage(), "ErrorResponse", null, null));
+                mNews.postValue(news);
             }
         }) {
             @Override
@@ -82,11 +71,7 @@ public class NewsRepository {
                 return params;
             }
         };
-
-
-
-
-
         queue.add(jsonObjectRequest);
+        return mNews;
     }
 }

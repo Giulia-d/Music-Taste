@@ -2,7 +2,6 @@ package it.unimib.musictaste.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,27 +24,19 @@ import it.unimib.musictaste.ArtistActivity;
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.ResponseRecyclerViewAdapter;
 import it.unimib.musictaste.SongActivity;
-import it.unimib.musictaste.repositories.SearchCallback;
-import it.unimib.musictaste.repositories.SearchRepository;
 import it.unimib.musictaste.utils.MyTouchListener;
 import it.unimib.musictaste.utils.Song;
+import it.unimib.musictaste.viewmodels.SearchViewModel;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class SearchFragment extends Fragment implements SearchCallback {
+public class SearchFragment extends Fragment{
     public static final String SONG = "SONG";
     public static final String ARTIST = "ARTIST";
-    public static boolean flagAPI = false;
-    static List<Song> suggestions = new ArrayList<>();
-    private SearchRepository searchRepository;
-    private static final int TRIGGER_AUTO_COMPLETE = 100;
-    private static final long AUTO_COMPLETE_DELAY = 300;
-    private Handler handler;
+    // TODO: Something to say about this
+    static List<Song> results = new ArrayList<>();
+    SearchViewModel searchViewModel;
     ResponseRecyclerViewAdapter responseRecyclerViewAdapter;
 
+    /*TO DELETE
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -58,14 +50,6 @@ public class SearchFragment extends Fragment implements SearchCallback {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
     // TODO: Rename and change types and number of parameters
     public static SearchFragment newInstance(String param1, String param2) {
         SearchFragment fragment = new SearchFragment();
@@ -84,11 +68,11 @@ public class SearchFragment extends Fragment implements SearchCallback {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+    */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View root = inflater.inflate(R.layout.fragment_search, container, false);
         return root;
     }
@@ -96,25 +80,21 @@ public class SearchFragment extends Fragment implements SearchCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //final TextView textView = view.findViewById(R.id.text);
-        searchRepository= new SearchRepository(this, getContext());
         EditText mSearch = view.findViewById(R.id.etSearch);
+        searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
         RecyclerView recyclerView = view.findViewById(R.id.result_list);
-        responseRecyclerViewAdapter = new ResponseRecyclerViewAdapter(suggestions, new ResponseRecyclerViewAdapter.OnItemClickListener() {
+        responseRecyclerViewAdapter = new ResponseRecyclerViewAdapter(results, new ResponseRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Song response, int position) {
-                responseRecyclerViewAdapter.getItemCount();
-
+                Intent intent;
                 if(position==0){
-                    Intent intent = new Intent(getActivity(), ArtistActivity.class);
+                    intent = new Intent(getActivity(), ArtistActivity.class);
                     intent.putExtra(ARTIST, response.getArtist());
-                    startActivity(intent);
-
                 }else {
-                    Intent intent = new Intent(getActivity(), SongActivity.class);
+                    intent = new Intent(getActivity(), SongActivity.class);
                     intent.putExtra(SONG, response);
-                    startActivity(intent);
                 }
+                startActivity(intent);
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -128,72 +108,31 @@ public class SearchFragment extends Fragment implements SearchCallback {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //handler.removeMessages(TRIGGER_AUTO_COMPLETE);
-                //handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
-                        //AUTO_COMPLETE_DELAY);
-                searchRepository.searchSong(mSearch.getText().toString());
+
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
-            }
-        });
-        /*handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                if (msg.what == TRIGGER_AUTO_COMPLETE) {
-                    if (!TextUtils.isEmpty(mSearch.getText())) {
-                        makeApiCall(mSearch.getText().toString());
-                    }
-                }
-                return false;
-            }
-        });*/
-    }
-
-    @Override
-    public void onResponse(List<Song> songs) {
-        suggestions.clear();
-        suggestions.addAll(songs);
-        requireActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                responseRecyclerViewAdapter.notifyDataSetChanged();
-
+                searchViewModel.getResults(mSearch.getText().toString()).observe(getViewLifecycleOwner(), results ->{
+                    updateUI(results);
+                });
             }
         });
     }
 
-    @Override
-    public void onFailure(String msg) {
-        Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
-    }
-
-    /*private void makeApiCall(String text) {
-        ApiCall.make(getContext(), text, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (!response.equals(null)) {
-                    Log.d("Your Array Response", response);
-                    try {
-                        JSONObject res = new JSONObject(response);
-                        suggestions.clear();
-                        suggestions.addAll(JSONParser.displayResultAPI(res));
-                        Log.d("Suggestion", suggestions.toString());
+    public void updateUI(List<Song> results) {
+        if(results.size()>0){
+            if(!results.get(0).getImage().equals("ErrorResponse")){
+                this.results.clear();
+                this.results.addAll(results);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         responseRecyclerViewAdapter.notifyDataSetChanged();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                } else {
-                    Log.e("Your Array Response", "Data Null");
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-    }*/
+                });
+            }else
+                Toast.makeText(getContext(), results.get(0).getTitle(), Toast.LENGTH_LONG).show();
+        }
+    }
 }

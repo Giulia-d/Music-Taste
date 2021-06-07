@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,24 +28,20 @@ import it.unimib.musictaste.R;
 import it.unimib.musictaste.SettingActivity;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.SongRecyclerViewAdapter;
-import it.unimib.musictaste.repositories.AccountFBCallback;
-import it.unimib.musictaste.repositories.AccountRepository;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
+import it.unimib.musictaste.viewmodels.AccountViewModelFactory;
+import it.unimib.musictaste.viewmodels.AccountViewModel;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AccountFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class AccountFragment extends Fragment implements AccountFBCallback {
+public class AccountFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static final String SONG = "SONGLIKED";
     public static final String ARTIST = "ARTISTLIKED";
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    //private static final String ARG_PARAM1 = "param1";
+    //rivate static final String ARG_PARAM2 = "param2";
+    boolean[] leftFragment = {false, false, false};
     ImageButton btnControl;
     TextView txtMusicTaste,txtNoSongs, txtNoArtist;
     FirebaseFirestore database;
@@ -54,10 +51,11 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
     List<Artist> likedArtists;
     List<Song> likedSongs;
     RecyclerView recyclerViewSong, recyclerViewArtist;
-    AccountRepository accountRepository;
     FirebaseUser user;
+    AccountViewModel accountViewModel;
 
 
+    /*
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -66,14 +64,6 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AccountFragment.
-     */
     // TODO: Rename and change types and number of parameters
     public static AccountFragment newInstance(String param1, String param2) {
         AccountFragment fragment = new AccountFragment();
@@ -93,19 +83,26 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
         }
 
     }
+    */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_account, container, false);
-        accountRepository = new AccountRepository(this, getContext());
         return root;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        accountRepository.getLikedSongs(uid);
+        accountViewModel.getLikedSongs(leftFragment[0]).observe(getViewLifecycleOwner(), lSongs ->{
+            updateUISong(lSongs);
+            leftFragment[0] = false;
+        });
+        accountViewModel.getLikedArtists(leftFragment[1]).observe(getViewLifecycleOwner(), lArtists ->{
+            updateUIArtist(lArtists);
+            leftFragment[1] = false;
+        });
     }
 
 
@@ -125,10 +122,16 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
         likedArtists = new ArrayList<>();
         database = FirebaseFirestore.getInstance();
 
+        //Creation of view model using parameters
+        accountViewModel = new ViewModelProvider(this, new AccountViewModelFactory(
+                requireActivity().getApplication(), uid)).get(AccountViewModel.class);
+
+
         //Set recycler view for liked songs
         songRecyclerViewAdapter = new SongRecyclerViewAdapter(likedSongs, new SongRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Song response) {
+                leftFragment[0] = true;
                 Intent intent = new Intent(getActivity(), SongActivity.class);
                 intent.putExtra(SONG, response);
                 startActivity(intent);
@@ -143,6 +146,7 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
         artistRecyclerViewAdapter = new ArtistRecyclerViewAdapter(likedArtists, new ArtistRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Artist response) {
+                leftFragment[1] = true;
                 Intent intent = new Intent(getActivity(), ArtistActivity.class);
                 intent.putExtra(ARTIST, response);
                 startActivity(intent);
@@ -186,28 +190,8 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
         startActivity(switchActivityIntent);
     }
 
-    public void changeStatus(List l,RecyclerView r, TextView t){
-        if(l.isEmpty()){
-            r.setVisibility(View.GONE);
-            t.setVisibility(View.VISIBLE);
-        }
-        else {
-            r.setVisibility(View.VISIBLE);
-            t.setVisibility(View.GONE);
-        }
-    }
 
-    @Override
-    public void onResponse(List<Song> likedSongs, List<Artist> likedArtists) {
-        /*
-        if (likedSongs.isEmpty()){
-            recyclerViewSong.setVisibility(View.GONE);
-            txtNoSongs.setVisibility(View.VISIBLE);
-        }
-        else{
-            recyclerViewSong.setVisibility(View.VISIBLE);
-            txtNoSongs.setVisibility(View.GONE);
-        }*/
+    public void updateUISong(List<Song> likedSongs) {
         changeStatus(likedSongs, recyclerViewSong, txtNoSongs);
         this.likedSongs.clear();
         this.likedSongs.addAll(likedSongs);
@@ -215,10 +199,10 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
             @Override
             public void run() {
                 songRecyclerViewAdapter.notifyDataSetChanged();
-
             }
         });
-
+    }
+    public void updateUIArtist(List<Artist> likedArtists){
         changeStatus(likedArtists, recyclerViewArtist, txtNoArtist);
         this.likedArtists.clear();
         this.likedArtists.addAll(likedArtists);
@@ -229,11 +213,16 @@ public class AccountFragment extends Fragment implements AccountFBCallback {
 
             }
         });
-
     }
 
-    @Override
-    public void onFailure(String msg) {
-
+    public void changeStatus(List l,RecyclerView r, TextView t){
+        if(l.isEmpty()){
+            r.setVisibility(View.GONE);
+            t.setVisibility(View.VISIBLE);
+        }
+        else {
+            r.setVisibility(View.VISIBLE);
+            t.setVisibility(View.GONE);
+        }
     }
 }

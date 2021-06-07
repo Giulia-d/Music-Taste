@@ -3,6 +3,8 @@ package it.unimib.musictaste.repositories;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -17,31 +19,30 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 
 public class SearchRepository {
-    private final SearchCallback searchCallback;
+    private final MutableLiveData<List<Song>> mResults;
     private final Context context;
 
-    public SearchRepository(SearchCallback searchCallback, Context context) {
-        this.searchCallback = searchCallback;
+    public SearchRepository(Context context) {
         this.context = context;
+        mResults = new MutableLiveData<>();
     }
 
-    public void searchSong(String text){
+    public MutableLiveData<List<Song>> searchSong(String text){
         String url = "https://api.genius.com/search/?q=" + text;
+        ArrayList<Song> results = new ArrayList<>();
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-
-                    ArrayList<Song> resp = new ArrayList<Song>();
                     JSONObject newRes = response.getJSONObject("response");
                     JSONArray hits = newRes.getJSONArray("hits");
                     for (int i = 0; i < hits.length(); i++){
@@ -52,14 +53,9 @@ public class SearchRepository {
                         String artistImg = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("image_url");
                         String idArtist = hits.getJSONObject(i).getJSONObject("result").getJSONObject("primary_artist").getString("id");
                         Artist a = new Artist(artist, artistImg, idArtist);
-
-                        Log.d("Titolo", title);
-                        resp.add(new Song(title, img, id, a));
-                        Log.d("RESP", newRes.toString());
-            /*SearchFragment.suggestions.add(title);
-            Log.d("SUGGESTION",SearchFragment.suggestions.toString());*/
+                        results.add(new Song(title, img, id, a));
                     }
-                   searchCallback.onResponse(resp);
+                   mResults.postValue(results);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -68,7 +64,8 @@ public class SearchRepository {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("tag", "onErrorResponse: " + error.getMessage());
-                searchCallback.onFailure(error.getMessage());
+                results.add(new Song(error.getMessage(), "ErrorResponse",null,null));
+                mResults.postValue(results);
             }
         }) {
             @Override
@@ -80,5 +77,6 @@ public class SearchRepository {
             }
         };
         queue.add(jsonObjectRequest);
+        return mResults;
     }
 }

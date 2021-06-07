@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -28,28 +28,29 @@ import com.squareup.picasso.Target;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
-import it.unimib.musictaste.repositories.SongCallback;
-import it.unimib.musictaste.repositories.SongFBCallback;
-import it.unimib.musictaste.repositories.SongRepository;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.GradientTransformation;
+import it.unimib.musictaste.utils.LikedElement;
 import it.unimib.musictaste.utils.Song;
+import it.unimib.musictaste.viewmodels.SongViewModel;
+import it.unimib.musictaste.viewmodels.SongViewModelFactory;
 
 
-public class SongActivity extends AppCompatActivity implements SongCallback, SongFBCallback {
+public class SongActivity extends AppCompatActivity {
 
     ImageView imgSong;
     TextView tvArtistSong, tvAlbumSong, tvDescription, tvListen;
     ImageButton mbtnYt, mbtnSpotify, mbtnLike;
     FirebaseFirestore database;
-    boolean liked;
-    String documentID;
+    //boolean liked;
+    //String documentID;
+    LikedElement likedElement;
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbar;
     Song currentSong;
     Album currentAlbum;
-    SongRepository songRepository;
     ProgressBar pBLoading;
+    SongViewModel songViewModel;
     public static final String ARTIST = "ARTIST";
     public static final String ALBUM = "ALBUM";
     @Override
@@ -67,9 +68,10 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
         mbtnSpotify = findViewById(R.id.btnSpotify);
         mbtnLike = findViewById(R.id.btnLike);
         database = FirebaseFirestore.getInstance();
-        liked = false;
+        //liked = false;
         pBLoading = findViewById(R.id.pBLoading);
-        songRepository = new SongRepository(this, this, this);
+
+        likedElement = new LikedElement(0, null);
 
         Intent intent = getIntent();
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
@@ -77,18 +79,23 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
             currentSong = intent.getParcelableExtra(AccountFragment.SONG);
         }
 
-
-        //int tre = intent.getIntExtra(SearchFragment.SONG, 0);
         Picasso.get().load(currentSong.getImage()).transform(new GradientTransformation()).into(imgSong);
         tvArtistSong.setText(currentSong.getArtist().getName());
-        //tvLyricsSong.setText(song.getId());
-        //Log.d("user", "Photo:" + tre);
         setToolbarColor(currentSong);
 
+        //Creation of view model using parameters
+        songViewModel = new ViewModelProvider(this, new SongViewModelFactory(
+                getApplication(), uid, currentSong.getId())).get(SongViewModel.class);
 
-        //getDescription(currentSong);
-        songRepository.checkLikedSongs(uid, currentSong.getId());
-        songRepository.getSongInfo(currentSong.getId());
+        //Check if the user likes the song
+        songViewModel.getLikedElement().observe(this, le -> {
+            updateUILiked(le);
+        });
+
+        songViewModel.getDetailsSong().observe(this, cs ->{
+            updateUISong(cs);
+        });
+
 
         tvArtistSong.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,17 +146,20 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
                     Toast.makeText(SongActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
             }
         });
-        //getLyrics(song);
 
-
-        Log.d("AAAUSER", uid);
         mbtnLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(liked){
-                    SongRepository.deleteLikedSong(documentID);
-                } else{
-                    SongRepository.addLikedSong(uid, currentSong);
+                if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
+                    //SongRepository.deleteLikedSong(documentID);
+                    songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(SongActivity.this, le -> {
+                        updateUILiked(le);
+                    });
+                } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
+                    //ongRepository.addLikedSong(uid, currentSong);
+                    songViewModel.addLikedElement(currentSong).observe(SongActivity.this, le -> {
+                        updateUILiked(le);
+                    });
                 }
 
             }
@@ -244,33 +254,49 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
 
     }
 
-    @Override
-    public void onResponse(String description, String youtube, String spotify, Album album) {
-        if (description.equals("?"))
-            description = getString(R.string.Description);
-        tvDescription.setText(description);
-        currentSong.setYoutube(youtube);
-        currentSong.setSpotify(spotify);
-        tvArtistSong.setVisibility(View.VISIBLE);
-        tvAlbumSong.setVisibility(View.VISIBLE);
-        tvListen.setVisibility(View.VISIBLE);
-        mbtnYt.setVisibility(View.VISIBLE);
-        mbtnSpotify.setVisibility(View.VISIBLE);
-        tvDescription.setVisibility(View.VISIBLE);
-        mbtnLike.setVisibility(View.VISIBLE);
-        currentSong.setAlbum(album);
-        tvAlbumSong.setText(currentSong.getAlbum().getTitle());
-        currentAlbum = currentSong.getAlbum();
-        pBLoading.setVisibility(View.GONE);
+    public void updateUISong(Song s) {
+        if(s.getTitle().equals("ErrorResponse")){
+            Toast.makeText(SongActivity.this, s.getImage(), Toast.LENGTH_LONG).show();
+        }else{
+            if (s.getDescription().equals("?"))
+                s.setDescription(getString(R.string.Description));
+            tvDescription.setText(s.getDescription());
+            currentSong.setYoutube(s.getYoutube());
+            currentSong.setSpotify(s.getSpotify());
+            tvArtistSong.setVisibility(View.VISIBLE);
+            tvAlbumSong.setVisibility(View.VISIBLE);
+            tvListen.setVisibility(View.VISIBLE);
+            mbtnYt.setVisibility(View.VISIBLE);
+            mbtnSpotify.setVisibility(View.VISIBLE);
+            tvDescription.setVisibility(View.VISIBLE);
+            mbtnLike.setVisibility(View.VISIBLE);
+            currentSong.setAlbum(s.getAlbum());
+            tvAlbumSong.setText(currentSong.getAlbum().getTitle());
+            currentAlbum = currentSong.getAlbum();
+            pBLoading.setVisibility(View.GONE);
+        }
+
     }
 
-    @Override
-    public void onFailure(String msg) {
-        Toast.makeText(SongActivity.this, msg, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
+    public void updateUILiked(LikedElement le) {
+        if(le.getLiked() == 1 && le.getDocumentID() != null){
+            mbtnLike.setImageResource(R.drawable.ic_favorite_full);
+        }
+        else if (le.getLiked() == 2 && le.getDocumentID() != null)
+        {
+            Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
+            mbtnLike.setImageResource(R.drawable.ic_favorite_full);
+        }
+        else if (le.getLiked() == 3 && le.getDocumentID() == null){
+            Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
+            mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+        }
+        else if (le.getLiked() == -1)
+        {
+            Toast.makeText(SongActivity.this, le.getDocumentID(), Toast.LENGTH_LONG).show();
+        }
+        likedElement = new LikedElement(le.getLiked(), le.getDocumentID());
+        /*
         if(liked && documentId!=null){
             if(firstLike==true)
                 Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
@@ -283,12 +309,7 @@ public class SongActivity extends AppCompatActivity implements SongCallback, Son
                 this.liked = liked;
                 mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
             }
-        }
-    }
-
-    @Override
-    public void onFailureFB(String msg) {
-        Toast.makeText(SongActivity.this, msg, Toast.LENGTH_LONG).show();
+        }*/
     }
 }
 
