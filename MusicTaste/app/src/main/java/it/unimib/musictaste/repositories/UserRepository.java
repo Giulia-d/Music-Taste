@@ -1,38 +1,19 @@
 package it.unimib.musictaste.repositories;
 
 import android.app.Application;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import it.unimib.musictaste.LoginActivity;
-import it.unimib.musictaste.MainActivity;
-import it.unimib.musictaste.R;
-import it.unimib.musictaste.RegistrationActivity;
 import it.unimib.musictaste.utils.LoginResponse;
 
 public class UserRepository {
@@ -65,7 +46,7 @@ public class UserRepository {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             loginResponse.setSuccess(true);
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            //FirebaseUser user = mAuth.getCurrentUser();
                         } else {
                             // If sign in fails, display a message to the user.
                             loginResponse.setSuccess(false);
@@ -88,7 +69,8 @@ public class UserRepository {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             loginResponse.setSuccess(true);
-                            FirebaseUser user = mAuth.getCurrentUser();
+
+                            //FirebaseUser user = mAuth.getCurrentUser();
                         } else {
                             // If sign in fails, display a message to the user.
                             loginResponse.setSuccess(false);

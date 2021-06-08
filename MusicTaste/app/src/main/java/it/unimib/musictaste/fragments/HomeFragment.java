@@ -24,7 +24,7 @@ import it.unimib.musictaste.R;
 import it.unimib.musictaste.utils.News;
 import it.unimib.musictaste.viewmodels.NewsViewModel;
 
-public class HomeFragment extends Fragment{
+public class HomeFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment{
         recyclerView = view.findViewById(R.id.rv_news);
 
         newsViewModel = new ViewModelProvider(this).get(NewsViewModel.class);
-        newsViewModel.getNews().observe(getViewLifecycleOwner(), news ->{
+        newsViewModel.getNews().observe(getViewLifecycleOwner(), news -> {
             updateUI(news);
         });
         newsRecyclerViewAdapter = new NewsRecyclerViewAdapter(news, new NewsRecyclerViewAdapter.OnItemClickListener() {
@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment{
 
 
     public void updateUI(List<News> news) {
-        if(!news.get(0).getDescription().equals("ErrorResponse")){
+        if (!news.get(0).getDescription().equals("ErrorResponse")) {
             this.news.clear();
             this.news.addAll(news);
             pBLoading_home.setVisibility(View.GONE);
@@ -112,8 +112,8 @@ public class HomeFragment extends Fragment{
                     newsRecyclerViewAdapter.notifyDataSetChanged();
                 }
             });
-        }
-        else
+        } else
             Toast.makeText(this.requireActivity(), news.get(0).getTitle(), Toast.LENGTH_LONG).show();
     }
+
 }

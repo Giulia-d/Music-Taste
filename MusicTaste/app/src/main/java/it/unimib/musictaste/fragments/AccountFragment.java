@@ -26,13 +26,14 @@ import it.unimib.musictaste.ArtistActivity;
 import it.unimib.musictaste.ArtistRecyclerViewAdapter;
 import it.unimib.musictaste.LoginActivity;
 import it.unimib.musictaste.R;
-//import it.unimib.musictaste.SettingActivity;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.SongRecyclerViewAdapter;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
-import it.unimib.musictaste.viewmodels.AccountViewModelFactory;
 import it.unimib.musictaste.viewmodels.AccountViewModel;
+import it.unimib.musictaste.viewmodels.AccountViewModelFactory;
+
+//import it.unimib.musictaste.SettingActivity;
 
 public class AccountFragment extends Fragment {
 
@@ -228,6 +229,5 @@ public class AccountFragment extends Fragment {
         FirebaseAuth.getInstance().signOut();
         LoginActivity.mGoogleSignInClient.revokeAccess();
         getActivity().finish();
-        //startActivity(new Intent(getContext(), LoginActivity.class));
     }
 }
