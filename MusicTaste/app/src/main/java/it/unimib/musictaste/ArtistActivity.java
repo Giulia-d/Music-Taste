@@ -49,9 +49,7 @@ import it.unimib.musictaste.utils.Song;
 
 
 public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback, ArtistsAlbumsCallback, GeniusCallBack {
-    public static final String ALBUMA = "ALBUMA";
-    public static final String ARTISTA = "ARTISTA";
-    public static final String ID = "ID";
+    public static final String ALBUM = "ALBUM";
 
     ImageView imgA;
     String titleSong;
@@ -311,7 +309,6 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
             recyclerView.setVisibility(View.GONE);
         }else {
             album_list = albumList;
-            Log.d("AAAAAALBUM", albumList.get(0).getTitle());
             initRecyclerView();
         }
     }
@@ -338,9 +335,7 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     @Override
     public void onResponseGenius(Album response) {
         Intent intent = new Intent(ArtistActivity.this, AlbumActivity.class);
-        intent.putExtra(ALBUMA, response);
-        intent.putExtra(ARTISTA, currentArtist);
-        intent.putExtra(ID, response.getId());
+        intent.putExtra(ALBUM, response);
         startActivity(intent);
 
     }

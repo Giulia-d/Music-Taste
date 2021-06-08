@@ -1,5 +1,6 @@
 package it.unimib.musictaste;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -75,22 +76,19 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         mbtnAlbumYt = findViewById(R.id.btnAlbumYoutube);
         mbtnAlbumSpotify = findViewById(R.id.btnAlbumSpotify);
         mbtnAlbumLike = findViewById(R.id.btnAlbumLike);
+
         database = FirebaseFirestore.getInstance();
         //liked = false;
         pBLoadingAlbum = findViewById(R.id.pBLoadingAlbum);
         albumRepository = new AlbumRepository(this, this, this);
 
         Intent intent = getIntent();
-        /*
-        currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
         currentAlbum = intent.getParcelableExtra(SongActivity.ALBUM);
-        if(currentAlbum == null){*/
-            currentArtist = intent.getParcelableExtra(ArtistActivity.ARTISTA);
-            currentAlbum = intent.getParcelableExtra(ArtistActivity.ALBUMA);
-            currentAlbum.setId(intent.getParcelableExtra(ArtistActivity.ID));
+        if(currentAlbum == null)
+            currentAlbum = intent.getParcelableExtra(ArtistActivity.ALBUM);
 
-            currentArtist = currentSong.getArtist();
-            currentSong.setAlbum(currentAlbum);
+        currentArtist = currentAlbum.getArtist();
+        //currentSong.setAlbum(currentAlbum);
         Picasso.get().load(currentAlbum.getImage()).transform(new GradientTransformation()).into(imgAlbum);
         //tvAName.setText(currentArtist.getName());
         //tvTitleSong.setText(song.getTitle());
@@ -103,6 +101,7 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         //albumRepository.checkLikedAlbum(uid, currentArtist.getId());
         albumRepository.getAlbumInfo(currentAlbum.getId());
         albumRepository.getAlbumTracks(currentAlbum.getId());
+
         /*
         mbtnAYt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,12 +132,7 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
                     Toast.makeText(ArtistActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
             }
         });
-         */
-        //getLyrics(song);
 
-
-        Log.d("AAAUSER", uid);
-        /*
         mbtnALike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -262,26 +256,12 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         initRecyclerView();
     }
 
+
     @Override
     public void onFailureTracks(String msg) {
         Toast.makeText(AlbumActivity.this, msg, Toast.LENGTH_LONG).show();
     }
 
-    public void initRecyclerView(){
-        RecyclerView recyclerView = findViewById(R.id.tracks_list);
-        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(currentAlbum.getTracks(), new AlbumRecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Song response) {
-                albumRecyclerViewAdapter.getItemCount();
-
-                Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
-                intent.putExtra(SONG, response);
-                startActivity(intent);
-            }
-        });
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(albumRecyclerViewAdapter);
-    }
 /*
     @Override
     public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
@@ -307,6 +287,21 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
     }
 
  */
+    public void initRecyclerView(){
+        RecyclerView recyclerView = findViewById(R.id.tracks_list);
+        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(currentAlbum.getTracks(), new AlbumRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Song response) {
+
+                Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
+                intent.putExtra(SONG, response);
+                startActivity(intent);
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(albumRecyclerViewAdapter);
+
+    }
 
 
 }

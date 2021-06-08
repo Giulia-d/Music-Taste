@@ -110,7 +110,6 @@ public class SongActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SongActivity.this, AlbumActivity.class);
-                intent.putExtra(ARTIST, currentSong);
                 intent.putExtra(ALBUM, currentAlbum);
                 startActivity(intent);
             }

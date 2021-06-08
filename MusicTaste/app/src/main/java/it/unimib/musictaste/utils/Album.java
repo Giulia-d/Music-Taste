@@ -56,6 +56,10 @@ public class Album implements Parcelable {
         return artistName;
     }
 
+    public Artist getArtist(){
+        return artist;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -87,6 +91,10 @@ public class Album implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.image);
         dest.writeString(this.idGenius);
+        dest.writeString(this.artistName);
+        dest.writeString(this.idSpotify);
+        dest.writeString(this.urlSpotify);
+        dest.writeParcelable(this.artist, flags);
     }
 
     @Override

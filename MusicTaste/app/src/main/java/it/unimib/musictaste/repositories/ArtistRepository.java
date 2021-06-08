@@ -261,7 +261,7 @@ public class ArtistRepository {
             System.out.println("Total: " + albumSimplifiedPaging.getTotal());
             AlbumSimplified[] albumArray = albumSimplifiedPaging.getItems();
             List<Album> albumList = new ArrayList<Album>();
-            if(albumArray.length != 0) {
+            if(albumArray != null && albumArray.length != 0) {
                 String albumName = albumArray[0].getName();
                 String albumId = albumArray[0].getId();
                 String albumImage = albumArray[0].getImages()[1].getUrl();
