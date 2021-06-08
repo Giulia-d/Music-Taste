@@ -2,6 +2,9 @@ package it.unimib.musictaste;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,17 +30,22 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import it.unimib.musictaste.utils.LoginResponse;
+import it.unimib.musictaste.viewmodels.UserViewModel;
+
 public class LoginActivity extends AppCompatActivity {
 
     EditText mEmail;
     EditText mPassword;
     Button btnLogin;
     SignInButton signInButton;
-    GoogleSignInClient mGoogleSignInClient;
+    public static GoogleSignInClient mGoogleSignInClient;
     TextView mSignIn;
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
+    private UserViewModel userViewModel;
+    LifecycleOwner lifecycleOwner = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +60,17 @@ public class LoginActivity extends AppCompatActivity {
         mEmail = findViewById(R.id.etEmail);
         mPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
-                if(!(email.matches("") && password.matches("")))
-                    signIn(email, password);
+                if(!(email.matches("") && password.matches(""))) {
+                    userViewModel.loginMailPassword(email, password);
+                    userViewModel.loginResponseLiveData.observe(lifecycleOwner, loginResponse -> updateUI(loginResponse));
+                }
                 else
                     emptyField();
             }
@@ -114,7 +126,8 @@ public class LoginActivity extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-                firebaseAuthWithGoogle(account.getIdToken());
+                userViewModel.loginGoogle(account.getIdToken());
+                userViewModel.loginResponseLiveData.observe(lifecycleOwner, loginResponse -> updateUI(loginResponse));
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
@@ -136,9 +149,8 @@ public class LoginActivity extends AppCompatActivity {
            updateUI(null);
         }
     }*/
-    public void updateUI(FirebaseUser account){
-
-        if(account != null){
+    public void updateUI(LoginResponse response){
+        if(response.isSuccess() == false){
             Toast.makeText(this, R.string.AutSucc,Toast.LENGTH_LONG).show();
             startActivity(new Intent(this,MainActivity.class));
 
@@ -148,59 +160,23 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
-    @Override
+    /*@Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         //Log.d("USER", currentUser.toString());
-        updateUI(currentUser);
-    }
-
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            updateUI(null);
-                        }
-                    }
-                });
-    }
-    private void signIn(String email, String password) {
-        // [START sign_in_with_email]
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, R.string.AutFail,
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-                    }
-                });
-        // [END sign_in_with_email]
-    }
+        updateUI();
+    }*/
 
     private void emptyField(){
         Toast.makeText(this, R.string.EmptyField,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
+        System.exit(0);
     }
 }

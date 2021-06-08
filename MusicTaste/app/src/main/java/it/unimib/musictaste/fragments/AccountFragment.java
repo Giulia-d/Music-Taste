@@ -24,8 +24,9 @@ import java.util.List;
 
 import it.unimib.musictaste.ArtistActivity;
 import it.unimib.musictaste.ArtistRecyclerViewAdapter;
+import it.unimib.musictaste.LoginActivity;
 import it.unimib.musictaste.R;
-import it.unimib.musictaste.SettingActivity;
+//import it.unimib.musictaste.SettingActivity;
 import it.unimib.musictaste.SongActivity;
 import it.unimib.musictaste.SongRecyclerViewAdapter;
 import it.unimib.musictaste.utils.Artist;
@@ -42,7 +43,7 @@ public class AccountFragment extends Fragment {
     //private static final String ARG_PARAM1 = "param1";
     //rivate static final String ARG_PARAM2 = "param2";
     boolean[] leftFragment = {false, false, false};
-    ImageButton btnControl;
+    ImageButton btnLogout;
     TextView txtMusicTaste,txtNoSongs, txtNoArtist;
     FirebaseFirestore database;
     String uid;
@@ -108,7 +109,7 @@ public class AccountFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        btnControl = view.findViewById(R.id.btnControl);
+        btnLogout = view.findViewById(R.id.btnLogout);
         recyclerViewSong = view.findViewById(R.id.likedSongs);
         recyclerViewArtist = view.findViewById(R.id.likedArtists);
         txtNoSongs = view.findViewById(R.id.tvEmptySong);
@@ -158,11 +159,12 @@ public class AccountFragment extends Fragment {
         recyclerViewArtist.setAdapter(artistRecyclerViewAdapter);
 
 
-        btnControl.setOnClickListener(new View.OnClickListener() {
+        btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchActivities();
+                signOut();
             }
+
         });
 
         /*
@@ -185,10 +187,7 @@ public class AccountFragment extends Fragment {
         */
     }
 
-    private void switchActivities() {
-        Intent switchActivityIntent = new Intent(getActivity(), SettingActivity.class);
-        startActivity(switchActivityIntent);
-    }
+
 
 
     public void updateUISong(List<Song> likedSongs) {
@@ -224,5 +223,11 @@ public class AccountFragment extends Fragment {
             r.setVisibility(View.VISIBLE);
             t.setVisibility(View.GONE);
         }
+    }
+    public void signOut() {
+        FirebaseAuth.getInstance().signOut();
+        LoginActivity.mGoogleSignInClient.revokeAccess();
+        getActivity().finish();
+        //startActivity(new Intent(getContext(), LoginActivity.class));
     }
 }
