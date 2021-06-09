@@ -1,8 +1,10 @@
 package it.unimib.musictaste;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +19,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +36,7 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import it.unimib.musictaste.fragments.AccountFragment;
@@ -45,10 +49,14 @@ import it.unimib.musictaste.repositories.GeniusCallBack;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.GradientTransformation;
+import it.unimib.musictaste.utils.LikedElement;
+import it.unimib.musictaste.utils.News;
 import it.unimib.musictaste.utils.Song;
+import it.unimib.musictaste.viewmodels.ArtistViewModel;
+import it.unimib.musictaste.viewmodels.ArtistViewModelFactory;
 
 
-public class ArtistActivity extends AppCompatActivity implements ArtistCallback, ArtistFBCallback, ArtistsAlbumsCallback, GeniusCallBack {
+public class ArtistActivity extends AppCompatActivity  {
     public static final String ALBUM = "ALBUM";
 
     ImageView imgA;
@@ -67,6 +75,8 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
     ProgressBar pBLoadingA;
     ArtistAlbumsRecyclerViewAdapter artistAlbumsRecyclerViewAdapter;
     List<Album> album_list;
+    ArtistViewModel artistViewModel;
+    LikedElement likedElement;
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +87,28 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
         imgA = findViewById(R.id.imgArtist);
         tvADescription = findViewById(R.id.expandable_text);
         tvExpTextView = (ExpandableTextView) findViewById(R.id.tvArtistExpandableTextView);
-        mbtnAYt = findViewById(R.id.btnArtistYoutube);
+        //mbtnAYt = findViewById(R.id.btnArtistYoutube);
         mbtnASpotify = findViewById(R.id.btnArtistSpotify);
         mbtnALike = findViewById(R.id.btnArtistLike);
         database = FirebaseFirestore.getInstance();
         //liked = false;
         pBLoadingA = findViewById(R.id.pBLoadingArtist);
-        artistRepository = new ArtistRepository(this, this, this,this, this);
+        likedElement = new LikedElement(0, null);
+        album_list = new ArrayList<>();
         Intent intent = getIntent();
 
+        RecyclerView recyclerView = findViewById(R.id.album_list);
+        artistAlbumsRecyclerViewAdapter = new ArtistAlbumsRecyclerViewAdapter(album_list, new ArtistAlbumsRecyclerViewAdapter.OnItemClickListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onItemClick(Album response) {
+                //artistRepository.getGeniusInfo(response);
+
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(artistAlbumsRecyclerViewAdapter);
 
         /*
         currentSong = intent.getParcelableExtra(SearchFragment.SONG);
@@ -108,29 +131,24 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
 
 
 
+        artistViewModel = new ViewModelProvider(this, new ArtistViewModelFactory(
+                getApplication(), uid, currentArtist.getId())).get(ArtistViewModel.class);
 
 
         //getDescription(currentSong);
-        artistRepository.checkLikedArtist(uid, currentArtist.getId());
-        artistRepository.getArtistInfo(currentArtist.getId());
+       artistViewModel.getDetailsArtist().observe(this, desc -> {
+          showDescription(desc);
+       });
 
-        /*
-        mbtnAYt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentArtist.getYoutube() != null) {
-                    Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(currentArtist.getYoutube()));
-                    try {
-                        ArtistActivity.this.startActivity(webIntent);
-                    } catch (ActivityNotFoundException ex) {
-                    }
-                } else
-                    Toast.makeText(ArtistActivity.this, R.string.YoutubeError, Toast.LENGTH_LONG).show();
-            }
-        });
+       artistViewModel.getLikedElement().observe(this, le ->{
+           updateUILiked(le);
+       });
 
-        mbtnSpotify.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+        mbtnASpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentArtist.getSpotify() != null) {
@@ -144,25 +162,35 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
                     Toast.makeText(ArtistActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
             }
         });
-         */
-        //getLyrics(song);
+
+
 
 
         Log.d("AAAUSER", uid);
         mbtnALike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(liked){
-                    ArtistRepository.deleteLikedArtist(documentID);
-                } else{
-                    ArtistRepository.addLikedArtist(uid, currentArtist);
+                if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
+                    //SongRepository.deleteLikedSong(documentID);
+                    artistViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(ArtistActivity.this, le -> {
+                        updateUILiked(le);
+                    });
+                } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
+                    //ongRepository.addLikedSong(uid, currentSong);
+                    artistViewModel.addLikedElement(currentArtist).observe(ArtistActivity.this, le -> {
+                        updateUILiked(le);
+                    });
                 }
 
             }
         });
 
         try {
-            artistRepository.getArtistAlbums(currentArtist.getName());
+            artistViewModel.getListAlbum(currentArtist).observe(this, listAlbum ->{
+
+                updateUI(listAlbum);
+            });
+            //artistRepository.getArtistAlbums(currentArtist.getName());
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (SpotifyWebApiException e) {
@@ -174,31 +202,53 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
 
     }
 
-
-
-    /*
-    public void getLyrics(Song song) {
-        String url = "https://api.lyrics.ovh/v1/" + song.getArtist() + "/" + song.getTitle();
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Log.d("lyrics", response.toString());
-                    tvDescription.setText(response.getString("lyrics"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
+    public void updateUI(List<Album> albums) {
+        if (!albums.get(0).getImage().equals("error")) {
+            this.album_list.clear();
+            this.album_list.addAll(albums);
+            //pBLoading_home.setVisibility(View.GONE);
+            this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    artistAlbumsRecyclerViewAdapter.notifyDataSetChanged();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("tag", "onErrorResponse: " + error.getMessage());
-            }
-        });
+            });
+        } else
+            Toast.makeText(this, albums.get(0).getTitle(), Toast.LENGTH_LONG).show();
+    }
 
-        queue.add(jsonObjectRequest);
-    }*/
+    public void showDescription(String desc){
+        if (desc.equals("?"))
+            desc = getString(R.string.Description);
+        tvExpTextView.setText(desc);
+        pBLoadingA.setVisibility(View.GONE);
+        mbtnALike.setVisibility(View.VISIBLE);
+
+    }
+
+    public void updateUILiked(LikedElement le) {
+        if(le.getLiked() == 1 && le.getDocumentID() != null){
+            mbtnALike.setImageResource(R.drawable.ic_favorite_full);
+        }
+        else if (le.getLiked() == 2 && le.getDocumentID() != null)
+        {
+            Toast.makeText(ArtistActivity.this, R.string.likedArtist, Toast.LENGTH_LONG).show();
+            mbtnALike.setImageResource(R.drawable.ic_favorite_full);
+        }
+        else if (le.getLiked() == 3 && le.getDocumentID() == null){
+            Toast.makeText(ArtistActivity.this,R.string.DislikedArtists, Toast.LENGTH_LONG).show();
+            mbtnALike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+        }
+        else if (le.getLiked() == -1)
+        {
+            Toast.makeText(ArtistActivity.this, le.getDocumentID(), Toast.LENGTH_LONG).show();
+        }
+        likedElement = new LikedElement(le.getLiked(), le.getDocumentID());
+
+    }
+
+
+
 
 
     public void setToolbarColor(Artist artist) {
@@ -261,89 +311,12 @@ public class ArtistActivity extends AppCompatActivity implements ArtistCallback,
 
     }
 
-    @Override
-    public void onResponse(String description, String youtube, String spotify) {
-        if (description.equals("?"))
-            description = getString(R.string.Description);
-        tvExpTextView.setText(description);
-        pBLoadingA.setVisibility(View.GONE);
-        //currentArtist.setYoutube(youtube);
-       //currentArtist.setSpotify(spotify);
-        //mbtnAYt.setVisibility(View.VISIBLE);
-        //mbtnASpotify.setVisibility(View.VISIBLE);
-        mbtnALike.setVisibility(View.VISIBLE);
-    }
 
-    @Override
-    public void onFailure(String msg) {
-        Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
-        if(liked && documentId!=null){
-            if(firstLike==true)
-                Toast.makeText(ArtistActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
-            this.liked= liked;
-            this.documentID=documentId;
-            mbtnALike.setImageResource(R.drawable.ic_favorite_full);
-        }else if(!liked && documentId==null){
-            if(firstLike==true) {
-                Toast.makeText(ArtistActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
-                this.liked=liked;
-                mbtnALike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
-            }
-        }
-
-    }
-
-    @Override
-    public void onFailureFB(String msg) {
-        Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onResponseArtistAlbums(List<Album> albumList) {
-        if(albumList.size() == 0){
-            RecyclerView recyclerView = findViewById(R.id.album_list);
-            recyclerView.setVisibility(View.GONE);
-        }else {
-            album_list = albumList;
-            initRecyclerView();
-        }
-    }
-
-    @Override
-    public void onFailureArtistAlbums(String msg) {
-
-    }
     public void initRecyclerView(){
-        RecyclerView recyclerView = findViewById(R.id.album_list);
-        artistAlbumsRecyclerViewAdapter = new ArtistAlbumsRecyclerViewAdapter(album_list, new ArtistAlbumsRecyclerViewAdapter.OnItemClickListener() {
-
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onItemClick(Album response) {
-                artistRepository.getGeniusInfo(response);
-
-            }
-        });
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(artistAlbumsRecyclerViewAdapter);
-    }
-
-    @Override
-    public void onResponseGenius(Album response) {
-        Intent intent = new Intent(ArtistActivity.this, AlbumActivity.class);
-        intent.putExtra(ALBUM, response);
-        startActivity(intent);
 
     }
 
-    @Override
-    public void onFailureGenius() {
 
-    }
 
 
 }

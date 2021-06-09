@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.MutableLiveData;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -55,15 +56,15 @@ import java.util.concurrent.CompletionException;
 
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
+import it.unimib.musictaste.utils.LikedElement;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 
 public class ArtistRepository {
-    private final ArtistCallback artistCallback;
-    private final GeniusCallBack geniusCallback;
-    public static ArtistFBCallback artistFBCallback = null;
-    public static ArtistsAlbumsCallback artistsAlbumsCallback;
+    private MutableLiveData<String> currentDetails;
+    private final MutableLiveData<LikedElement> likedElement;
+    private MutableLiveData<List<Album>> albumList;
     private final Context context;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
     private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -71,21 +72,20 @@ public class ArtistRepository {
             .setClientSecret(Utils.CLIENT_SECRET)
             .build();
 
-    public ArtistRepository(ArtistCallback artistCallback, ArtistFBCallback artistFBCallback, ArtistsAlbumsCallback artistsAlbumsCallback, GeniusCallBack geniusCallBack, Context context) {
-        this.artistCallback = artistCallback;
-        this.artistFBCallback = artistFBCallback;
-        this.artistsAlbumsCallback = artistsAlbumsCallback;
-        this.geniusCallback = geniusCallBack;
+    public ArtistRepository( Context context) {
         this.context = context;
+        likedElement = new MutableLiveData<>();
+        database = FirebaseFirestore.getInstance();
+        currentDetails = new MutableLiveData<>();
+        albumList = new MutableLiveData<>();
     }
  //db
- public void checkLikedArtist(String uid, String idArtist) {
+ public MutableLiveData<LikedElement> checkLikedArtist(String uid, String idArtist) {
 
      database.collection("likedArtists")
              .get()
              .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                 private boolean liked = false;
-                 private String documentID = null;
+                 LikedElement l = new LikedElement(0, null);
 
                  @Override
                  public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -93,21 +93,24 @@ public class ArtistRepository {
                          for (QueryDocumentSnapshot document : task.getResult()) {
                              if (document.get("IDuser").equals(uid) &&
                                      document.get("IDartist").equals(idArtist)) {
-                                 liked = true;
 
-                                 documentID = document.getId();
+
+                                 String documentID = document.getId();
+                                 LikedElement l = new LikedElement(1, documentID);
+                                 likedElement.postValue(l);
                                  break;
                              }
                          }
-                         artistFBCallback.onResponseFB(liked, documentID, false);
+
                      }
                  }
 
              });
+     return likedElement;
  }
 
 
-    public static void deleteLikedArtist(String documentID) {
+    public  MutableLiveData<LikedElement> deleteLikedArtist(String documentID) {
 
         database.collection("likedArtists").document(documentID)
                 .delete()
@@ -118,7 +121,7 @@ public class ArtistRepository {
 
                         Log.d("Succes", "DocumentSnapshot successfully deleted!");
 
-                        artistFBCallback.onResponseFB(false, null, true);
+                        likedElement.postValue(new LikedElement(3, null));
 
                     }
                 })
@@ -126,13 +129,14 @@ public class ArtistRepository {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w("Error", "Error deleting document", e);
+                        likedElement.postValue(new LikedElement(-1, e.getMessage()));
                     }
                 });
-
+    return likedElement;
 
     }
 
-    public static void addLikedArtist(String uid, Artist currentArtist) {
+    public MutableLiveData<LikedElement> addLikedArtist(String uid, Artist currentArtist) {
         Map<String, Object> likedArtists = new HashMap<>();
         likedArtists.put("IDuser", uid);
         likedArtists.put("IDartist", currentArtist.getId());
@@ -150,21 +154,23 @@ public class ArtistRepository {
                         //mbtnLike.setImageResource(R.drawable.ic_favorite_full);
                         //liked = true;
                         String documentID = documentReference.getId();
-                        artistFBCallback.onResponseFB(true, documentID, true);
+                        likedElement.postValue(new LikedElement(2, documentID));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w("Error", "Error adding document", e);
+                        likedElement.postValue(new LikedElement(-1, e.getMessage()));
                     }
                 });
+        return likedElement;
     }
 
 
 //api request
 
-    public void getArtistInfo(String artistId) {
+    public MutableLiveData<String> getArtistInfo(String artistId) {
         String url = "https://api.genius.com/artists/" + artistId;
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -181,25 +187,9 @@ public class ArtistRepository {
                         }
                     }
 
-                    String youtube = "";
-                    String spotify = "";
-                    //artist non ha media
-                    /*
-                    // Find youtube and spotify links from response
-                    JSONArray media = response.getJSONObject("response").getJSONObject("song").getJSONArray("media");
-                    //Log.d("media", media.toString());
-                    String youtube = "";
-                    String spotify = "";
-                    if (media != null) {
-                        for (int k = 0; k < media.length(); k++) {
-                            if (media.getJSONObject(k).getString("provider").equals("youtube"))
-                                youtube = (media.getJSONObject(k).getString("url"));
-                            else if (media.getJSONObject(k).getString("provider").equals("spotify"))
-                                spotify = (media.getJSONObject(k).getString("url"));
-                        }
-                    }
-                    */
-                    artistCallback.onResponse(description, youtube, spotify);
+                    currentDetails.postValue(description);
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -208,7 +198,8 @@ public class ArtistRepository {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("tag", "onErrorResponse: " + error.getMessage());
-                artistCallback.onFailure(error.getMessage());
+                currentDetails.postValue("error");
+
             }
         }) {
             @Override
@@ -220,6 +211,7 @@ public class ArtistRepository {
             }
         };
         queue.add(jsonObjectRequest);
+        return currentDetails;
     }
 
     private String digger(JSONArray children) throws JSONException {
@@ -234,9 +226,9 @@ public class ArtistRepository {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void getArtistAlbums(String artistName) throws ParseException, SpotifyWebApiException, IOException {
+    public MutableLiveData<List<Album>> getArtistAlbums(Artist artist) throws ParseException, SpotifyWebApiException, IOException {
         clientCredentials_Async();
-        SearchArtistsRequest searchArtistsRequest = spotifyApi.searchArtists(artistName).limit(1).build();
+        SearchArtistsRequest searchArtistsRequest = spotifyApi.searchArtists(artist.getName()).limit(1).build();
 
         try {
             CompletableFuture<Paging<com.wrapper.spotify.model_objects.specification.Artist>> pagingFuture = searchArtistsRequest.executeAsync();
@@ -247,6 +239,8 @@ public class ArtistRepository {
             final Paging<com.wrapper.spotify.model_objects.specification.Artist> artistPaging = pagingFuture.join();
 
             com.wrapper.spotify.model_objects.specification.Artist[] ar = artistPaging.getItems();
+            //set spotify url
+            artist.setSpotify(ar[0].getUri());
             String aId = ar[0].getId();
           //  try {
 
@@ -266,7 +260,7 @@ public class ArtistRepository {
                 String albumId = albumArray[0].getId();
                 String albumImage = albumArray[0].getImages()[1].getUrl();
                 String albumUri = albumArray[0].getUri();
-                albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
+                albumList.add(new Album(albumName, albumImage, albumId, albumUri, artist.getName()));
                 int k = 1;
                 for (int i = 1; i < albumArray.length; i++) {
                     albumName = albumArray[i].getName();
@@ -275,16 +269,21 @@ public class ArtistRepository {
                         albumId = albumArray[i].getId();
                         albumImage = albumArray[i].getImages()[1].getUrl();
                         albumUri = albumArray[i].getUri();
-                        albumList.add(new Album(albumName, albumImage, albumId, albumUri, artistName));
+                        albumList.add(new Album(albumName, albumImage, albumId, albumUri, artist.getName()));
                     }
                 }
             }
             else{
 
             }
-            artistsAlbumsCallback.onResponseArtistAlbums(albumList);
+            this.albumList.postValue(albumList);
+            //artistsAlbumsCallback.onResponseArtistAlbums(albumList);
         } catch (CompletionException e) {
             System.out.println("Error: " + e.getCause().getMessage());
+            Album albumError = new Album(e.getCause().getMessage(), "error", null, null, null);
+            List<Album> listError = new ArrayList<>();
+            listError.add(albumError);
+            this.albumList.postValue(listError);
         } catch (CancellationException e) {
             System.out.println("Async operation cancelled.");
         }
@@ -306,7 +305,7 @@ public class ArtistRepository {
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
         }*/
-
+    return this.albumList;
     }
 
     public void clientCredentials_Sync() {
@@ -358,7 +357,7 @@ public class ArtistRepository {
                 // Example Only. Never block in production code.
                 final Paging<TrackSimplified> trackSimplifiedPaging = pagingFuture.join();
                 String text = trackSimplifiedPaging.getItems()[0].getName() + ' ' + album.getArtistName();
-                text = text.replace(' ', '&');
+                //text = text.replace(' ', '&');
 
                 String url = "https://api.genius.com/search/?q=" + text;
                 RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
@@ -371,7 +370,7 @@ public class ArtistRepository {
 
                             String songId = hits.getJSONObject(0).getJSONObject("result").getString("id");
 
-                            getIdGenius(album, songId);
+                            //getIdGenius(album, songId);
 
 
 
@@ -413,7 +412,7 @@ public class ArtistRepository {
         }
 
 
-    public void getIdGenius(Album album, String songId)
+    /*public void getIdGenius(Album album, String songId)
     {
         String url = "https://api.genius.com/songs/" + songId;
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
@@ -449,4 +448,5 @@ public class ArtistRepository {
         };
         queue.add(jsonObjectRequest);
 
-    }}
+    }*/
+    }

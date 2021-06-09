@@ -1,9 +1,11 @@
 package it.unimib.musictaste;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,10 +45,15 @@ import it.unimib.musictaste.repositories.AlbumRepository;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.GradientTransformation;
+import it.unimib.musictaste.utils.LikedElement;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.AlbumRecyclerViewAdapter;
+import it.unimib.musictaste.viewmodels.AlbumViewModel;
+import it.unimib.musictaste.viewmodels.AlbumViewModelFactory;
+import it.unimib.musictaste.viewmodels.ArtistViewModel;
+import it.unimib.musictaste.viewmodels.ArtistViewModelFactory;
 
-public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, AlbumTracksCallback {
+public class AlbumActivity  extends AppCompatActivity{
 
     public static final String SONG = "SONG";
     ImageView imgAlbum;
@@ -63,6 +71,8 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
     ProgressBar pBLoadingAlbum;
     ExpandableTextView tvExpTextView;
     AlbumRecyclerViewAdapter albumRecyclerViewAdapter;
+    LikedElement likedElement;
+    AlbumViewModel albumViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,14 +83,14 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         imgAlbum = findViewById(R.id.imgAlbum);
         tvExpTextView = (ExpandableTextView) findViewById(R.id.tvExpandableTextView);
         //tvAlbumDescription = findViewById(R.id.tvAlbumDescription);
-        mbtnAlbumYt = findViewById(R.id.btnAlbumYoutube);
+        //iewById(R.id.btnAlbumYoutube);
         mbtnAlbumSpotify = findViewById(R.id.btnAlbumSpotify);
         mbtnAlbumLike = findViewById(R.id.btnAlbumLike);
 
         database = FirebaseFirestore.getInstance();
         //liked = false;
         pBLoadingAlbum = findViewById(R.id.pBLoadingAlbum);
-        albumRepository = new AlbumRepository(this, this, this);
+        likedElement = new LikedElement(0, null);
 
         Intent intent = getIntent();
         currentAlbum = intent.getParcelableExtra(SongActivity.ALBUM);
@@ -96,80 +106,123 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
         //Log.d("user", "Photo:" + tre);
         setToolbarColor(currentAlbum);
 
+        RecyclerView recyclerView = findViewById(R.id.tracks_list);
+        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(currentAlbum.getTracks(), new AlbumRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Song response) {
+
+                Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
+                intent.putExtra(SONG, response);
+                startActivity(intent);
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(albumRecyclerViewAdapter);
+
+
+
 
         //getDescription(currentSong);
         //albumRepository.checkLikedAlbum(uid, currentArtist.getId());
-        albumRepository.getAlbumInfo(currentAlbum.getId());
-        albumRepository.getAlbumTracks(currentAlbum.getId());
+        //albumRepository.getAlbumInfo(currentAlbum.getId());
+        //albumRepository.getAlbumTracks(currentAlbum.getId());
 
-        /*
-        mbtnAYt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentArtist.getYoutube() != null) {
-                    Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(currentArtist.getYoutube()));
-                    try {
-                        ArtistActivity.this.startActivity(webIntent);
-                    } catch (ActivityNotFoundException ex) {
-                    }
-                } else
-                    Toast.makeText(ArtistActivity.this, R.string.YoutubeError, Toast.LENGTH_LONG).show();
-            }
+        albumViewModel = new ViewModelProvider(this, new AlbumViewModelFactory(
+                getApplication(), uid, currentAlbum.getId())).get(AlbumViewModel.class);
+        albumViewModel.getDetailsAlbum().observe(this, desc -> {
+            showDescription(desc);
+        });
+        albumViewModel.getLikedElement().observe(this, le ->{
+            updateUILiked(le);
+        });
+        albumViewModel.getAlbumTracks(currentAlbum.getId()).observe(this, tracks ->{
+            updateUI(tracks);
         });
 
-        mbtnSpotify.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+        mbtnAlbumSpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentArtist.getSpotify() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(currentArtist.getSpotify()));
                     try {
-                        ArtistActivity.this.startActivity(webIntent);
+                        AlbumActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {
                     }
                 } else
-                    Toast.makeText(ArtistActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
+                    Toast.makeText(AlbumActivity.this, R.string.SpotifyError, Toast.LENGTH_LONG).show();
             }
         });
 
-        mbtnALike.setOnClickListener(new View.OnClickListener() {
+        mbtnAlbumLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(liked){
-                    ArtistRepository.deleteLikedArtist(documentID);
-                } else{
-                    ArtistRepository.addLikedArtist(uid, currentArtist);
+                if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
+                    //SongRepository.deleteLikedSong(documentID);
+                    albumViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(AlbumActivity.this, le -> {
+                        updateUILiked(le);
+                    });
+                } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
+                    //ongRepository.addLikedSong(uid, currentSong);
+                    albumViewModel.addLikedElement(currentArtist).observe(AlbumActivity.this, le -> {
+                        updateUILiked(le);
+                    });
                 }
 
-            }
-        });*/
-    }
-
-
-    /*
-    public void getLyrics(Song song) {
-        String url = "https://api.lyrics.ovh/v1/" + song.getArtist() + "/" + song.getTitle();
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Log.d("lyrics", response.toString());
-                    tvDescription.setText(response.getString("lyrics"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("tag", "onErrorResponse: " + error.getMessage());
             }
         });
+    }
 
-        queue.add(jsonObjectRequest);
-    }*/
+    public void showDescription(String desc){
+        if (desc.equals("?"))
+            desc = getString(R.string.Description);
+        tvExpTextView.setText(desc);
+        pBLoadingAlbum.setVisibility(View.GONE);
+        mbtnAlbumLike.setVisibility(View.VISIBLE);
+        mbtnAlbumSpotify.setVisibility(View.VISIBLE);
+
+    }
+
+    public void updateUI(List<Song> tracklist) {
+        if (!tracklist.get(0).getImage().equals("error")) {
+            this.currentAlbum.getTracks().clear();
+            this.currentAlbum.setTracks(tracklist);
+            //pBLoading_home.setVisibility(View.GONE);
+            this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    albumRecyclerViewAdapter.notifyDataSetChanged();
+                }
+            });
+        } else
+            Toast.makeText(this, tracklist.get(0).getTitle(), Toast.LENGTH_LONG).show();
+    }
+
+    public void updateUILiked(LikedElement le) {
+        if(le.getLiked() == 1 && le.getDocumentID() != null){
+            mbtnAlbumLike.setImageResource(R.drawable.ic_favorite_full);
+        }
+        else if (le.getLiked() == 2 && le.getDocumentID() != null)
+        {
+            Toast.makeText(AlbumActivity.this, R.string.likedArtist, Toast.LENGTH_LONG).show();
+            mbtnAlbumLike.setImageResource(R.drawable.ic_favorite_full);
+        }
+        else if (le.getLiked() == 3 && le.getDocumentID() == null){
+            Toast.makeText(AlbumActivity.this,R.string.DislikedArtists, Toast.LENGTH_LONG).show();
+            mbtnAlbumLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
+        }
+        else if (le.getLiked() == -1)
+        {
+            Toast.makeText(AlbumActivity.this, le.getDocumentID(), Toast.LENGTH_LONG).show();
+        }
+        likedElement = new LikedElement(le.getLiked(), le.getDocumentID());
+
+    }
+
 
 
     public void setToolbarColor(Album album) {
@@ -232,76 +285,8 @@ public class AlbumActivity  extends AppCompatActivity implements AlbumCallback, 
 
     }
 
-    @Override
-    public void onResponse(String description, String date) {
-        if (description.equals("?"))
-            description = getString(R.string.Description);
-        tvExpTextView.setText(description);
-        pBLoadingAlbum.setVisibility(View.GONE);
-        //currentArtist.setYoutube(youtube);
-        //currentArtist.setSpotify(spotify);
-        mbtnAlbumYt.setVisibility(View.VISIBLE);
-        mbtnAlbumSpotify.setVisibility(View.VISIBLE);
-        //mbtnALike.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onFailure(String msg) {
-        Toast.makeText(AlbumActivity.this, msg, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onResponseTracks(List<Song> tracks, int nTracks) {
-        currentAlbum.setTracks(tracks);
-        initRecyclerView();
-    }
 
 
-    @Override
-    public void onFailureTracks(String msg) {
-        Toast.makeText(AlbumActivity.this, msg, Toast.LENGTH_LONG).show();
-    }
-
-/*
-    @Override
-    public void onResponseFB(boolean liked, String documentId, boolean firstLike) {
-        if(liked && documentId!=null){
-            if(firstLike==true)
-                Toast.makeText(ArtistActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
-            this.liked= liked;
-            this.documentID=documentId;
-            mbtnALike.setImageResource(R.drawable.ic_favorite_full);
-        }else if(!liked && documentId==null){
-            if(firstLike==true) {
-                Toast.makeText(ArtistActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
-                this.liked=liked;
-                mbtnALike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
-            }
-        }
-
-    }
-
-    @Override
-    public void onFailureFB(String msg) {
-        Toast.makeText(ArtistActivity.this, msg, Toast.LENGTH_LONG).show();
-    }
-
- */
-    public void initRecyclerView(){
-        RecyclerView recyclerView = findViewById(R.id.tracks_list);
-        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(currentAlbum.getTracks(), new AlbumRecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Song response) {
-
-                Intent intent = new Intent(AlbumActivity.this, SongActivity.class);
-                intent.putExtra(SONG, response);
-                startActivity(intent);
-            }
-        });
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(albumRecyclerViewAdapter);
-
-    }
 
 
 }

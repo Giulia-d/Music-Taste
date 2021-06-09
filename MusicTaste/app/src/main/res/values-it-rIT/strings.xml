@@ -34,4 +34,6 @@
     <string name="FavoriteAlbums">Album preferiti</string>
     <string name="EmptyAlbum">Nessun album preferito</string>
     <string name="MusicTaste">Ecco il tuo music taste</string>
+    <string name="likedArtist">Aggiunto ai preferiti</string>
+    <string name="DislikedArtists">Rimosso dai preferiti</string>
 </resources>

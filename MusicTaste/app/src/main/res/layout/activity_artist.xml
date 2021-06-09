@@ -54,14 +54,7 @@
             android:layout_height="726dp"
             tools:layout_editor_absoluteY="1dp">
 
-            <!--all album..
-            <TextView
-                android:id="@+id/tvAlbumSong"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Album"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvArtistSong" />-->
+
 
             <com.ms.square.android.expandabletextview.ExpandableTextView
                 android:id="@+id/tvArtistExpandableTextView"
@@ -99,31 +92,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/btnArtistYoutube"
-                android:layout_width="43dp"
-                android:layout_height="41dp"
-                android:layout_marginStart="40dp"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                android:visibility="visible"
-                app:layout_constraintBottom_toTopOf="@+id/tvArtistExpandableTextView"
-                app:layout_constraintStart_toEndOf="@+id/tvArtistListen"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.733"
-                app:srcCompat="@drawable/ic_youtube"
-                app:tint="@color/Orange" />
 
             <ImageButton
                 android:id="@+id/btnArtistSpotify"
-                android:layout_width="44dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="30dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
+
                 android:visibility="visible"
-                app:layout_constraintStart_toEndOf="@+id/btnArtistYoutube"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.058"
+                app:layout_constraintStart_toEndOf="@+id/tvArtistListen"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_spotify"
                 app:tint="@color/Orange" />

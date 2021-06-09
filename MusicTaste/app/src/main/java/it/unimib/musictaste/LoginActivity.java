@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText mPassword;
     Button btnLogin;
     SignInButton signInButton;
-    public static GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient mGoogleSignInClient;
     TextView mSignIn;
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -86,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     private void switchActivities() {
         Intent switchActivityIntent = new Intent(this, RegistrationActivity.class);
         startActivity(switchActivityIntent);
+        //finish();
     }
 
 
@@ -118,8 +119,9 @@ public class LoginActivity extends AppCompatActivity {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
             }
-
+            mGoogleSignInClient.revokeAccess();
         }
+
     }
 
     public void updateUI(LoginResponse lr){

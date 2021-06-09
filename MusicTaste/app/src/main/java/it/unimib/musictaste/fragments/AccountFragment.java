@@ -32,6 +32,7 @@ import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.viewmodels.AccountViewModel;
 import it.unimib.musictaste.viewmodels.AccountViewModelFactory;
+import it.unimib.musictaste.viewmodels.UserViewModel;
 
 //import it.unimib.musictaste.SettingActivity;
 
@@ -55,6 +56,7 @@ public class AccountFragment extends Fragment {
     RecyclerView recyclerViewSong, recyclerViewArtist;
     FirebaseUser user;
     AccountViewModel accountViewModel;
+    UserViewModel userViewModel;
 
 
     /*
@@ -127,7 +129,7 @@ public class AccountFragment extends Fragment {
         //Creation of view model using parameters
         accountViewModel = new ViewModelProvider(this, new AccountViewModelFactory(
                 requireActivity().getApplication(), uid)).get(AccountViewModel.class);
-
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         //Set recycler view for liked songs
         songRecyclerViewAdapter = new SongRecyclerViewAdapter(likedSongs, new SongRecyclerViewAdapter.OnItemClickListener() {
@@ -226,8 +228,12 @@ public class AccountFragment extends Fragment {
         }
     }
     public void signOut() {
-        FirebaseAuth.getInstance().signOut();
-        LoginActivity.mGoogleSignInClient.revokeAccess();
+        //FirebaseAuth.getInstance().signOut();
+
+        userViewModel.deleteUserId();
+
+        Intent intent = new Intent(getContext(), LoginActivity.class);
+        startActivity(intent);
         getActivity().finish();
     }
 }

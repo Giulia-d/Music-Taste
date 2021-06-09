@@ -7,11 +7,20 @@ public class Artist implements Parcelable {
     private String name;
     private String image;
     private String id;
+    private String spotify;
 
     public Artist(String name, String image, String id) {
         this.name = name;
         this.image = image;
         this.id = id;
+    }
+
+    public String getSpotify() {
+        return spotify;
+    }
+
+    public void setSpotify(String spotify) {
+        this.spotify = spotify;
     }
 
     public String getName() {

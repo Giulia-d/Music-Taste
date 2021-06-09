@@ -90,6 +90,14 @@ public void updateUI(LoginResponse lr){
         Toast.makeText(this, R.string.AutFail,Toast.LENGTH_LONG).show();
     }
 
+    /*@Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }*/
+
     /*
     public void updateProfile(String name) {
         // [START update_profile]

@@ -28,21 +28,8 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavView, navController);
 
     }
-    /*
-    @Override
-    public void onBackPressed() {
 
-        int count = getSupportFragmentManager().getBackStackEntryCount();
 
-        if (count == 0) {
-            super.onBackPressed();
-            this.finish();
-            System.exit(0);
-        } else {
-            getSupportFragmentManager().popBackStack();
-        }
-
-    }*/
 
 
 

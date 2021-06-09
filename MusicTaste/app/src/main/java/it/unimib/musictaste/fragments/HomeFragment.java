@@ -116,4 +116,6 @@ public class HomeFragment extends Fragment {
             Toast.makeText(this.requireActivity(), news.get(0).getTitle(), Toast.LENGTH_LONG).show();
     }
 
+
+
 }

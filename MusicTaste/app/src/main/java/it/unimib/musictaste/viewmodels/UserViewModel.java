@@ -65,4 +65,11 @@ public class UserViewModel extends AndroidViewModel {
         return sharedPref.getString(Utils.USER_ID, null);
     }
 
+    public void deleteUserId() {
+        SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.commit();
+    }
+
 }

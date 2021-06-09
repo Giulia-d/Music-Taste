@@ -54,21 +54,14 @@ public class SongViewModel extends AndroidViewModel {
     }
 
     public LiveData<LikedElement> deleteLikedElement(String documentId) {
-        removeLikedElement(documentId);
+        likedElement= songRepository.deleteLikedSong(documentId);
         return likedElement;
     }
-
-    private void removeLikedElement(String documentID){
-        likedElement = songRepository.deleteLikedSong(documentID);
-    }
-
 
     public LiveData<LikedElement> addLikedElement(Song s) {
-        addLiked(s);
+        likedElement = songRepository.addLikedSong(uid, s);
         return likedElement;
     }
 
-    private void addLiked(Song s){
-        likedElement = songRepository.addLikedSong(uid, s);
-    }
+
 }

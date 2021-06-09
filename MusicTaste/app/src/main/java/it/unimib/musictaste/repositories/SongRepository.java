@@ -51,8 +51,6 @@ public class SongRepository {
         database.collection("likedSongs")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    //private boolean liked = false;
-                    //private String documentID = null;
                     LikedElement l = new LikedElement(0, null);
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -60,7 +58,7 @@ public class SongRepository {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("IDuser").equals(uid) &&
                                         document.get("IDsong").equals(idSong)) {
-                                    //liked = true;
+
                                     String documentID = document.getId();
                                     LikedElement l = new LikedElement(1, documentID);
                                     likedElement.postValue(l);

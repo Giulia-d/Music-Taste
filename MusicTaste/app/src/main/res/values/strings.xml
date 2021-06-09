@@ -37,4 +37,6 @@
     <string name="FavoriteAlbums">Favorite albums</string>
     <string name="EmptyAlbum">No favorite album</string>
     <string name="MusicTaste">Here\'s your music taste</string>
+    <string name="likedArtist">Added to liked artists</string>
+    <string name="DislikedArtists">Removed from liked artists</string>
 </resources>
