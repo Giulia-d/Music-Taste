@@ -19,7 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 
 import it.unimib.musictaste.utils.LoginResponse;
 import it.unimib.musictaste.viewmodels.UserViewModel;
@@ -34,15 +33,14 @@ public class LoginActivity extends AppCompatActivity {
     TextView mSignIn;
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
-    private FirebaseAuth mAuth;
+    //private FirebaseAuth mAuth;
     private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mAuth = FirebaseAuth.getInstance();
-
+        //mAuth = FirebaseAuth.getInstance();
         mEmail = findViewById(R.id.etEmail);
         mPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -128,6 +126,7 @@ public class LoginActivity extends AppCompatActivity {
         if(lr.isSuccess()) {
             Toast.makeText(this, R.string.AutSucc, Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, MainActivity.class));
+            finish();
         }
         else
             Toast.makeText(this, R.string.AutFail,Toast.LENGTH_LONG).show();
@@ -138,10 +137,12 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.EmptyField,Toast.LENGTH_LONG).show();
     }
 
+    /*
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         this.finish();
         System.exit(0);
     }
+     */
 }

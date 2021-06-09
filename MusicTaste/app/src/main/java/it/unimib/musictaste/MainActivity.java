@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavView, navController);
 
     }
-
+    /*
     @Override
     public void onBackPressed() {
 
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().popBackStack();
         }
 
-    }
+    }*/
 
 
 
