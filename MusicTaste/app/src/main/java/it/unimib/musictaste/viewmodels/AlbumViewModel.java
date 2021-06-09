@@ -38,7 +38,7 @@ public class AlbumViewModel extends AndroidViewModel {
         albumRepository = new AlbumRepository(application.getApplicationContext());
         this.uid = uid;
         this.albumId = albumId;
-        this.trackList = new MutableLiveData<>();
+
 
     }
 

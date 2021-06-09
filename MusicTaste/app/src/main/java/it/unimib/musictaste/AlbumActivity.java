@@ -33,6 +33,7 @@ import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import it.unimib.musictaste.fragments.SearchFragment;
@@ -73,6 +74,7 @@ public class AlbumActivity  extends AppCompatActivity{
     AlbumRecyclerViewAdapter albumRecyclerViewAdapter;
     LikedElement likedElement;
     AlbumViewModel albumViewModel;
+    List <Song> songs = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,8 @@ public class AlbumActivity  extends AppCompatActivity{
             currentAlbum = intent.getParcelableExtra(ArtistActivity.ALBUM);
 
         currentArtist = currentAlbum.getArtist();
+        songs = new ArrayList<>();
+        //songs = currentAlbum.getTracks();
         //currentSong.setAlbum(currentAlbum);
         Picasso.get().load(currentAlbum.getImage()).transform(new GradientTransformation()).into(imgAlbum);
         //tvAName.setText(currentArtist.getName());
@@ -107,7 +111,7 @@ public class AlbumActivity  extends AppCompatActivity{
         setToolbarColor(currentAlbum);
 
         RecyclerView recyclerView = findViewById(R.id.tracks_list);
-        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(currentAlbum.getTracks(), new AlbumRecyclerViewAdapter.OnItemClickListener() {
+        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(songs, new AlbumRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Song response) {
 
@@ -189,8 +193,9 @@ public class AlbumActivity  extends AppCompatActivity{
 
     public void updateUI(List<Song> tracklist) {
         if (!tracklist.get(0).getImage().equals("error")) {
-            this.currentAlbum.getTracks().clear();
-            this.currentAlbum.setTracks(tracklist);
+            songs.clear();
+            songs.addAll(tracklist);
+            currentAlbum.setTracks(tracklist);
             //pBLoading_home.setVisibility(View.GONE);
             this.runOnUiThread(new Runnable() {
                 @Override
