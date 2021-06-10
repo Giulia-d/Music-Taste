@@ -27,18 +27,20 @@ public class AlbumViewModel extends AndroidViewModel {
     private MutableLiveData<LikedElement> likedElement;
     private MutableLiveData<String> currentDescription;
     private MutableLiveData<List<Song>> trackList;
+    private MutableLiveData<String> spotifyUri;
     private AlbumRepository albumRepository;
     private String uid;
     private String albumId;
+    private String title;
 
     public AlbumViewModel(@NonNull Application application){super(application);}
 
-    public AlbumViewModel(@NonNull  Application application, String uid, String albumId) {
+    public AlbumViewModel(@NonNull  Application application, String uid, String albumId, String title) {
         super(application);
         albumRepository = new AlbumRepository(application.getApplicationContext());
         this.uid = uid;
         this.albumId = albumId;
-
+        this.title = title;
 
     }
 
@@ -88,6 +90,17 @@ public class AlbumViewModel extends AndroidViewModel {
         return likedElement;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public LiveData<String> getLinkSpotify() {
+        if (spotifyUri == null) {
+            loadLinkSpotify();
+        }
+        return spotifyUri;
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void loadLinkSpotify(){
+        spotifyUri = albumRepository.getLinkSpotify(title);
+    }
 
 }

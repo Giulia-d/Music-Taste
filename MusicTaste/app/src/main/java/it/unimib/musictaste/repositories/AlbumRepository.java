@@ -2,9 +2,11 @@ package it.unimib.musictaste.repositories;
 
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 
 import com.android.volley.AuthFailureError;
@@ -22,6 +24,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.wrapper.spotify.SpotifyApi;
+import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
+import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchArtistsRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +40,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
@@ -41,9 +53,14 @@ import it.unimib.musictaste.utils.Utils;
 public class AlbumRepository {
     private MutableLiveData<String> currentDetails;
     private MutableLiveData<List<Song>> trackList;
+    private MutableLiveData<String> spotifyUri;
     private final MutableLiveData<LikedElement> likedElement;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
     private final Context context;
+    private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+            .setClientId(Utils.CLIENT_ID)
+            .setClientSecret(Utils.CLIENT_SECRET)
+            .build();
 
     public AlbumRepository( Context context) {
         this.context = context;
@@ -51,6 +68,7 @@ public class AlbumRepository {
         trackList = new MutableLiveData<>();
         likedElement = new MutableLiveData<>();
         database = FirebaseFirestore.getInstance();
+        spotifyUri = new MutableLiveData<>();
     }
 
     public MutableLiveData<String> getAlbumInfo(String albumId) {
@@ -72,11 +90,7 @@ public class AlbumRepository {
                         }
                     }
 
-                    JSONObject album = response.getJSONObject("response").getJSONObject("album").getJSONObject("release_date_components");
-                    //String date =  album.getString("day") + "/" + album.getString("month") + "/" + album.getString("year");
-
                     currentDetails.postValue(description);
-                    //albumCallback.onResponse(description, date);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -251,5 +265,54 @@ public class AlbumRepository {
         return likedElement;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public MutableLiveData<String> getLinkSpotify(String title){
+        clientCredential_Async();
+        SearchAlbumsRequest searchAlbumsRequest = spotifyApi.searchAlbums(title).limit(1).build();
+        try {
+            final CompletableFuture<Paging<AlbumSimplified>> pagingFuture = searchAlbumsRequest.executeAsync();
+
+            // Thread free to do other tasks...
+
+            // Example Only. Never block in production code.
+            final Paging<AlbumSimplified> albumSimplifiedPaging = pagingFuture.join();
+
+            com.wrapper.spotify.model_objects.specification.AlbumSimplified[] album = albumSimplifiedPaging.getItems();
+            spotifyUri.postValue(album[0].getUri());
+
+        }
+        catch (CompletionException e) {
+            System.out.println("Error: " + e.getCause().getMessage());
+            Album albumError = new Album(e.getCause().getMessage(), "error", null, null, null);
+            List<Album> listError = new ArrayList<>();
+            listError.add(albumError);
+        } catch (CancellationException e) {
+            System.out.println("Async operation cancelled.");
+        }
+        return spotifyUri;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void clientCredential_Async() {
+        ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
+                .build();
+        try {
+            final CompletableFuture<ClientCredentials> clientCredentialsFuture = clientCredentialsRequest.executeAsync();
+
+            // Thread free to do other tasks...
+
+            // Example Only. Never block in production code.
+            final ClientCredentials clientCredentials = clientCredentialsFuture.join();
+
+            // Set access token for further "spotifyApi" object usage
+            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+
+            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+        } catch (CompletionException e) {
+            System.out.println("Error: " + e.getCause().getMessage());
+        } catch (CancellationException e) {
+            System.out.println("Async operation cancelled.");
+        }
+    }
 
 }

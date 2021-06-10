@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -59,7 +61,7 @@ public class AlbumActivity  extends AppCompatActivity{
     public static final String SONG = "SONG";
     ImageView imgAlbum;
     //TextView tvAlbumDescription;
-    ImageButton mbtnAlbumYt, mbtnAlbumSpotify, mbtnAlbumLike;
+    ImageButton mbtnAlbumSpotify, mbtnAlbumLike;
     FirebaseFirestore database;
     boolean liked;
     String documentID;
@@ -76,6 +78,7 @@ public class AlbumActivity  extends AppCompatActivity{
     AlbumViewModel albumViewModel;
     List <Song> songs = new ArrayList<>();
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +88,6 @@ public class AlbumActivity  extends AppCompatActivity{
         imgAlbum = findViewById(R.id.imgAlbum);
         tvExpTextView = (ExpandableTextView) findViewById(R.id.tvExpandableTextView);
         //tvAlbumDescription = findViewById(R.id.tvAlbumDescription);
-        //iewById(R.id.btnAlbumYoutube);
         mbtnAlbumSpotify = findViewById(R.id.btnAlbumSpotify);
         mbtnAlbumLike = findViewById(R.id.btnAlbumLike);
 
@@ -124,15 +126,8 @@ public class AlbumActivity  extends AppCompatActivity{
         recyclerView.setAdapter(albumRecyclerViewAdapter);
 
 
-
-
-        //getDescription(currentSong);
-        //albumRepository.checkLikedAlbum(uid, currentArtist.getId());
-        //albumRepository.getAlbumInfo(currentAlbum.getId());
-        //albumRepository.getAlbumTracks(currentAlbum.getId());
-
         albumViewModel = new ViewModelProvider(this, new AlbumViewModelFactory(
-                getApplication(), uid, currentAlbum.getId())).get(AlbumViewModel.class);
+                getApplication(), uid, currentAlbum.getId(), currentAlbum.getTitle())).get(AlbumViewModel.class);
         albumViewModel.getDetailsAlbum().observe(this, desc -> {
             showDescription(desc);
         });
@@ -142,6 +137,10 @@ public class AlbumActivity  extends AppCompatActivity{
         albumViewModel.getAlbumTracks(currentAlbum.getId()).observe(this, tracks ->{
             updateUI(tracks);
         });
+        if(currentAlbum.getUrlSpotify() == null)
+            albumViewModel.getLinkSpotify().observe(this, uri -> {
+                currentAlbum.setUrlSpotify(uri);
+            });
 
 
 
@@ -150,9 +149,9 @@ public class AlbumActivity  extends AppCompatActivity{
         mbtnAlbumSpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentArtist.getSpotify() != null) {
+                if (currentAlbum.getUrlSpotify() != null) {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(currentArtist.getSpotify()));
+                            Uri.parse(currentAlbum.getUrlSpotify()));
                     try {
                         AlbumActivity.this.startActivity(webIntent);
                     } catch (ActivityNotFoundException ex) {

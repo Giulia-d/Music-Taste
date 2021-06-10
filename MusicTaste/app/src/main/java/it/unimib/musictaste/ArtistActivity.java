@@ -77,6 +77,9 @@ public class ArtistActivity extends AppCompatActivity  {
     List<Album> album_list;
     ArtistViewModel artistViewModel;
     LikedElement likedElement;
+    String idSong;
+    Album albumId;
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,15 +90,15 @@ public class ArtistActivity extends AppCompatActivity  {
         imgA = findViewById(R.id.imgArtist);
         tvADescription = findViewById(R.id.expandable_text);
         tvExpTextView = (ExpandableTextView) findViewById(R.id.tvArtistExpandableTextView);
-        //mbtnAYt = findViewById(R.id.btnArtistYoutube);
         mbtnASpotify = findViewById(R.id.btnArtistSpotify);
         mbtnALike = findViewById(R.id.btnArtistLike);
         database = FirebaseFirestore.getInstance();
-        //liked = false;
         pBLoadingA = findViewById(R.id.pBLoadingArtist);
         likedElement = new LikedElement(0, null);
         album_list = new ArrayList<>();
         Intent intent = getIntent();
+        idSong = "";
+        albumId = null;
 
         RecyclerView recyclerView = findViewById(R.id.album_list);
         artistAlbumsRecyclerViewAdapter = new ArtistAlbumsRecyclerViewAdapter(album_list, new ArtistAlbumsRecyclerViewAdapter.OnItemClickListener() {
@@ -103,19 +106,19 @@ public class ArtistActivity extends AppCompatActivity  {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemClick(Album response) {
-                //artistRepository.getGeniusInfo(response);
-
+                artistViewModel.getIdSong(response).observe(ArtistActivity.this, id-> {
+                    idSong = id;
+                    artistViewModel.getIdAlbum(response, idSong).observe(ArtistActivity.this, album ->{
+                        albumId = album;
+                        Intent intent = new Intent(ArtistActivity.this, AlbumActivity.class);
+                        intent.putExtra(ALBUM, albumId);
+                        startActivity(intent);
+                    });
+                });
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(artistAlbumsRecyclerViewAdapter);
-
-        /*
-        currentSong = intent.getParcelableExtra(SearchFragment.SONG);
-        if (currentSong == null) {
-            currentSong = intent.getParcelableExtra(SongActivity.ARTIST);
-        }
-        currentArtist = currentSong.getArtist();*/
 
 
         currentArtist = intent.getParcelableExtra(SearchFragment.ARTIST);
@@ -135,7 +138,6 @@ public class ArtistActivity extends AppCompatActivity  {
                 getApplication(), uid, currentArtist.getId())).get(ArtistViewModel.class);
 
 
-        //getDescription(currentSong);
        artistViewModel.getDetailsArtist().observe(this, desc -> {
           showDescription(desc);
        });
@@ -201,7 +203,7 @@ public class ArtistActivity extends AppCompatActivity  {
 
 
     }
-
+//RIVEDERE PERCHè CON ARTISTA SENZA ALBUM CRUSHA
     public void updateUI(List<Album> albums) {
         if (!albums.get(0).getImage().equals("error")) {
             this.album_list.clear();

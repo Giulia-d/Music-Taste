@@ -109,30 +109,16 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/btnAlbumYoutube"
-                android:layout_width="43dp"
-                android:layout_height="41dp"
-                android:layout_marginStart="40dp"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                android:visibility="visible"
-                app:layout_constraintBottom_toTopOf="@+id/tvExpandableTextView"
-                app:layout_constraintStart_toEndOf="@+id/tvAlbumListen"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.733"
-                app:srcCompat="@drawable/ic_youtube"
-                app:tint="@color/Orange" />
-
-            <ImageButton
                 android:id="@+id/btnAlbumSpotify"
                 android:layout_width="44dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="36dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="28dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
                 android:visibility="visible"
-                app:layout_constraintStart_toEndOf="@+id/btnAlbumYoutube"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.262"
+                app:layout_constraintStart_toEndOf="@+id/tvAlbumListen"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_spotify"
                 app:tint="@color/Orange" />

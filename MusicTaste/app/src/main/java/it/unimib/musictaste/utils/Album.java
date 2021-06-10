@@ -60,6 +60,14 @@ public class Album implements Parcelable {
         return artist;
     }
 
+    public String getUrlSpotify() {
+        return urlSpotify;
+    }
+
+    public void setUrlSpotify(String urlSpotify) {
+        this.urlSpotify = urlSpotify;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

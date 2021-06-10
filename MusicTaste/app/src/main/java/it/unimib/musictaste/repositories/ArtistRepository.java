@@ -65,6 +65,8 @@ public class ArtistRepository {
     private MutableLiveData<String> currentDetails;
     private final MutableLiveData<LikedElement> likedElement;
     private MutableLiveData<List<Album>> albumList;
+    private MutableLiveData<Album> albumGenius;
+    private MutableLiveData<String> songId;
     private final Context context;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
     private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -78,6 +80,8 @@ public class ArtistRepository {
         database = FirebaseFirestore.getInstance();
         currentDetails = new MutableLiveData<>();
         albumList = new MutableLiveData<>();
+        albumGenius = new MutableLiveData<>();
+        songId = new MutableLiveData<>();
     }
  //db
  public MutableLiveData<LikedElement> checkLikedArtist(String uid, String idArtist) {
@@ -308,20 +312,6 @@ public class ArtistRepository {
     return this.albumList;
     }
 
-    public void clientCredentials_Sync() {
-        ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
-                .build();
-        try {
-            final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
-
-            // Set access token for further "spotifyApi" object usage
-            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-
-            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void clientCredentials_Async() {
         ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
@@ -346,7 +336,7 @@ public class ArtistRepository {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void getGeniusInfo(Album album) {
+    public  MutableLiveData<String> getGeniusInfo(Album album) {
         clientCredentials_Async();
             try {
                 GetAlbumsTracksRequest getAlbumsTracksRequest = spotifyApi.getAlbumsTracks(album.getIdSpotify()).limit(1).build();
@@ -368,13 +358,9 @@ public class ArtistRepository {
                             JSONObject newRes = response.getJSONObject("response");
                             JSONArray hits = newRes.getJSONArray("hits");
 
-                            String songId = hits.getJSONObject(0).getJSONObject("result").getString("id");
+                            String id = hits.getJSONObject(0).getJSONObject("result").getString("id");
 
-                            //getIdGenius(album, songId);
-
-
-
-
+                            songId.postValue(id);
 
             /*SearchFragment.suggestions.add(title);
             Log.d("SUGGESTION",SearchFragment.suggestions.toString());*/
@@ -409,10 +395,11 @@ public class ArtistRepository {
             } catch (CancellationException e) {
                 System.out.println("Async operation cancelled.");
             }
+            return songId;
         }
 
 
-    /*public void getIdGenius(Album album, String songId)
+    public MutableLiveData<Album> getIdGenius(Album album, String songId)
     {
         String url = "https://api.genius.com/songs/" + songId;
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());
@@ -425,7 +412,7 @@ public class ArtistRepository {
                     String idAlbum = albumJson.getString("id");
 
                     album.setId(idAlbum);
-                    geniusCallback.onResponseGenius(album);
+                    albumGenius.postValue(album);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -447,6 +434,7 @@ public class ArtistRepository {
             }
         };
         queue.add(jsonObjectRequest);
+       return albumGenius;
 
-    }*/
+    }
     }

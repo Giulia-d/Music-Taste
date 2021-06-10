@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.unimib.musictaste.ArtistActivity;
 import it.unimib.musictaste.repositories.ArtistRepository;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
@@ -27,7 +28,9 @@ public class ArtistViewModel extends AndroidViewModel {
     private MutableLiveData<LikedElement> likedElement;
     private MutableLiveData<String> currentDescription;
     private MutableLiveData<List<Album>> albumList;
+    private MutableLiveData<String> songId;
     private ArtistRepository artistRepository;
+    private MutableLiveData<Album> geniusAlbum;
     private Artist artist;
     private String uid;
     private String artistId;
@@ -87,5 +90,16 @@ public class ArtistViewModel extends AndroidViewModel {
         albumList = artistRepository.getArtistAlbums(artist);
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public LiveData<String> getIdSong(Album album){
+        songId = artistRepository.getGeniusInfo(album);
+        return songId;
+    }
+
+    public LiveData<Album> getIdAlbum(Album album, String idSong){
+        geniusAlbum = artistRepository.getIdGenius(album, idSong);
+        return geniusAlbum;
+    }
 
 }
