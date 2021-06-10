@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 
@@ -88,9 +89,7 @@ public class SongActivity extends AppCompatActivity {
                 getApplication(), uid, currentSong.getId())).get(SongViewModel.class);
 
         //Check if the user likes the song
-        songViewModel.getLikedElement().observe(this, le -> {
-            updateUILiked(le);
-        });
+        checkedLikedBegin();
 
         songViewModel.getDetailsSong().observe(this, cs ->{
             updateUISong(cs);
@@ -149,21 +148,54 @@ public class SongActivity extends AppCompatActivity {
         mbtnLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
                     //SongRepository.deleteLikedSong(documentID);
-                    songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(SongActivity.this, le -> {
+                    /*
+                    songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(this, le -> {
                         updateUILiked(le);
                     });
+
+                     */
+                    deleteLikedElement();
                 } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
-                    //ongRepository.addLikedSong(uid, currentSong);
+                    addLikedElement();
+                    /*
                     songViewModel.addLikedElement(currentSong).observe(SongActivity.this, le -> {
                         updateUILiked(le);
                     });
+                     */
                 }
-
             }
         });
     }
+    private void checkedLikedBegin(){
+        songViewModel.getLikedElement().observe(this, new Observer<LikedElement>() {
+            @Override
+            public void onChanged(LikedElement le) {
+                updateUILiked(le);
+            }
+        });
+    }
+
+    private void deleteLikedElement(){
+        songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(this, new Observer<LikedElement>() {
+            @Override
+            public void onChanged(LikedElement le) {
+                updateUILiked(le);
+            }
+        });
+    }
+
+    private void addLikedElement(){
+        songViewModel.addLikedElement(currentSong).observe(this, new Observer<LikedElement>() {
+            @Override
+            public void onChanged(LikedElement le) {
+                updateUILiked(le);
+            }
+        });
+    }
+
 
 
 
@@ -278,37 +310,23 @@ public class SongActivity extends AppCompatActivity {
     }
 
     public void updateUILiked(LikedElement le) {
+        likedElement = new LikedElement(le.getLiked(), le.getDocumentID());
         if(le.getLiked() == 1 && le.getDocumentID() != null){
             mbtnLike.setImageResource(R.drawable.ic_favorite_full);
         }
         else if (le.getLiked() == 2 && le.getDocumentID() != null)
         {
-            Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
+            Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_SHORT).show();
             mbtnLike.setImageResource(R.drawable.ic_favorite_full);
         }
         else if (le.getLiked() == 3 && le.getDocumentID() == null){
-            Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
+            Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_SHORT).show();
             mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
         }
         else if (le.getLiked() == -1)
         {
-            Toast.makeText(SongActivity.this, le.getDocumentID(), Toast.LENGTH_LONG).show();
+            Toast.makeText(SongActivity.this, le.getDocumentID(), Toast.LENGTH_SHORT).show();
         }
-        likedElement = new LikedElement(le.getLiked(), le.getDocumentID());
-        /*
-        if(liked && documentId!=null){
-            if(firstLike==true)
-                Toast.makeText(SongActivity.this, R.string.likedSong, Toast.LENGTH_LONG).show();
-            this.liked = liked;
-            this.documentID=documentId;
-            mbtnLike.setImageResource(R.drawable.ic_favorite_full);
-        }else if(!liked && documentId==null){
-            if(firstLike==true){
-                Toast.makeText(SongActivity.this, R.string.dislikedSong, Toast.LENGTH_LONG).show();
-                this.liked = liked;
-                mbtnLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
-            }
-        }*/
     }
 }
 
