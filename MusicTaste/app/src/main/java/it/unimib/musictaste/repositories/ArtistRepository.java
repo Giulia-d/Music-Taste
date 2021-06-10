@@ -57,6 +57,7 @@ import java.util.concurrent.CompletionException;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.LikedElement;
+import it.unimib.musictaste.utils.SingleLiveEvent;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
 import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
@@ -65,8 +66,8 @@ public class ArtistRepository {
     private MutableLiveData<String> currentDetails;
     private final MutableLiveData<LikedElement> likedElement;
     private MutableLiveData<List<Album>> albumList;
-    private MutableLiveData<Album> albumGenius;
-    private MutableLiveData<String> songId;
+    private SingleLiveEvent<Album> albumGenius;
+    private SingleLiveEvent<String> songId;
     private final Context context;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
     private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -80,8 +81,8 @@ public class ArtistRepository {
         database = FirebaseFirestore.getInstance();
         currentDetails = new MutableLiveData<>();
         albumList = new MutableLiveData<>();
-        albumGenius = new MutableLiveData<>();
-        songId = new MutableLiveData<>();
+        albumGenius = new SingleLiveEvent<>();
+        songId = new SingleLiveEvent<>();
     }
  //db
  public MutableLiveData<LikedElement> checkLikedArtist(String uid, String idArtist) {
@@ -336,7 +337,7 @@ public class ArtistRepository {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public  MutableLiveData<String> getGeniusInfo(Album album) {
+    public  SingleLiveEvent<String> getGeniusInfo(Album album) {
         clientCredentials_Async();
             try {
                 GetAlbumsTracksRequest getAlbumsTracksRequest = spotifyApi.getAlbumsTracks(album.getIdSpotify()).limit(1).build();
@@ -399,7 +400,7 @@ public class ArtistRepository {
         }
 
 
-    public MutableLiveData<Album> getIdGenius(Album album, String songId)
+    public SingleLiveEvent<Album> getIdGenius(Album album, String songId)
     {
         String url = "https://api.genius.com/songs/" + songId;
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());

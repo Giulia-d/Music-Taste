@@ -51,6 +51,7 @@ import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.LikedElement;
 import it.unimib.musictaste.utils.News;
+import it.unimib.musictaste.utils.SingleLiveEvent;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.viewmodels.ArtistViewModel;
 import it.unimib.musictaste.viewmodels.ArtistViewModelFactory;
@@ -106,12 +107,12 @@ public class ArtistActivity extends AppCompatActivity  {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemClick(Album response) {
-                artistViewModel.getIdSong(response).observe(ArtistActivity.this, id-> {
-                    idSong = id;
-                    artistViewModel.getIdAlbum(response, idSong).observe(ArtistActivity.this, album ->{
-                        albumId = album;
+                SingleLiveEvent<String> idProva = artistViewModel.getIdSong(response);
+                idProva.observe(ArtistActivity.this, id-> {
+                    SingleLiveEvent<Album> albumId= artistViewModel.getIdAlbum(response, id);
+                    albumId.observe(ArtistActivity.this, album ->{
                         Intent intent = new Intent(ArtistActivity.this, AlbumActivity.class);
-                        intent.putExtra(ALBUM, albumId);
+                        intent.putExtra(ALBUM, album);
                         startActivity(intent);
                     });
                 });
