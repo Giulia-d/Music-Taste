@@ -19,6 +19,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,17 +42,11 @@ import java.util.List;
 
 import it.unimib.musictaste.fragments.AccountFragment;
 import it.unimib.musictaste.fragments.SearchFragment;
-import it.unimib.musictaste.repositories.ArtistCallback;
-import it.unimib.musictaste.repositories.ArtistFBCallback;
 import it.unimib.musictaste.repositories.ArtistRepository;
-import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
-import it.unimib.musictaste.repositories.GeniusCallBack;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.utils.LikedElement;
-import it.unimib.musictaste.utils.News;
-import it.unimib.musictaste.utils.SingleLiveEvent;
 import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.viewmodels.ArtistViewModel;
 import it.unimib.musictaste.viewmodels.ArtistViewModelFactory;
@@ -107,6 +102,7 @@ public class ArtistActivity extends AppCompatActivity  {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemClick(Album response) {
+                /*
                 SingleLiveEvent<String> idProva = artistViewModel.getIdSong(response);
                 idProva.observe(ArtistActivity.this, id-> {
                     SingleLiveEvent<Album> albumId= artistViewModel.getIdAlbum(response, id);
@@ -116,6 +112,10 @@ public class ArtistActivity extends AppCompatActivity  {
                         startActivity(intent);
                     });
                 });
+
+                 */
+                 getIdSong(response);
+
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -202,8 +202,8 @@ public class ArtistActivity extends AppCompatActivity  {
             e.printStackTrace();
         }
 
-
     }
+
 //RIVEDERE PERCHè CON ARTISTA SENZA ALBUM CRUSHA
     public void updateUI(List<Album> albums) {
         if (!albums.get(0).getImage().equals("error")) {
@@ -218,6 +218,27 @@ public class ArtistActivity extends AppCompatActivity  {
             });
         } else
             Toast.makeText(this, albums.get(0).getTitle(), Toast.LENGTH_LONG).show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void getIdSong(Album a){
+        artistViewModel.getIdSong(a).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                getIdAlbum(a, s);
+            }
+        });
+    }
+
+    public void getIdAlbum(Album a, String id){
+        artistViewModel.getIdAlbum(a, id).observe(this, new Observer<Album>() {
+            @Override
+            public void onChanged(Album album) {
+                Intent intent = new Intent(ArtistActivity.this, AlbumActivity.class);
+                intent.putExtra(ALBUM, album);
+                startActivity(intent);
+            }
+        });
     }
 
     public void showDescription(String desc){

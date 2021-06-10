@@ -5,7 +5,6 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 
@@ -25,12 +24,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.SpotifyApiThreading;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import com.wrapper.spotify.model_objects.specification.Paging;
-import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.albums.GetAlbumsTracksRequest;
@@ -44,11 +41,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -57,17 +51,14 @@ import java.util.concurrent.CompletionException;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.LikedElement;
-import it.unimib.musictaste.utils.SingleLiveEvent;
-import it.unimib.musictaste.utils.Song;
 import it.unimib.musictaste.utils.Utils;
-import it.unimib.musictaste.repositories.ArtistsAlbumsCallback;
 
 public class ArtistRepository {
     private MutableLiveData<String> currentDetails;
     private final MutableLiveData<LikedElement> likedElement;
     private MutableLiveData<List<Album>> albumList;
-    private SingleLiveEvent<Album> albumGenius;
-    private SingleLiveEvent<String> songId;
+    private MutableLiveData<Album> albumGenius;
+    private MutableLiveData<String> songId;
     private final Context context;
     static FirebaseFirestore database = FirebaseFirestore.getInstance();
     private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -81,8 +72,8 @@ public class ArtistRepository {
         database = FirebaseFirestore.getInstance();
         currentDetails = new MutableLiveData<>();
         albumList = new MutableLiveData<>();
-        albumGenius = new SingleLiveEvent<>();
-        songId = new SingleLiveEvent<>();
+        albumGenius = new MutableLiveData<>();
+        songId = new MutableLiveData<>();
     }
  //db
  public MutableLiveData<LikedElement> checkLikedArtist(String uid, String idArtist) {
@@ -337,7 +328,7 @@ public class ArtistRepository {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public  SingleLiveEvent<String> getGeniusInfo(Album album) {
+    public  MutableLiveData<String> getGeniusInfo(Album album) {
         clientCredentials_Async();
             try {
                 GetAlbumsTracksRequest getAlbumsTracksRequest = spotifyApi.getAlbumsTracks(album.getIdSpotify()).limit(1).build();
@@ -400,7 +391,7 @@ public class ArtistRepository {
         }
 
 
-    public SingleLiveEvent<Album> getIdGenius(Album album, String songId)
+    public MutableLiveData<Album> getIdGenius(Album album, String songId)
     {
         String url = "https://api.genius.com/songs/" + songId;
         RequestQueue queue = Volley.newRequestQueue(context.getApplicationContext());

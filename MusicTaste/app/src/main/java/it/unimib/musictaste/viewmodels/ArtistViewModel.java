@@ -14,26 +14,22 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import it.unimib.musictaste.ArtistActivity;
 import it.unimib.musictaste.repositories.ArtistRepository;
 import it.unimib.musictaste.utils.Album;
 import it.unimib.musictaste.utils.Artist;
 import it.unimib.musictaste.utils.LikedElement;
-import it.unimib.musictaste.utils.SingleLiveEvent;
-import it.unimib.musictaste.utils.Song;
 
 public class ArtistViewModel extends AndroidViewModel {
     private MutableLiveData<LikedElement> likedElement;
     private MutableLiveData<String> currentDescription;
     private MutableLiveData<List<Album>> albumList;
-    //private MutableLiveData<String> songId;
-    private SingleLiveEvent<String> songId;
+    private MutableLiveData<String> songId;
+    //private SingleLiveEvent<String> songId;
     private ArtistRepository artistRepository;
-    //private MutableLiveData<Album> geniusAlbum;
-    private SingleLiveEvent<Album> geniusAlbum;
+    private MutableLiveData<Album> geniusAlbum;
+    //private SingleLiveEvent<Album> geniusAlbum;
     private Artist artist;
     private String uid;
     private String artistId;
@@ -95,14 +91,15 @@ public class ArtistViewModel extends AndroidViewModel {
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public SingleLiveEvent<String> getIdSong(Album album){
+    public LiveData<String> getIdSong(Album album){
         songId = null;
         songId = artistRepository.getGeniusInfo(album);
+        String value = songId.getValue();
         return songId;
     }
 
-    public SingleLiveEvent<Album> getIdAlbum(Album album, String idSong){
-        songId = null;
+    public LiveData<Album> getIdAlbum(Album album, String idSong){
+        //songId = null;
         geniusAlbum = artistRepository.getIdGenius(album, idSong);
         return geniusAlbum;
     }

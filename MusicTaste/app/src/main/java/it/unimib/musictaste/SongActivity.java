@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 
@@ -89,7 +88,10 @@ public class SongActivity extends AppCompatActivity {
                 getApplication(), uid, currentSong.getId())).get(SongViewModel.class);
 
         //Check if the user likes the song
-        checkedLikedBegin();
+        //checkedLikedBegin();
+        songViewModel.getLikedElement().observe(this, le ->{
+            updateUILiked(le);
+        });
 
         songViewModel.getDetailsSong().observe(this, cs ->{
             updateUISong(cs);
@@ -157,41 +159,13 @@ public class SongActivity extends AppCompatActivity {
                     });
 
                      */
-                    deleteLikedElement();
+                    songViewModel.deleteLikedElement(likedElement.getDocumentID());
+
                 } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
-                    addLikedElement();
-                    /*
-                    songViewModel.addLikedElement(currentSong).observe(SongActivity.this, le -> {
-                        updateUILiked(le);
-                    });
-                     */
+                    songViewModel.addLikedElement(currentSong);
+
+
                 }
-            }
-        });
-    }
-    private void checkedLikedBegin(){
-        songViewModel.getLikedElement().observe(this, new Observer<LikedElement>() {
-            @Override
-            public void onChanged(LikedElement le) {
-                updateUILiked(le);
-            }
-        });
-    }
-
-    private void deleteLikedElement(){
-        songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(this, new Observer<LikedElement>() {
-            @Override
-            public void onChanged(LikedElement le) {
-                updateUILiked(le);
-            }
-        });
-    }
-
-    private void addLikedElement(){
-        songViewModel.addLikedElement(currentSong).observe(this, new Observer<LikedElement>() {
-            @Override
-            public void onChanged(LikedElement le) {
-                updateUILiked(le);
             }
         });
     }
