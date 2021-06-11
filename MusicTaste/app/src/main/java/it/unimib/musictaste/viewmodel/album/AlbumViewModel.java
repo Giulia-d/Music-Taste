@@ -11,7 +11,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
 
-import it.unimib.musictaste.models.Artist;
+import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.LikedElement;
 import it.unimib.musictaste.models.Song;
 import it.unimib.musictaste.repositories.album.AlbumRepository;
@@ -79,8 +79,8 @@ public class AlbumViewModel extends AndroidViewModel {
         return likedElement;
     }
 
-        public LiveData<LikedElement> addLikedElement(Artist s) {
-        likedElement = albumRepository.addLikedAlbum(uid, s);
+        public LiveData<LikedElement> addLikedElement(Album a) {
+        likedElement = albumRepository.addLikedAlbum(uid, a);
         return likedElement;
     }
 

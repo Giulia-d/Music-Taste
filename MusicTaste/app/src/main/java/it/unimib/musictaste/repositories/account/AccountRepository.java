@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.Song;
 
 public class AccountRepository {
     private final MutableLiveData<List<Song>> mLikedSongs;
     private final MutableLiveData<List<Artist>> mLikedArtists;
+    private final MutableLiveData<List<Album>> mLikedAlbums;
     private Context context;
     FirebaseFirestore database = FirebaseFirestore.getInstance();
 
@@ -30,6 +32,7 @@ public class AccountRepository {
         this.context = context;
         mLikedSongs = new MutableLiveData<>();
         mLikedArtists = new MutableLiveData<>();
+        mLikedAlbums = new MutableLiveData<>();
     }
 
 
@@ -43,7 +46,6 @@ public class AccountRepository {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.getString("IDuser").equals(uid)) {
-                                    String name = document.getString("NameArtist");
                                     likedArtist.add(new Artist(document.getString("NameArtist"),
                                             document.getString("ImageArtist"),
                                             document.getString("IDartist")));
@@ -55,6 +57,30 @@ public class AccountRepository {
 
                 });
         return mLikedArtists;
+    }
+
+    public MutableLiveData<List<Album>> getLikedAlbums(String uid) {
+        List<Album> likedAlbums = new ArrayList<>();
+        database.collection("likedAlbums")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.getString("IDuser").equals(uid)) {
+                                    likedAlbums.add(new Album(document.getString("NameAlbum"),
+                                            document.getString("ImageAlbum"),
+                                            document.getString("IDAlbum"),
+                                            document.getString("NameArtist")));
+                                }
+                            }
+                        }
+                        mLikedAlbums.postValue(likedAlbums);
+                    }
+
+                });
+        return mLikedAlbums;
     }
 
     public MutableLiveData<List<Song>> getLikedSongs(String uid) {

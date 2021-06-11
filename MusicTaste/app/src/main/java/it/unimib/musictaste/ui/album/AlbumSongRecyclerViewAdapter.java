@@ -14,7 +14,7 @@ import it.unimib.musictaste.R;
 import it.unimib.musictaste.models.Song;
 
 
-public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.AlbumViewHolder>{
+public class AlbumSongRecyclerViewAdapter extends RecyclerView.Adapter<AlbumSongRecyclerViewAdapter.AlbumViewHolder>{
 
     private List<Song>tracks;
     private OnItemClickListener onItemClickListener;
@@ -23,7 +23,7 @@ public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecycler
         void onItemClick(Song response);
     }
 
-    public AlbumRecyclerViewAdapter(List<Song> tracks, OnItemClickListener onItemClickListener){
+    public AlbumSongRecyclerViewAdapter(List<Song> tracks, OnItemClickListener onItemClickListener){
         this.tracks = tracks;
         this.onItemClickListener = onItemClickListener;
     }

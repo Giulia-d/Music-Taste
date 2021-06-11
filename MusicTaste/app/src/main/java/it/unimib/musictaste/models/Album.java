@@ -22,6 +22,13 @@ public class Album implements Parcelable {
         this.idGenius = id;
     }
 
+    public Album(String title, String image, String id, String artistName) {
+        this.title = title;
+        this.image = image;
+        this.idGenius = id;
+        this.artistName = artistName;
+    }
+
     public Album(String title, String image, String id, String url, String artistName){
         this.title = title;
         this.image = image;
@@ -96,6 +103,9 @@ public class Album implements Parcelable {
         this.title = in.readString();
         this.image = in.readString();
         this.idGenius = in.readString();
+        this.artistName = in.readString();
+        this.idSpotify = in.readString();
+        this.urlSpotify = in.readString();
     }
 
     @Override

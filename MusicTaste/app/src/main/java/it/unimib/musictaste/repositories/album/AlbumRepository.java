@@ -54,12 +54,9 @@ public class AlbumRepository {
     private MutableLiveData<List<Song>> trackList;
     private MutableLiveData<String> spotifyUri;
     private final MutableLiveData<LikedElement> likedElement;
-    static FirebaseFirestore database = FirebaseFirestore.getInstance();
+    private FirebaseFirestore database;
     private final Context context;
-    private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
-            .setClientId(Utils.CLIENT_ID)
-            .setClientSecret(Utils.CLIENT_SECRET)
-            .build();
+    private final SpotifyApi spotifyApi;
 
     public AlbumRepository(Context context) {
         this.context = context;
@@ -68,6 +65,10 @@ public class AlbumRepository {
         likedElement = new MutableLiveData<>();
         database = FirebaseFirestore.getInstance();
         spotifyUri = new MutableLiveData<>();
+        spotifyApi = new SpotifyApi.Builder()
+                .setClientId(Utils.CLIENT_ID)
+                .setClientSecret(Utils.CLIENT_SECRET)
+                .build();
     }
 
     public MutableLiveData<String> getAlbumInfo(String albumId) {
@@ -177,79 +178,61 @@ public class AlbumRepository {
         return description;
     }
 
-    public MutableLiveData<LikedElement> checkLikedAlbum(String uid, String idArtist) {
-
+    public MutableLiveData<LikedElement> checkLikedAlbum(String uid, String idAlbum) {
         database.collection("likedAlbums")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     LikedElement l = new LikedElement(0, null);
-
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("IDuser").equals(uid) &&
-                                        document.get("IDartist").equals(idArtist)) {
-
-
+                                        document.get("IDAlbum").equals(idAlbum)) {
                                     String documentID = document.getId();
                                     LikedElement l = new LikedElement(1, documentID);
                                     likedElement.postValue(l);
                                     break;
                                 }
                             }
-
                         }
                     }
-
                 });
         return likedElement;
     }
 
-
-    public  MutableLiveData<LikedElement> deleteLikedAlbum(String documentID) {
-
+    public MutableLiveData<LikedElement> deleteLikedAlbum(String documentID) {
         database.collection("likedAlbums").document(documentID)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     //boolean liked = true;
                     @Override
                     public void onSuccess(Void aVoid) {
-
-                        Log.d("Succes", "DocumentSnapshot successfully deleted!");
-
                         likedElement.postValue(new LikedElement(3, null));
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("Error", "Error deleting document", e);
                         likedElement.postValue(new LikedElement(-1, e.getMessage()));
                     }
                 });
         return likedElement;
-
     }
 
-    public MutableLiveData<LikedElement> addLikedAlbum(String uid, Artist currentArtist) {
-        Map<String, Object> likedArtists = new HashMap<>();
-        likedArtists.put("IDuser", uid);
-        likedArtists.put("IDartist", currentArtist.getId());
-        likedArtists.put("NameArtist", currentArtist.getName());
-        likedArtists.put("ImageArtist", currentArtist.getImage());
-
-// Add a new document with a generated ID
-        database.collection("likedArtists")
-                .add(likedArtists)
+    public MutableLiveData<LikedElement> addLikedAlbum(String uid, Album currentAlbum) {
+        Map<String, Object> likedAlbum = new HashMap<>();
+        likedAlbum.put("IDuser", uid);
+        likedAlbum.put("IDAlbum", currentAlbum.getId());
+        likedAlbum.put("NameArtist", currentAlbum.getArtistName());
+        likedAlbum.put("NameAlbum", currentAlbum.getTitle());
+        likedAlbum.put("ImageAlbum", currentAlbum.getImage());
+        // Add a new document with a generated ID
+        database.collection("likedAlbums")
+                .add(likedAlbum)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-
-                        Log.d("Succes", "DocumentSnapshot added with ID: " + documentReference.getId());
-                        //mbtnLike.setImageResource(R.drawable.ic_favorite_full);
-                        //liked = true;
                         String documentID = documentReference.getId();
                         likedElement.postValue(new LikedElement(2, documentID));
                     }
@@ -257,7 +240,6 @@ public class AlbumRepository {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("Error", "Error adding document", e);
                         likedElement.postValue(new LikedElement(-1, e.getMessage()));
                     }
                 });
@@ -265,7 +247,7 @@ public class AlbumRepository {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public MutableLiveData<String> getLinkSpotify(String title){
+    public MutableLiveData<String> getLinkSpotify(String title) {
         clientCredential_Async();
         SearchAlbumsRequest searchAlbumsRequest = spotifyApi.searchAlbums(title).limit(1).build();
         try {
@@ -279,8 +261,7 @@ public class AlbumRepository {
             AlbumSimplified[] album = albumSimplifiedPaging.getItems();
             spotifyUri.postValue(album[0].getUri());
 
-        }
-        catch (CompletionException e) {
+        } catch (CompletionException e) {
             System.out.println("Error: " + e.getCause().getMessage());
             Album albumError = new Album(e.getCause().getMessage(), "error", null, null, null);
             List<Album> listError = new ArrayList<>();

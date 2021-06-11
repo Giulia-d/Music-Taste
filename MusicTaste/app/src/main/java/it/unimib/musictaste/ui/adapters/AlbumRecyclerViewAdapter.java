@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.song;
+package it.unimib.musictaste.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,59 +14,59 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import it.unimib.musictaste.R;
-import it.unimib.musictaste.models.Song;
+import it.unimib.musictaste.models.Album;
 
 
-public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerViewAdapter.SongViewHolder>{
+public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.AlbumViewHolder>{
 
-    private List<Song> responseList;
+    private List<Album> likedAlbums;
     private OnItemClickListener onItemClickListener;
 
     public interface OnItemClickListener {
-        void onItemClick(Song response);
+        void onItemClick(Album album);
     }
 
-    public SongRecyclerViewAdapter(List<Song> responseList, OnItemClickListener onItemClickListener) {
-        this.responseList = responseList;
+    public AlbumRecyclerViewAdapter(List<Album> likedAlbums, OnItemClickListener onItemClickListener) {
+        this.likedAlbums = likedAlbums;
         this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
     @Override
-    public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.liked_item, parent, false);
-        return new SongViewHolder(view);
+        return new AlbumViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-        holder.bind(responseList.get(position));
+    public void onBindViewHolder(@NonNull AlbumViewHolder holder, int position) {
+        holder.bind(likedAlbums.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return responseList.size();
+        return likedAlbums.size();
     }
 
-    public class SongViewHolder extends RecyclerView.ViewHolder {
+    public class AlbumViewHolder extends RecyclerView.ViewHolder {
         private final TextView titleTextView;
         private final TextView artistTextView;
-        private final ImageView imageSong;
-        public SongViewHolder(@NonNull View itemView) {
+        private final ImageView imageAlbum;
+        public AlbumViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.tvLikedItemTitle);
             artistTextView = itemView.findViewById(R.id.tvLikedItemArtist);
-            imageSong = itemView.findViewById(R.id.imgLikedItem);
+            imageAlbum = itemView.findViewById(R.id.imgLikedItem);
         }
 
-        public void bind(Song response) {
-            titleTextView.setText(response.getTitle());
-            artistTextView.setText(response.getArtist().getName());
-            Picasso.get().load(response.getImage()).into(imageSong);
+        public void bind(Album album) {
+            titleTextView.setText(album.getTitle());
+            artistTextView.setText(album.getArtistName());
+            Picasso.get().load(album.getImage()).into(imageAlbum);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    onItemClickListener.onItemClick(response);
+                    onItemClickListener.onItemClick(album);
                 }
             });
         }

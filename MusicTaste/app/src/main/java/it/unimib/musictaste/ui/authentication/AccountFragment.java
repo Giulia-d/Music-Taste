@@ -22,13 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.unimib.musictaste.R;
+import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.Song;
+import it.unimib.musictaste.ui.adapters.AlbumRecyclerViewAdapter;
+import it.unimib.musictaste.ui.album.AlbumActivity;
 import it.unimib.musictaste.ui.artist.ArtistActivity;
 import it.unimib.musictaste.ui.artist.ArtistRecyclerViewAdapter;
 import it.unimib.musictaste.ui.song.SongActivity;
 import it.unimib.musictaste.ui.song.SongRecyclerViewAdapter;
-
 import it.unimib.musictaste.viewmodel.account.AccountViewModel;
 import it.unimib.musictaste.viewmodel.account.AccountViewModelFactory;
 import it.unimib.musictaste.viewmodel.user.UserViewModel;
@@ -37,56 +39,24 @@ import it.unimib.musictaste.viewmodel.user.UserViewModel;
 
 public class AccountFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     public static final String SONG = "SONGLIKED";
     public static final String ARTIST = "ARTISTLIKED";
-    //private static final String ARG_PARAM1 = "param1";
-    //rivate static final String ARG_PARAM2 = "param2";
-    boolean[] leftFragment = {false, false, false};
+    public static final String ALBUM = "ALBUMLIKED";
+    boolean leftFragment = false;
     ImageButton btnLogout;
-    TextView txtMusicTaste,txtNoSongs, txtNoArtist;
+    TextView txtMusicTaste,txtNoSongs, txtNoArtist, txtNoAlbum;
     FirebaseFirestore database;
     String uid;
     SongRecyclerViewAdapter songRecyclerViewAdapter;
     ArtistRecyclerViewAdapter artistRecyclerViewAdapter;
+    AlbumRecyclerViewAdapter albumRecyclerViewAdapter;
     List<Artist> likedArtists;
     List<Song> likedSongs;
-    RecyclerView recyclerViewSong, recyclerViewArtist;
+    List<Album> likedAlbums;
+    RecyclerView recyclerViewSong, recyclerViewArtist, recyclerViewAlbum;
     FirebaseUser user;
     AccountViewModel accountViewModel;
     UserViewModel userViewModel;
-
-
-    /*
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public AccountFragment() {
-        // Required empty public constructor
-    }
-
-    // TODO: Rename and change types and number of parameters
-    public static AccountFragment newInstance(String param1, String param2) {
-        AccountFragment fragment = new AccountFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
-    }
-    */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,13 +68,17 @@ public class AccountFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        accountViewModel.getLikedSongs(leftFragment[0]).observe(getViewLifecycleOwner(), lSongs ->{
+        accountViewModel.getLikedSongs(leftFragment).observe(getViewLifecycleOwner(), lSongs ->{
             updateUISong(lSongs);
-            leftFragment[0] = false;
+            leftFragment = false;
         });
-        accountViewModel.getLikedArtists(leftFragment[1]).observe(getViewLifecycleOwner(), lArtists ->{
+        accountViewModel.getLikedArtists(leftFragment).observe(getViewLifecycleOwner(), lArtists ->{
             updateUIArtist(lArtists);
-            leftFragment[1] = false;
+            leftFragment = false;
+        });
+        accountViewModel.getLikedAlbums(leftFragment).observe(getViewLifecycleOwner(), lAlbums ->{
+            updateUIAlbum(lAlbums);
+            leftFragment = false;
         });
     }
 
@@ -114,15 +88,17 @@ public class AccountFragment extends Fragment {
         btnLogout = view.findViewById(R.id.btnLogout);
         recyclerViewSong = view.findViewById(R.id.likedSongs);
         recyclerViewArtist = view.findViewById(R.id.likedArtists);
+        recyclerViewAlbum = view.findViewById(R.id.likedAlbums);
         txtNoSongs = view.findViewById(R.id.tvEmptySong);
         txtNoArtist = view.findViewById(R.id.tvEmptyArtist);
+        txtNoAlbum = view.findViewById(R.id.tvEmptyAlbum);
         txtMusicTaste = view.findViewById(R.id.txtMusicTaste);
-
         user = FirebaseAuth.getInstance().getCurrentUser();
         uid = user.getUid();
         txtMusicTaste.setText(getString(R.string.MusicTaste) + ", " + user.getDisplayName());
         likedSongs = new ArrayList<>();
         likedArtists = new ArrayList<>();
+        likedAlbums = new ArrayList<>();
         database = FirebaseFirestore.getInstance();
 
         //Creation of view model using parameters
@@ -134,7 +110,7 @@ public class AccountFragment extends Fragment {
         songRecyclerViewAdapter = new SongRecyclerViewAdapter(likedSongs, new SongRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Song response) {
-                leftFragment[0] = true;
+                leftFragment = true;
                 Intent intent = new Intent(getActivity(), SongActivity.class);
                 intent.putExtra(SONG, response);
                 startActivity(intent);
@@ -149,7 +125,7 @@ public class AccountFragment extends Fragment {
         artistRecyclerViewAdapter = new ArtistRecyclerViewAdapter(likedArtists, new ArtistRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Artist response) {
-                leftFragment[1] = true;
+                leftFragment = true;
                 Intent intent = new Intent(getActivity(), ArtistActivity.class);
                 intent.putExtra(ARTIST, response);
                 startActivity(intent);
@@ -160,6 +136,21 @@ public class AccountFragment extends Fragment {
         recyclerViewArtist.setLayoutManager(lmArtis);
         recyclerViewArtist.setAdapter(artistRecyclerViewAdapter);
 
+        //Set recycler view for liked albums
+        albumRecyclerViewAdapter = new AlbumRecyclerViewAdapter(likedAlbums, new AlbumRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Album album) {
+                leftFragment = true;
+                Intent intent = new Intent(getActivity(), AlbumActivity.class);
+                intent.putExtra(ALBUM, album);
+                startActivity(intent);
+            }
+        });
+        LinearLayoutManager lmAlbum = new LinearLayoutManager(getContext());
+        lmAlbum.setOrientation(RecyclerView.HORIZONTAL);
+        recyclerViewAlbum.setLayoutManager(lmAlbum);
+        recyclerViewAlbum.setAdapter(albumRecyclerViewAdapter);
+
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,31 +159,9 @@ public class AccountFragment extends Fragment {
             }
 
         });
-
-        /*
-        if (user != null) {
-            // User is signed in
-            Log.d("user", "email:" + user.getEmail());
-            Log.d("user", "Photo:" + user.getPhotoUrl());
-            txtName = view.findViewById(R.id.txtName);
-            txtName.setText(user.getDisplayName());
-            imgAccount = view.findViewById(R.id.imgAccount);
-            if (user.getPhotoUrl() != null) {
-                Picasso.get().load(user.getPhotoUrl()).into(imgAccount);
-            }
-
-
-        } else {
-            // No user is signed in
-
-        }
-        */
     }
 
-
-
-
-    public void updateUISong(List<Song> likedSongs) {
+    private void updateUISong(List<Song> likedSongs) {
         changeStatus(likedSongs, recyclerViewSong, txtNoSongs);
         this.likedSongs.clear();
         this.likedSongs.addAll(likedSongs);
@@ -203,7 +172,7 @@ public class AccountFragment extends Fragment {
             }
         });
     }
-    public void updateUIArtist(List<Artist> likedArtists){
+    private void updateUIArtist(List<Artist> likedArtists){
         changeStatus(likedArtists, recyclerViewArtist, txtNoArtist);
         this.likedArtists.clear();
         this.likedArtists.addAll(likedArtists);
@@ -216,7 +185,19 @@ public class AccountFragment extends Fragment {
         });
     }
 
-    public void changeStatus(List l,RecyclerView r, TextView t){
+    private void updateUIAlbum(List<Album> likedAlbums){
+        changeStatus(likedAlbums, recyclerViewAlbum, txtNoAlbum);
+        this.likedAlbums.clear();
+        this.likedAlbums.addAll(likedAlbums);
+        requireActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                albumRecyclerViewAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void changeStatus(List l,RecyclerView r, TextView t){
         if(l.isEmpty()){
             r.setVisibility(View.GONE);
             t.setVisibility(View.VISIBLE);
@@ -226,11 +207,8 @@ public class AccountFragment extends Fragment {
             t.setVisibility(View.GONE);
         }
     }
-    public void signOut() {
-        //FirebaseAuth.getInstance().signOut();
-
+    private void signOut() {
         userViewModel.deleteUserId();
-
         Intent intent = new Intent(getContext(), LoginActivity.class);
         startActivity(intent);
         getActivity().finish();

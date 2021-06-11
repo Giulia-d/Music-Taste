@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.unimib.musictaste.R;
-
 import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.LikedElement;
@@ -176,46 +174,16 @@ public class ArtistActivity extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
                 if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
-
-                    //SongRepository.deleteLikedSong(documentID);
-                    /*
-                    songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(this, le -> {
-                        updateUILiked(le);
-                    });
-                     */
                     artistViewModel.deleteLikedElement(likedElement.getDocumentID());
 
                 } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
                     artistViewModel.addLikedElement(currentArtist);
-
-
                 }
             }
         });
-/*
 
-        Log.d("AAAUSER", uid);
-        mbtnALike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
-                    //SongRepository.deleteLikedSong(documentID);
-                    artistViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(ArtistActivity.this, le -> {
-                        updateUILiked(le);
-                    });
-                } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
-                    //ongRepository.addLikedSong(uid, currentSong);
-                    artistViewModel.addLikedElement(currentArtist).observe(ArtistActivity.this, le -> {
-                        updateUILiked(le);
-                    });
-                }
-
-            }
-        });
-*/
         try {
             artistViewModel.getListAlbum(currentArtist).observe(this, listAlbum ->{
-
                 updateUI(listAlbum);
             });
             //artistRepository.getArtistAlbums(currentArtist.getName());
@@ -282,24 +250,20 @@ public class ArtistActivity extends AppCompatActivity  {
         }
         else if (le.getLiked() == 2 && le.getDocumentID() != null)
         {
-            Toast.makeText(ArtistActivity.this, R.string.likedArtist, Toast.LENGTH_LONG).show();
+            Toast.makeText(ArtistActivity.this, R.string.likedArtist, Toast.LENGTH_SHORT).show();
             mbtnALike.setImageResource(R.drawable.ic_favorite_full);
         }
         else if (le.getLiked() == 3 && le.getDocumentID() == null){
-            Toast.makeText(ArtistActivity.this,R.string.DislikedArtists, Toast.LENGTH_LONG).show();
+            Toast.makeText(ArtistActivity.this,R.string.DislikedArtists, Toast.LENGTH_SHORT).show();
             mbtnALike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
         }
         else if (le.getLiked() == -1)
         {
-            Toast.makeText(ArtistActivity.this, le.getDocumentID(), Toast.LENGTH_LONG).show();
+            Toast.makeText(ArtistActivity.this, le.getDocumentID(), Toast.LENGTH_SHORT).show();
         }
         likedElement = new LikedElement(le.getLiked(), le.getDocumentID());
 
     }
-
-
-
-
 
     public void setToolbarColor(Artist artist) {
         Picasso.get()
@@ -360,13 +324,4 @@ public class ArtistActivity extends AppCompatActivity  {
                 });
 
     }
-
-
-    public void initRecyclerView(){
-
-    }
-
-
-
-
 }

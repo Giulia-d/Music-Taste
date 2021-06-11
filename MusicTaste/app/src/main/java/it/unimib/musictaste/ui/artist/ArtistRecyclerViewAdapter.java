@@ -34,7 +34,7 @@ public class ArtistRecyclerViewAdapter extends RecyclerView.Adapter<ArtistRecycl
     @Override
     public ArtistViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Create a new view, which defines the UI of the list item
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.favorite_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.liked_artist_item, parent, false);
         return new ArtistViewHolder(view);
     }
 
@@ -53,8 +53,8 @@ public class ArtistRecyclerViewAdapter extends RecyclerView.Adapter<ArtistRecycl
         private final ImageView imageArtist;
         public ArtistViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTextView = itemView.findViewById(R.id.tvLikedTitleItem);
-            imageArtist = itemView.findViewById(R.id.imgLikedItem);
+            titleTextView = itemView.findViewById(R.id.tvLikedArtistItem);
+            imageArtist = itemView.findViewById(R.id.imgLikedArtistItem);
         }
 
         public void bind(Artist response) {
