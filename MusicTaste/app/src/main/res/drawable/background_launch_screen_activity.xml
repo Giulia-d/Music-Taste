@@ -3,6 +3,8 @@
     <item
         android:drawable="@color/DarkGray" />
     <item
-        android:drawable="@mipmap/ic_launcher_round"
-        android:gravity="center" />
+        android:drawable="@drawable/ic_logo"
+        android:gravity="center"
+        android:width="250dp"
+        android:height="250dp"/>
 </layer-list>
