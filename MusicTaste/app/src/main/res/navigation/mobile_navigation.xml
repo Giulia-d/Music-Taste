@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/navigation_home">
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="it.unimib.musictaste.fragments.HomeFragment"
+        android:name="it.unimib.musictaste.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="it.unimib.musictaste.fragments.SearchFragment"
+        android:name="it.unimib.musictaste.ui.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search" >
+        tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/action_navigation_search_to_navigation_home"
             app:destination="@id/navigation_home" />
@@ -23,9 +23,8 @@
 
     <fragment
         android:id="@+id/navigation_account"
-        android:name="it.unimib.musictaste.fragments.AccountFragment"
-        android:label="@string/title_account"
-        tools:layout="@layout/fragment_account" >
+        android:name="it.unimib.musictaste.ui.authentication.AccountFragment"
+        android:label="@string/title_account">
         <action
             android:id="@+id/action_navigation_account_to_navigation_home"
             app:destination="@id/navigation_home" />

@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicTaste">
-        <activity android:name=".LaunchScreenActivity"
+        <activity android:name=".ui.LaunchScreenActivity"
             android:theme="@style/LaunchTheme"
             android:noHistory="true">
             <intent-filter>
@@ -19,12 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ArtistActivity" />
-        <activity android:name=".AlbumActivity" />
-        <activity android:name=".SongActivity" />
-        <activity android:name=".RegistrationActivity" />
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".ui.artist.ArtistActivity" />
+        <activity android:name=".ui.album.AlbumActivity" />
+        <activity android:name=".ui.song.SongActivity" />
+        <activity android:name=".ui.authentication.RegistrationActivity" />
+        <activity android:name=".ui.authentication.LoginActivity" />
+        <activity android:name=".ui.MainActivity" />
     </application>
 
 </manifest>

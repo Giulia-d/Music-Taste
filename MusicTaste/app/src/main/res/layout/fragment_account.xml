@@ -16,7 +16,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".fragments.AccountFragment">
+            tools:context=".ui.authentication.AccountFragment">
 
             <TextView
                 android:id="@+id/txtMusicTaste"

@@ -7,8 +7,6 @@ import android.util.DisplayMetrics;
 
 import androidx.annotation.RequiresApi;
 
-import it.unimib.musictaste.ArtistActivity;
-
 
 public class SquareImage extends androidx.appcompat.widget.AppCompatImageView {
 
@@ -21,7 +19,7 @@ public class SquareImage extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     public SquareImage(final Context context, final AttributeSet attrs,
-                             final int defStyle) {
+                       final int defStyle) {
         super(context, attrs, defStyle);
     }
 
