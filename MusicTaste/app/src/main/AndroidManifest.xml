@@ -19,11 +19,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.artist.ArtistActivity" />
-        <activity android:name=".ui.album.AlbumActivity" />
-        <activity android:name=".ui.song.SongActivity" />
-        <activity android:name=".ui.authentication.RegistrationActivity" />
-        <activity android:name=".ui.authentication.LoginActivity" />
+        <activity android:name=".ui.ArtistActivity" />
+        <activity android:name=".ui.AlbumActivity" />
+        <activity android:name=".ui.SongActivity" />
+        <activity android:name=".ui.RegistrationActivity" />
+        <activity android:name=".ui.LoginActivity" />
         <activity android:name=".ui.MainActivity" />
     </application>
 

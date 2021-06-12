@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.album;
+package it.unimib.musictaste.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.authentication;
+package it.unimib.musictaste.ui;
 
 
 import android.content.Intent;
@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.Task;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.models.LoginResponse;
-import it.unimib.musictaste.ui.MainActivity;
 import it.unimib.musictaste.viewmodel.user.UserViewModel;
 
 public class LoginActivity extends AppCompatActivity {

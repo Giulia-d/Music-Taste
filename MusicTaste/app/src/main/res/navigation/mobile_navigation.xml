@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="it.unimib.musictaste.ui.home.HomeFragment"
+        android:name="it.unimib.musictaste.ui.fragments.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="it.unimib.musictaste.ui.search.SearchFragment"
+        android:name="it.unimib.musictaste.ui.fragments.SearchFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search">
         <action
@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/navigation_account"
-        android:name="it.unimib.musictaste.ui.authentication.AccountFragment"
+        android:name="it.unimib.musictaste.ui.fragments.AccountFragment"
         android:label="@string/title_account">
         <action
             android:id="@+id/action_navigation_account_to_navigation_home"

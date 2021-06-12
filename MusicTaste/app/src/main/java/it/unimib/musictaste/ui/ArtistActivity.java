@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.artist;
+package it.unimib.musictaste.ui;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -44,10 +44,9 @@ import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.LikedElement;
 import it.unimib.musictaste.models.Song;
 import it.unimib.musictaste.repositories.artist.ArtistRepository;
-import it.unimib.musictaste.ui.album.AlbumActivity;
-import it.unimib.musictaste.ui.authentication.AccountFragment;
-import it.unimib.musictaste.ui.search.SearchFragment;
-import it.unimib.musictaste.ui.song.SongActivity;
+import it.unimib.musictaste.ui.adapters.ArtistAlbumsRecyclerViewAdapter;
+import it.unimib.musictaste.ui.fragments.AccountFragment;
+import it.unimib.musictaste.ui.fragments.SearchFragment;
 import it.unimib.musictaste.utils.GradientTransformation;
 import it.unimib.musictaste.viewmodel.artist.ArtistViewModel;
 import it.unimib.musictaste.viewmodel.artist.ArtistViewModelFactory;

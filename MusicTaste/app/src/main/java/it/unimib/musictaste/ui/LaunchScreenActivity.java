@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import it.unimib.musictaste.R;
-import it.unimib.musictaste.ui.authentication.LoginActivity;
 import it.unimib.musictaste.viewmodel.user.UserViewModel;
 
 

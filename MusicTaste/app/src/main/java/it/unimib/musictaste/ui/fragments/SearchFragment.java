@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.search;
+package it.unimib.musictaste.ui.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,8 +22,9 @@ import java.util.List;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.models.Song;
-import it.unimib.musictaste.ui.artist.ArtistActivity;
-import it.unimib.musictaste.ui.song.SongActivity;
+import it.unimib.musictaste.ui.adapters.ResponseRecyclerViewAdapter;
+import it.unimib.musictaste.ui.ArtistActivity;
+import it.unimib.musictaste.ui.SongActivity;
 import it.unimib.musictaste.utils.MyTouchListener;
 import it.unimib.musictaste.viewmodel.search.SearchViewModel;
 

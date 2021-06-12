@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.home;
+package it.unimib.musictaste.ui.fragments;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +21,7 @@ import java.util.List;
 
 import it.unimib.musictaste.R;
 import it.unimib.musictaste.models.News;
+import it.unimib.musictaste.ui.adapters.NewsRecyclerViewAdapter;
 import it.unimib.musictaste.viewmodel.news.NewsViewModel;
 
 

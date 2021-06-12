@@ -1,4 +1,4 @@
-package it.unimib.musictaste.ui.authentication;
+package it.unimib.musictaste.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
