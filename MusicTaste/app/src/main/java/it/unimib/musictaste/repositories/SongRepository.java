@@ -1,4 +1,4 @@
-package it.unimib.musictaste.repositories.song;
+package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.util.Log;
@@ -21,6 +21,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -95,14 +96,19 @@ public class SongRepository {
     }
 
     public MutableLiveData<LikedElement> addLikedSong(String uid, Song currentSong) {
+        Map<String, Object> artist = new HashMap<>();
+        artist.put("id", currentSong.getArtist().getId());
+        artist.put("image", currentSong.getArtist().getImage());
+        artist.put("name", currentSong.getArtist().getName());
         Map<String, Object> likedSongs = new HashMap<>();
         likedSongs.put("IDuser", uid);
         likedSongs.put("IDsong", currentSong.getId());
         likedSongs.put("TitleSong", currentSong.getTitle());
         likedSongs.put("ImageSong", currentSong.getImage());
-        likedSongs.put("Artist", currentSong.getArtist());
+        likedSongs.put("Artist", artist);
 
-    // Add a new document with a generated ID
+
+        // Add a new document with a generated ID
         database.collection("likedSongs")
                 .add(likedSongs)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -157,16 +163,17 @@ public class SongRepository {
                                 spotify = (media.getJSONObject(k).getString("url"));
                         }
                     }
-                    JSONObject album = response.getJSONObject("response").getJSONObject("song").getJSONObject("album");
-                    Album al;
-                    if(album != null){
+
+                    Album al = null;
+                    if(!response.getJSONObject("response").getJSONObject("song").isNull("album")){
+                        JSONObject album = response.getJSONObject("response").getJSONObject("song").getJSONObject("album");
+
                         String idAlbum  = album.getString("id");
                         String albumImg  = album.getString("cover_art_url");
                         String albumTitle  = album.getString("name");
 
                         al = new Album(albumTitle, albumImg, idAlbum);
                     }
-                    else al = null;
                     Song currentS = new Song();
                     currentS.setTitle("OnComplete");
                     currentS.setDescription(description);

@@ -9,7 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import it.unimib.musictaste.models.LoginResponse;
-import it.unimib.musictaste.repositories.user.UserRepository;
+import it.unimib.musictaste.repositories.UserRepository;
 import it.unimib.musictaste.utils.Utils;
 
 

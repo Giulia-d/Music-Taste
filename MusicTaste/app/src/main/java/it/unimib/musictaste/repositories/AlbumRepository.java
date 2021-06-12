@@ -1,4 +1,4 @@
-package it.unimib.musictaste.repositories.album;
+package it.unimib.musictaste.repositories;
 
 
 import android.content.Context;
@@ -221,12 +221,16 @@ public class AlbumRepository {
     }
 
     public MutableLiveData<LikedElement> addLikedAlbum(String uid, Album currentAlbum) {
+        Map<String, Object> artist = new HashMap<>();
+        artist.put("id", currentAlbum.getArtist().getId());
+        artist.put("image", currentAlbum.getArtist().getImage());
+        artist.put("name", currentAlbum.getArtist().getName());
         Map<String, Object> likedAlbum = new HashMap<>();
         likedAlbum.put("IDuser", uid);
         likedAlbum.put("IDAlbum", currentAlbum.getId());
-        likedAlbum.put("NameArtist", currentAlbum.getArtistName());
         likedAlbum.put("NameAlbum", currentAlbum.getTitle());
         likedAlbum.put("ImageAlbum", currentAlbum.getImage());
+        likedAlbum.put("Artist", artist);
         // Add a new document with a generated ID
         database.collection("likedAlbums")
                 .add(likedAlbum)
@@ -257,9 +261,10 @@ public class AlbumRepository {
 
             // Example Only. Never block in production code.
             final Paging<AlbumSimplified> albumSimplifiedPaging = pagingFuture.join();
-
-            AlbumSimplified[] album = albumSimplifiedPaging.getItems();
-            spotifyUri.postValue(album[0].getUri());
+            if(albumSimplifiedPaging.getTotal()>0){
+                AlbumSimplified[] album = albumSimplifiedPaging.getItems();
+                spotifyUri.postValue(album[0].getUri());
+            }
 
         } catch (CompletionException e) {
             System.out.println("Error: " + e.getCause().getMessage());

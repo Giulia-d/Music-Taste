@@ -9,23 +9,25 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbarAlbum"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="wrap_content"
         android:background="@color/Orange"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbarAlbum"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/Orange"
+            app:expandedTitleMarginStart="20dp"
+            app:expandedTitleMarginBottom="40dp"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:title="@string/Name">
 
             <it.unimib.musictaste.utils.SquareImage
                 android:id="@+id/imgAlbum"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_gravity="center"
                 app:layout_constraintDimensionRatio="1:1"
                 app:srcCompat="@drawable/ic_launcher_background" />

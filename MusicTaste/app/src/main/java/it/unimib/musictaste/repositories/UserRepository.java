@@ -1,4 +1,4 @@
-package it.unimib.musictaste.repositories.user;
+package it.unimib.musictaste.repositories;
 
 import android.app.Application;
 import android.content.Context;

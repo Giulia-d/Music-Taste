@@ -19,7 +19,7 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="65dp"
+        android:layout_height="50dp"
         android:layout_gravity="bottom"
         android:background="@color/MiddleDarkGray"
         app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"

@@ -62,7 +62,7 @@ public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecycler
 
         public void bind(Album album) {
             titleTextView.setText(album.getTitle());
-            artistTextView.setText(album.getArtistName());
+            artistTextView.setText(album.getArtist().getName());
             Picasso.get().load(album.getImage()).into(imageAlbum);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {

@@ -165,7 +165,6 @@ public class AlbumActivity extends AppCompatActivity{
         if (!tracklist.get(0).getImage().equals("error")) {
             songs.clear();
             songs.addAll(tracklist);
-            currentAlbum.setTracks(tracklist);
             //pBLoading_home.setVisibility(View.GONE);
             this.runOnUiThread(new Runnable() {
                 @Override
@@ -219,13 +218,13 @@ public class AlbumActivity extends AppCompatActivity{
                                     Palette.Swatch vibrantSwatch = p.getVibrantSwatch();
                                     Palette.Swatch mutedSwatch = p.getMutedSwatch();
                                     int backgroundColor = ContextCompat.getColor(getApplicationContext(),
-                                            R.color.DarkGray);
+                                            R.color.Orange);
                                     int textColor = ContextCompat.getColor(getApplicationContext(),
                                             R.color.white);
 
                                     // Check that the Vibrant swatch is available
                                     if (vibrantSwatch != null) {
-                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.DarkGray)) {
+                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.Orange)) {
                                             backgroundColor = vibrantSwatch.getRgb();
                                             textColor = vibrantSwatch.getTitleTextColor();
                                         } else {
@@ -236,7 +235,7 @@ public class AlbumActivity extends AppCompatActivity{
 
                                     // Set the toolbar background and text colors
                                     collapsingToolbarAlbum.setBackgroundColor(backgroundColor);
-                                    collapsingToolbarAlbum.setCollapsedTitleTextColor(textColor);
+                                    //collapsingToolbarAlbum.setCollapsedTitleTextColor(textColor);
                                     collapsingToolbarAlbum.setStatusBarScrimColor(backgroundColor);
                                     collapsingToolbarAlbum.setContentScrimColor(backgroundColor);
 

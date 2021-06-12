@@ -43,7 +43,7 @@ import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.LikedElement;
 import it.unimib.musictaste.models.Song;
-import it.unimib.musictaste.repositories.artist.ArtistRepository;
+import it.unimib.musictaste.repositories.ArtistRepository;
 import it.unimib.musictaste.ui.adapters.ArtistAlbumsRecyclerViewAdapter;
 import it.unimib.musictaste.ui.fragments.AccountFragment;
 import it.unimib.musictaste.ui.fragments.SearchFragment;
@@ -283,13 +283,13 @@ public class ArtistActivity extends AppCompatActivity  {
                                     Palette.Swatch vibrantSwatch = p.getVibrantSwatch();
                                     Palette.Swatch mutedSwatch = p.getMutedSwatch();
                                     int backgroundColor = ContextCompat.getColor(getApplicationContext(),
-                                            R.color.DarkGray);
+                                            R.color.Orange);
                                     int textColor = ContextCompat.getColor(getApplicationContext(),
                                             R.color.white);
 
                                     // Check that the Vibrant swatch is available
                                     if (vibrantSwatch != null) {
-                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.DarkGray)) {
+                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.Orange)) {
                                             backgroundColor = vibrantSwatch.getRgb();
                                             textColor = vibrantSwatch.getTitleTextColor();
                                         } else {
@@ -300,7 +300,7 @@ public class ArtistActivity extends AppCompatActivity  {
 
                                     // Set the toolbar background and text colors
                                     collapsingToolbarA.setBackgroundColor(backgroundColor);
-                                    collapsingToolbarA.setCollapsedTitleTextColor(textColor);
+                                    //collapsingToolbarA.setCollapsedTitleTextColor(textColor);
                                     collapsingToolbarA.setStatusBarScrimColor(backgroundColor);
                                     collapsingToolbarA.setContentScrimColor(backgroundColor);
 

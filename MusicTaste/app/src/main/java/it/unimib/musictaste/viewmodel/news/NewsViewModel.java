@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import java.util.List;
 
 import it.unimib.musictaste.models.News;
-import it.unimib.musictaste.repositories.news.NewsRepository;
+import it.unimib.musictaste.repositories.NewsRepository;
 
 public class NewsViewModel extends AndroidViewModel {
     private MutableLiveData<List<News>> news;

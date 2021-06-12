@@ -8,38 +8,38 @@ import java.util.List;
 public class Album implements Parcelable {
 
     private String title;
-    private String artistName;
     private String image;
     private String idGenius;
     private String idSpotify;
     private Artist artist;
     private String urlSpotify;
-    private List<Song> tracks;
+    //private List<Song> tracks;
 
+
+    //Used in songRepository
     public Album(String title, String image, String id) {
         this.title = title;
         this.image = image;
         this.idGenius = id;
     }
 
-    public Album(String title, String image, String id, String artistName) {
+    //Used in AccountRepository
+    public Album(String title, String image, String id, Artist artist) {
         this.title = title;
         this.image = image;
         this.idGenius = id;
-        this.artistName = artistName;
+        this.artist = artist;
     }
 
-    public Album(String title, String image, String id, String url, String artistName){
+    //Used in ArtistRepository
+    public Album(String title, String image, String id, String url, Artist artist){
         this.title = title;
         this.image = image;
         this.idSpotify = id;
         this.urlSpotify = url;
-        this.artistName = artistName;
+        this.artist = artist;
     }
 
-    public void setArtistName(String artistName) {
-        this.artistName = artistName;
-    }
 
     public String getTitle() {
         return title;
@@ -55,14 +55,6 @@ public class Album implements Parcelable {
 
     public String getIdSpotify() {
         return idSpotify;
-    }
-
-    public List<Song> getTracks(){
-        return tracks;
-    }
-
-    public String getArtistName(){
-        return artistName;
     }
 
     public Artist getArtist(){
@@ -91,10 +83,6 @@ public class Album implements Parcelable {
     public void setIdA(String id) {
         this.idGenius = id;
     }
-    public void setTracks(List<Song> tracks){
-        this.tracks = tracks;
-    }
-
     public void setArtist(Artist artist){
         this.artist = artist;
     }
@@ -103,9 +91,9 @@ public class Album implements Parcelable {
         this.title = in.readString();
         this.image = in.readString();
         this.idGenius = in.readString();
-        this.artistName = in.readString();
         this.idSpotify = in.readString();
         this.urlSpotify = in.readString();
+        this.artist =  in.readParcelable(Artist.class.getClassLoader());
     }
 
     @Override
@@ -113,7 +101,6 @@ public class Album implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.image);
         dest.writeString(this.idGenius);
-        dest.writeString(this.artistName);
         dest.writeString(this.idSpotify);
         dest.writeString(this.urlSpotify);
         dest.writeParcelable(this.artist, flags);

@@ -19,7 +19,7 @@ import java.util.List;
 import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.LikedElement;
-import it.unimib.musictaste.repositories.artist.ArtistRepository;
+import it.unimib.musictaste.repositories.ArtistRepository;
 
 
 public class ArtistViewModel extends AndroidViewModel {

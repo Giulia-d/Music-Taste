@@ -1,4 +1,4 @@
-package it.unimib.musictaste.repositories.artist;
+package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.os.Build;
@@ -258,7 +258,7 @@ public class ArtistRepository {
                 String albumId = albumArray[0].getId();
                 String albumImage = albumArray[0].getImages()[1].getUrl();
                 String albumUri = albumArray[0].getUri();
-                albumList.add(new Album(albumName, albumImage, albumId, albumUri, artist.getName()));
+                albumList.add(new Album(albumName, albumImage, albumId, albumUri, artist));
                 int k = 1;
                 for (int i = 1; i < albumArray.length; i++) {
                     albumName = albumArray[i].getName();
@@ -267,7 +267,7 @@ public class ArtistRepository {
                         albumId = albumArray[i].getId();
                         albumImage = albumArray[i].getImages()[1].getUrl();
                         albumUri = albumArray[i].getUri();
-                        albumList.add(new Album(albumName, albumImage, albumId, albumUri, artist.getName()));
+                        albumList.add(new Album(albumName, albumImage, albumId, albumUri, artist));
                     }
                 }
             }
@@ -336,7 +336,7 @@ public class ArtistRepository {
 
                 // Example Only. Never block in production code.
                 final Paging<TrackSimplified> trackSimplifiedPaging = pagingFuture.join();
-                String text = trackSimplifiedPaging.getItems()[0].getName() + ' ' + album.getArtistName();
+                String text = trackSimplifiedPaging.getItems()[0].getName() + ' ' + album.getArtist().getName();
                 //text = text.replace(' ', '&');
 
                 String url = "https://api.genius.com/search/?q=" + text;

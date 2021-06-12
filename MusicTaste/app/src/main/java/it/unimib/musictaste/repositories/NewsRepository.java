@@ -1,4 +1,4 @@
-package it.unimib.musictaste.repositories.news;
+package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.util.Log;

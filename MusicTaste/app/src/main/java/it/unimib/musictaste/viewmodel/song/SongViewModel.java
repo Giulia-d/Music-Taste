@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import it.unimib.musictaste.models.LikedElement;
 import it.unimib.musictaste.models.Song;
-import it.unimib.musictaste.repositories.song.SongRepository;
+import it.unimib.musictaste.repositories.SongRepository;
 
 
 public class SongViewModel extends AndroidViewModel {

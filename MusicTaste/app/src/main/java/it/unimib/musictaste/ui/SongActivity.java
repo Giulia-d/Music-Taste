@@ -112,6 +112,7 @@ public class SongActivity extends AppCompatActivity {
         tvAlbumSong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                currentAlbum.setArtist(currentSong.getArtist());
                 Intent intent = new Intent(SongActivity.this, AlbumActivity.class);
                 intent.putExtra(ALBUM, currentAlbum);
                 startActivity(intent);
@@ -122,7 +123,7 @@ public class SongActivity extends AppCompatActivity {
         mbtnYt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentSong.getYoutube() != null) {
+                if (currentSong.getYoutube() != "") {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(currentSong.getYoutube()));
                     try {
@@ -137,7 +138,7 @@ public class SongActivity extends AppCompatActivity {
         mbtnSpotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentSong.getSpotify() != null) {
+                if (currentSong.getSpotify() != "") {
                     Intent webIntent = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(currentSong.getSpotify()));
                     try {
@@ -154,12 +155,6 @@ public class SongActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if(likedElement.getLiked() == 1 || likedElement.getLiked() == 2){
-                    //SongRepository.deleteLikedSong(documentID);
-                    /*
-                    songViewModel.deleteLikedElement(likedElement.getDocumentID()).observe(this, le -> {
-                        updateUILiked(le);
-                    });
-                     */
                     songViewModel.deleteLikedElement(likedElement.getDocumentID());
 
                 } else if (likedElement.getLiked() == 0 || likedElement.getLiked() == 3){
@@ -170,32 +165,6 @@ public class SongActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
-
-    /*
-    public void getLyrics(Song song) {
-        String url = "https://api.lyrics.ovh/v1/" + song.getArtist() + "/" + song.getTitle();
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Log.d("lyrics", response.toString());
-                    tvDescription.setText(response.getString("lyrics"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("tag", "onErrorResponse: " + error.getMessage());
-            }
-        });
-        queue.add(jsonObjectRequest);
-    }*/
 
 
     public void setToolbarColor(Song song) {
@@ -218,13 +187,13 @@ public class SongActivity extends AppCompatActivity {
                                     Palette.Swatch vibrantSwatch = p.getVibrantSwatch();
                                     Palette.Swatch mutedSwatch = p.getMutedSwatch();
                                     int backgroundColor = ContextCompat.getColor(getApplicationContext(),
-                                            R.color.DarkGray);
+                                            R.color.Orange);
                                     int textColor = ContextCompat.getColor(getApplicationContext(),
                                             R.color.white);
 
                                     // Check that the Vibrant swatch is available
                                     if (vibrantSwatch != null) {
-                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.DarkGray)) {
+                                        if (vibrantSwatch.getRgb() != getResources().getColor(R.color.Orange)) {
                                             backgroundColor = vibrantSwatch.getRgb();
                                             textColor = vibrantSwatch.getTitleTextColor();
                                         } else {
@@ -235,7 +204,7 @@ public class SongActivity extends AppCompatActivity {
 
                                     // Set the toolbar background and text colors
                                     collapsingToolbar.setBackgroundColor(backgroundColor);
-                                    collapsingToolbar.setCollapsedTitleTextColor(textColor);
+                                    //collapsingToolbar.setCollapsedTitleTextColor(textColor);
                                     collapsingToolbar.setStatusBarScrimColor(backgroundColor);
                                     collapsingToolbar.setContentScrimColor(backgroundColor);
 
@@ -270,15 +239,18 @@ public class SongActivity extends AppCompatActivity {
             currentSong.setSpotify(s.getSpotify());
             tvArtistSong.setVisibility(View.VISIBLE);
             tvAlbumSong.setVisibility(View.VISIBLE);
+            if(s.getAlbum() != null){
+                tvAlbumSong.setText(s.getAlbum().getTitle());
+            }
             tvListen.setVisibility(View.VISIBLE);
             mbtnYt.setVisibility(View.VISIBLE);
             mbtnSpotify.setVisibility(View.VISIBLE);
             tvDescription.setVisibility(View.VISIBLE);
             mbtnLike.setVisibility(View.VISIBLE);
             currentSong.setAlbum(s.getAlbum());
-            tvAlbumSong.setText(currentSong.getAlbum().getTitle());
             currentAlbum = currentSong.getAlbum();
             pBLoading.setVisibility(View.GONE);
+
         }
 
     }

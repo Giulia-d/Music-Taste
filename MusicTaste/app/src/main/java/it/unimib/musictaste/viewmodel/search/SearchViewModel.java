@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import java.util.List;
 
 import it.unimib.musictaste.models.Song;
-import it.unimib.musictaste.repositories.search.SearchRepository;
+import it.unimib.musictaste.repositories.SearchRepository;
 
 
 public class SearchViewModel extends AndroidViewModel {

@@ -12,7 +12,7 @@ import java.util.List;
 import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.Artist;
 import it.unimib.musictaste.models.Song;
-import it.unimib.musictaste.repositories.account.AccountRepository;
+import it.unimib.musictaste.repositories.AccountRepository;
 
 
 public class AccountViewModel extends AndroidViewModel {

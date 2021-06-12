@@ -14,7 +14,7 @@ import java.util.List;
 import it.unimib.musictaste.models.Album;
 import it.unimib.musictaste.models.LikedElement;
 import it.unimib.musictaste.models.Song;
-import it.unimib.musictaste.repositories.album.AlbumRepository;
+import it.unimib.musictaste.repositories.AlbumRepository;
 
 
 public class AlbumViewModel extends AndroidViewModel {

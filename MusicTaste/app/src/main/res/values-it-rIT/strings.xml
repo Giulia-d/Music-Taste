@@ -36,4 +36,5 @@
     <string name="MusicTaste">Ecco il tuo music taste</string>
     <string name="likedArtist">Aggiunto ai preferiti</string>
     <string name="DislikedArtists">Rimosso dai preferiti</string>
+    <string name="Welcome">Bentornat*,</string>
 </resources>

@@ -1,4 +1,4 @@
-package it.unimib.musictaste.repositories.account;
+package it.unimib.musictaste.repositories;
 
 import android.content.Context;
 import android.util.Log;
@@ -69,10 +69,15 @@ public class AccountRepository {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.getString("IDuser").equals(uid)) {
+                                    Map<String, Object> data = document.getData();
+                                    Map<String, Object> artistMap = (Map<String, Object>) data.get("Artist");
+                                    String id = (String) artistMap.get("id");
+                                    String image = (String) artistMap.get("image");
+                                    String name = (String) artistMap.get("name");
                                     likedAlbums.add(new Album(document.getString("NameAlbum"),
                                             document.getString("ImageAlbum"),
                                             document.getString("IDAlbum"),
-                                            document.getString("NameArtist")));
+                                            new Artist(name, image, id)));
                                 }
                             }
                         }
