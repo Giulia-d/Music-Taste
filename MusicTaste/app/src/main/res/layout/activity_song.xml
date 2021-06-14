@@ -107,8 +107,8 @@
 
             <ImageButton
                 android:id="@+id/btnYoutube"
-                android:layout_width="43dp"
-                android:layout_height="41dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="10dp"
                 android:background="@null"
@@ -118,13 +118,13 @@
                 app:layout_constraintStart_toEndOf="@+id/tvListen"
                 app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
                 app:layout_constraintVertical_bias="0.333"
-                app:srcCompat="@drawable/ic_youtube"
+                app:srcCompat="@drawable/youtubelogo"
                 app:tint="@color/Orange" />
 
             <ImageButton
                 android:id="@+id/btnSpotify"
-                android:layout_width="44dp"
-                android:layout_height="40dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="10dp"
                 android:background="@null"
@@ -134,8 +134,8 @@
                 app:layout_constraintStart_toEndOf="@+id/btnYoutube"
                 app:layout_constraintTop_toBottomOf="@+id/tvAlbumSong"
                 app:layout_constraintVertical_bias="0.346"
-                app:srcCompat="@drawable/ic_spotify"
-                app:tint="@color/Orange" />
+                app:srcCompat="@drawable/spotifylogo"
+                app:tint="@color/Orange"/>
 
             <ProgressBar
                 android:id="@+id/pBLoading"

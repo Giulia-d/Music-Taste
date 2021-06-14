@@ -45,14 +45,14 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollViewArtist"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@color/DarkGray"
         android:backgroundTint="@color/DarkGray"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             tools:layout_editor_absoluteY="1dp">
 
 
@@ -74,8 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="25dp"
-                    android:textSize="18sp"
-                    />
+                    android:textSize="18sp" />
 
                 <ImageButton
                     android:id="@+id/expand_collapse"
@@ -91,17 +90,18 @@
                 android:id="@+id/btnArtistSpotify"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
+                android:layout_marginTop="8dp"
                 android:background="@null"
+
                 android:scaleType="fitCenter"
 
                 android:visibility="gone"
-
+                app:layout_constraintBottom_toTopOf="@+id/tvArtistExpandableTextView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.058"
                 app:layout_constraintStart_toEndOf="@+id/tvArtistListen"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/tvArtistExpandableTextView"
-                app:srcCompat="@drawable/ic_spotify"
+                app:srcCompat="@drawable/spotifylogo"
                 app:tint="@color/Orange" />
 
             <TextView
@@ -129,6 +129,7 @@
                 android:id="@+id/tvArtistListen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:padding="10dp"
                 android:text="@string/listen"
                 android:textColor="@color/LightGray"

@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -42,7 +43,8 @@ public class SongActivity extends AppCompatActivity {
 
     ImageView imgSong;
     TextView tvArtistSong, tvAlbumSong, tvDescription, tvListen;
-    ImageButton mbtnYt, mbtnSpotify, mbtnLike;
+    ImageButton mbtnLike,mbtnYt,mbtnSpotify;
+
     FirebaseFirestore database;
     //boolean liked;
     //String documentID;
