@@ -139,6 +139,7 @@ public class SongRepository {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Song currentS = new Song();
                 try {
                     JSONObject responseDescription = response.getJSONObject("response").getJSONObject("song").getJSONObject("description").getJSONObject("dom");
                     JSONArray desc = responseDescription.getJSONArray("children");
@@ -174,7 +175,7 @@ public class SongRepository {
 
                         al = new Album(albumTitle, albumImg, idAlbum);
                     }
-                    Song currentS = new Song();
+
                     currentS.setTitle("OnComplete");
                     currentS.setDescription(description);
                     currentS.setYoutube(youtube);
@@ -186,6 +187,12 @@ public class SongRepository {
                     //songCallback.onResponse(description, youtube, spotify, al);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    if(e.toString().equals("org.json.JSONException: No value for children")){
+                        currentS.setDescription("?");
+                        currentS.setTitle("ErrorResponse");
+                        currentS.setImage("error");
+                        currentSong.postValue(currentS);
+                    }
                 }
             }
         }, new Response.ErrorListener() {

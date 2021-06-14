@@ -91,7 +91,7 @@ public class AlbumActivity extends AppCompatActivity{
         currentArtist = currentAlbum.getArtist();
         songs = new ArrayList<>();
         Picasso.get().load(currentAlbum.getImage()).transform(new GradientTransformation()).into(imgAlbum);
-        setToolbarColor(currentAlbum);
+        //setToolbarColor(currentAlbum);
 
         RecyclerView recyclerView = findViewById(R.id.tracks_list);
         albumSongRecyclerViewAdapter = new AlbumSongRecyclerViewAdapter(songs, new AlbumSongRecyclerViewAdapter.OnItemClickListener() {
@@ -111,6 +111,7 @@ public class AlbumActivity extends AppCompatActivity{
                 getApplication(), uid, currentAlbum.getId(), currentAlbum.getTitle())).get(AlbumViewModel.class);
         albumViewModel.getDetailsAlbum().observe(this, desc -> {
             showDescription(desc);
+            setToolbarColor(currentAlbum);
         });
         albumViewModel.getLikedElement().observe(this, le ->{
             updateUILiked(le);
@@ -155,9 +156,10 @@ public class AlbumActivity extends AppCompatActivity{
         if (desc.equals("?"))
             desc = getString(R.string.Description);
         tvExpTextView.setText(desc);
-        pBLoadingAlbum.setVisibility(View.GONE);
+
         mbtnAlbumLike.setVisibility(View.VISIBLE);
         mbtnAlbumSpotify.setVisibility(View.VISIBLE);
+        pBLoadingAlbum.setVisibility(View.GONE);
 
     }
 
@@ -182,11 +184,11 @@ public class AlbumActivity extends AppCompatActivity{
         }
         else if (le.getLiked() == 2 && le.getDocumentID() != null)
         {
-            Toast.makeText(AlbumActivity.this, R.string.likedArtist, Toast.LENGTH_SHORT).show();
+            Toast.makeText(AlbumActivity.this, R.string.FavoriteAlbum, Toast.LENGTH_SHORT).show();
             mbtnAlbumLike.setImageResource(R.drawable.ic_favorite_full);
         }
         else if (le.getLiked() == 3 && le.getDocumentID() == null){
-            Toast.makeText(AlbumActivity.this,R.string.DislikedArtists, Toast.LENGTH_SHORT).show();
+            Toast.makeText(AlbumActivity.this,R.string.DislikedAlbum, Toast.LENGTH_SHORT).show();
             mbtnAlbumLike.setImageResource(R.drawable.ic_baseline_favorite_border_24);
         }
         else if (le.getLiked() == -1)

@@ -40,4 +40,8 @@
     <string name="likedArtist">Added to liked artists</string>
     <string name="DislikedArtists">Removed from liked artists</string>
     <string name="Welcome">Welcome back,</string>
+    <string name="Discography">Discography</string>
+    <string name="FavoriteAlbum">Added to favorite albums</string>
+    <string name="DislikedAlbum">Removed from liked albums</string>
+    <string name="Tracklist" translatable="false">Tracklist</string>
 </resources>

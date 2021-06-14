@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -198,7 +199,7 @@ public class ArtistActivity extends AppCompatActivity  {
 
     //RIVEDERE PERCHè CON ARTISTA SENZA ALBUM CRUSHA
     public void updateUI(List<Album> albums) {
-        if (!albums.get(0).getImage().equals("error")) {
+        if (albums.size() != 0) {
             this.album_list.clear();
             this.album_list.addAll(albums);
             //pBLoading_home.setVisibility(View.GONE);
@@ -209,7 +210,7 @@ public class ArtistActivity extends AppCompatActivity  {
                 }
             });
         } else
-            Toast.makeText(this, albums.get(0).getTitle(), Toast.LENGTH_LONG).show();
+            Log.d("Artist Activity", "error");
     }
 /*
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -238,8 +239,9 @@ public class ArtistActivity extends AppCompatActivity  {
         if (desc.equals("?"))
             desc = getString(R.string.Description);
         tvExpTextView.setText(desc);
-        pBLoadingA.setVisibility(View.GONE);
+        mbtnASpotify.setVisibility(View.VISIBLE);
         mbtnALike.setVisibility(View.VISIBLE);
+        pBLoadingA.setVisibility(View.GONE);
 
     }
 

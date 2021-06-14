@@ -19,10 +19,9 @@
             android:layout_height="fill_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/Orange"
-            app:expandedTitleMarginStart="20dp"
             app:expandedTitleMarginBottom="40dp"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-            app:title="@string/Name">
+            app:expandedTitleMarginStart="20dp"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
             <it.unimib.musictaste.utils.SquareImage
                 android:id="@+id/imgAlbum"
@@ -117,13 +116,31 @@
                 android:layout_marginTop="28dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.262"
+                app:layout_constraintHorizontal_bias="0.112"
                 app:layout_constraintStart_toEndOf="@+id/tvAlbumListen"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_spotify"
                 app:tint="@color/Orange" />
+
+            <TextView
+                android:id="@+id/tvTracklist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="12dp"
+
+                android:text="@string/Tracklist"
+                android:textColor="@color/LightGray"
+                android:textSize="20sp"
+
+
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvExpandableTextView" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tracks_list"

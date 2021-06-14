@@ -37,4 +37,7 @@
     <string name="likedArtist">Aggiunto ai preferiti</string>
     <string name="DislikedArtists">Rimosso dai preferiti</string>
     <string name="Welcome">Bentornat*,</string>
+    <string name="Discography">Discografia</string>
+    <string name="FavoriteAlbum">Aggiunto ai preferiti</string>
+    <string name="DislikedAlbum">Rimosso dai preferiti</string>
 </resources>

@@ -81,18 +81,28 @@ public class AlbumRepository {
                     JSONObject responseDescription = response.getJSONObject("response").getJSONObject("album").getJSONObject("description_annotation"); //getJSONObject("annotations").getJSONObject("0").getJSONObject("body").getJSONObject("dom");
                     JSONArray jsonArray = responseDescription.getJSONArray("annotations");
                     responseDescription = jsonArray.getJSONObject(0).getJSONObject("body").getJSONObject("dom");
-                    JSONArray desc = responseDescription.getJSONArray("children");
-                    String description = "";
-                    for (int i = 0; i < desc.length(); i++) {
-                        if (!(desc.get(i) instanceof String)) {
-                            JSONArray children = desc.getJSONObject(i).getJSONArray("children");
-                            description = description + digger(children);
+                   ;
+                    if(responseDescription.getJSONArray("children").length() != 0){
+                        JSONArray desc = responseDescription.getJSONArray("children");
+                        String description = "";
+                        for (int i = 0; i < desc.length(); i++) {
+                            if (!(desc.get(i) instanceof String)) {
+                                JSONArray children = desc.getJSONObject(i).getJSONArray("children");
+                                description = description + digger(children);
+                            }
                         }
+
+                        currentDetails.postValue(description);
+                    }else{
+                        currentDetails.postValue("?");
                     }
 
-                    currentDetails.postValue(description);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    if(e.toString().equals("org.json.JSONException: No value for children")){
+                        currentDetails.postValue("?");
+                    }
                 }
             }
         }, new Response.ErrorListener() {

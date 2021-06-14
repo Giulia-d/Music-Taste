@@ -230,7 +230,16 @@ public class SongActivity extends AppCompatActivity {
 
     public void updateUISong(Song s) {
         if(s.getTitle().equals("ErrorResponse")){
-            Toast.makeText(SongActivity.this, s.getImage(), Toast.LENGTH_LONG).show();
+            //Toast.makeText(SongActivity.this, s.getImage(), Toast.LENGTH_LONG).show();
+            tvDescription.setText(getString(R.string.Description));
+            tvDescription.setVisibility(View.VISIBLE);
+            mbtnLike.setVisibility(View.VISIBLE);
+            tvArtistSong.setVisibility(View.VISIBLE);
+            tvAlbumSong.setVisibility(View.VISIBLE);
+            if(s.getAlbum() != null){
+                tvAlbumSong.setText(s.getAlbum().getTitle());
+            }
+            pBLoading.setVisibility(View.GONE);
         }else{
             if (s.getDescription().equals("?"))
                 s.setDescription(getString(R.string.Description));

@@ -13,7 +13,7 @@ import it.unimib.musictaste.viewmodel.user.UserViewModel;
 
 public class LaunchScreenActivity extends AppCompatActivity {
     private UserViewModel userViewModel;
-    private final int SPLASH_DISPLAY_LENGTH = 2000;
+    private final int SPLASH_DISPLAY_LENGTH = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
