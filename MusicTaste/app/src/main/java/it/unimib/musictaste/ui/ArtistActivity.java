@@ -106,7 +106,7 @@ public class ArtistActivity extends AppCompatActivity  {
 
                 //cambia solo al terzo click se artista è uguale
                 //se artista è diverso funziona
-                firsttime = false;
+                /*firsttime = false;
                     artistViewModel.getIdSong(response).observe(ArtistActivity.this, id -> {
                        artistViewModel.getIdAlbum(response, id).observe(ArtistActivity.this, AlbumId -> {
                         if (id != null && !firsttime) {
@@ -117,7 +117,7 @@ public class ArtistActivity extends AppCompatActivity  {
                             startActivity(intent);
                         }
                        });
-                    });
+                    });*/
 
                 }
         });
